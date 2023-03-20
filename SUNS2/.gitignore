@@ -1,0 +1,26 @@
+demo/data/complete*
+demo/data float32
+demo/data/noSF*
+demo/*/wisdom
+.vscode
+__pycache__
+demo/FISSA
+*.html
+*.asv
+*.txt
+demo/else/demo_train_pre.py
+paper reproduction/utils/temporal filter/*.mat
+paper reproduction/utils/temporal filter/*.h5
+paper reproduction/utils/temporal filter/temporal_filter_NF_all.m
+suns/run_suns copy.py
+paper reproduction/ABO/demo_train_pre.py
+paper reproduction/ABO/pipeline_ABO.bat
+*.lprof
+*.zip
+*.json
+*YST_full*
+Application
+suns/test
+demo/other
+installation/*61.py
+demo/data/01.00.h5
