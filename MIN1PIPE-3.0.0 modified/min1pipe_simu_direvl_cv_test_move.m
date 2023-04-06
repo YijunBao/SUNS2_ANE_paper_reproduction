@@ -8,22 +8,29 @@ addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'))
 addpath(genpath('C:\Matlab Files\missing_finder'));
 
 %% Set data and folder
-patch_dims = [160,160]; 
-list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
-             'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
-num_Exp = length(list_Exp_ID);
-rate_hz = 20; % frame rate of each video
-radius = 9;
-data_name = 'TENASPIS';
-path_name = 'D:\data_TENASPIS\added_refined_masks';
+scale_lowBG = 5e3;
+scale_noise = 1;
+results_folder = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
+list_data_names={results_folder};
+patch_dims = [253,316]; 
+rate_hz = 10; % frame rate of each video
+radius = 6;
+
+data_ind = 1;
+data_name = list_data_names{data_ind};
+path_name = fullfile('E:\simulation_CNMFE_corr_noise',data_name);
+num_Exp = 10;
+list_Exp_ID = arrayfun(@(x) ['sim_',num2str(x)],0:(num_Exp-1), 'UniformOutput',false);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
-saved_date = '20230111';
 
 dir_save = fullfile(path_name,'min1pipe');
 % if ~ exist(dir_save,'dir')
 %     mkdir(dir_save);
 % end
-dir_sub_save = ['cv_save_',saved_date];
+save_date = '20230218';
+% save_date = num2str(yyyymmdd(datetime));
+% load(['eval_',data_name,'_thb history ',save_date,' cv.mat'],'list_seq');
+dir_sub_save = ['cv_save_',save_date];
 if ~ exist(fullfile(dir_save,dir_sub_save),'dir')
     mkdir(fullfile(dir_save,dir_sub_save));
 end
@@ -55,7 +62,7 @@ Table_time = cell(num_Exp,1);
 
 %%
 for cv = 1:num_Exp
-    load(fullfile(['eval_',data_name,'_thb history ',saved_date,' cv', num2str(cv),' 2round.mat']),'best_Recall','best_Precision','best_F1',...
+    load(fullfile(['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),'best_Recall','best_Precision','best_F1',...
         'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history');
 %     ind_param = best_ind_param;
 %     best_param = cellfun(@(x,y) x(y), range_params,num2cell(best_ind_param));
@@ -95,20 +102,19 @@ for cv = 1:num_Exp
 
 %         %% Calculate accuracy
 %         saved_result = load(fname);
-%         %         for tid = 1:num_thb
+        %         for tid = 1:num_thb
         thb = end_history(end-4);
+        % load([dir_GT,'FinalMasks_',Exp_ID,'.mat'],'FinalMasks')
+        % load([dir_GT,'FinalMasks_',Exp_ID,'_sparse.mat'],'GTMasks_2')
+        % [pixh, pixw, nGT] = size(FinalMasks);
+        % roi3 = reshape(full(saved_result.roifn), saved_result.pixh, saved_result.pixw, []);
+        % Masks3 = threshold_Masks(roi3, thb); %;%
+%         roib = saved_result.roifn>th_binary*max(saved_result.roifn,[],1); %;%
+%         Masks3 = reshape(full(roib), saved_result.pixh, saved_result.pixw, size(roib,2));
         load(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
-%         % load([dir_GT,'FinalMasks_',Exp_ID,'.mat'],'FinalMasks')
-%         % load([dir_GT,'FinalMasks_',Exp_ID,'_sparse.mat'],'GTMasks_2')
-%         % [pixh, pixw, nGT] = size(FinalMasks);
-%         roi3 = reshape(full(saved_result.roifn), saved_result.pixh, saved_result.pixw, []);
-%         Masks3 = threshold_Masks(roi3, thb); %;%
-% %         roib = saved_result.roifn>th_binary*max(saved_result.roifn,[],1); %;%
-% %         Masks3 = reshape(full(roib), saved_result.pixh, saved_result.pixw, size(roib,2));
-%         save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
-%         % [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(GTMasks_2,roifn,0.5);
+        % [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(GTMasks_2,roifn,0.5);
         [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
-%         used_time(cv) = seconds(saved_result.process_time{2}-saved_result.process_time{1});
+        % used_time(cv) = seconds(saved_result.process_time{2}-saved_result.process_time{1});
         Table_time{cv} = [end_history(1:end-4),Recall(cv), Precision(cv), F1(cv),used_time(cv),end_history(end-3:end)];
         save(fullfile(dir_save,dir_sub_save,[Exp_ID,'_Masks.mat']),'Masks3');
     end
@@ -116,4 +122,4 @@ end
 %%
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
-% save(['eval_',data_name,'_thb ',saved_date,' cv 2round.mat'],'Table_time_ext');
+% save(['eval_',data_name,'_thb ',save_date,' cv test.mat'],'Table_time_ext');

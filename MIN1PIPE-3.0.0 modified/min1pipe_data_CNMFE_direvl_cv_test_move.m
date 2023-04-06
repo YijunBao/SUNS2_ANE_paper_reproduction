@@ -8,28 +8,41 @@ addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'))
 addpath(genpath('C:\Matlab Files\missing_finder'));
 
 %% Set data and folder
-patch_dims = [160,160]; 
-list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
-             'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
+list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
+list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
+list_patch_dims = [120,120; 80,80; 88,88; 192,240]; 
+rate_hz = [10,15,15,5]; % frame rate of each video
+radius = [5,6,8,14];
+sub_added = '';
+% sub_added = '_original_masks';
+% sub_added = '_added_blockwise_weighted_sum_unmask';
+
+data_ind = 1;
+data_name = list_data_names{data_ind};
+path_name = fullfile('E:\data_CNMFE',data_name);
+list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
-rate_hz = 20; % frame rate of each video
-radius = 9;
-data_name = 'TENASPIS';
-path_name = 'D:\data_TENASPIS\added_refined_masks';
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
-saved_date = '20230111';
 
 dir_save = fullfile(path_name,'min1pipe');
-% if ~ exist(dir_save,'dir')
-%     mkdir(dir_save);
-% end
-dir_sub_save = ['cv_save_',saved_date];
+% saved_date = '20221215';
+switch data_ind 
+    case 1
+        save_date = '20221216';
+    case 2
+        save_date = '20221216';
+    case 3
+        save_date = '20221219';
+    case 4
+        save_date = '20221215';
+end
+dir_sub_save = ['cv_save_',save_date];
 if ~ exist(fullfile(dir_save,dir_sub_save),'dir')
     mkdir(fullfile(dir_save,dir_sub_save));
 end
 
 %% session-specific parameter initialization %% 
-Fsi = rate_hz; % 20;
+Fsi = rate_hz(data_ind); % 20;
 Fsi_new = Fsi; %%% no temporal downsampling %%%
 spatialr = 1; %%% no spatial downsampling %%%
 % se = 5; % 3.6; %%% structure element for background removal %%%
@@ -39,7 +52,7 @@ isvis = false; % true; % %% do visualize %%%
 ifpost = false; %%% set true if want to see post-process %%%
 
 %% Set range of parameters to optimize over
-gSiz = 2 * radius; % 12;
+gSiz = 2 * radius(data_ind); % 12;
 % list_params.pix_select_sigthres = 0.8; % [0.1:0.05:0.95, 0.98]; % 
 % list_params.pix_select_corrthres = [0.1:0.05:0.95, 0.98]; % 0.6;
 % list_params.merge_roi_corrthres = [0.1:0.05:0.95, 0.98]; % 0.9;
@@ -55,7 +68,7 @@ Table_time = cell(num_Exp,1);
 
 %%
 for cv = 1:num_Exp
-    load(fullfile(['eval_',data_name,'_thb history ',saved_date,' cv', num2str(cv),' 2round.mat']),'best_Recall','best_Precision','best_F1',...
+    load(fullfile(['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),'best_Recall','best_Precision','best_F1',...
         'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history');
 %     ind_param = best_ind_param;
 %     best_param = cellfun(@(x,y) x(y), range_params,num2cell(best_ind_param));
@@ -77,7 +90,7 @@ for cv = 1:num_Exp
         filename = [Exp_ID,'.h5'];
         %% main program %%
         fname = fullfile(dir_save_sub,[Exp_ID,'_data_processed.mat']);
-%         if true % ~exist(fname,'file') % 
+%         if true % ~exist(fname,'file') %
 %             try
 %                 [fname, frawname, fregname] = min1pipe_h5_vary(path_name, folder, filename, ...
 %                     Fsi, Fsi_new, spatialr, se, ismc, flag,...
@@ -97,16 +110,15 @@ for cv = 1:num_Exp
 %         saved_result = load(fname);
 %         %         for tid = 1:num_thb
         thb = end_history(end-4);
+        % load([dir_GT,'FinalMasks_',Exp_ID,'.mat'],'FinalMasks')
+        % load([dir_GT,'FinalMasks_',Exp_ID,'_sparse.mat'],'GTMasks_2')
+        % [pixh, pixw, nGT] = size(FinalMasks);
+        % roi3 = reshape(full(saved_result.roifn), saved_result.pixh, saved_result.pixw, []);
+        % Masks3 = threshold_Masks(roi3, thb); %;%
+%         roib = saved_result.roifn>th_binary*max(saved_result.roifn,[],1); %;%
+%         Masks3 = reshape(full(roib), saved_result.pixh, saved_result.pixw, size(roib,2));
         load(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
-%         % load([dir_GT,'FinalMasks_',Exp_ID,'.mat'],'FinalMasks')
-%         % load([dir_GT,'FinalMasks_',Exp_ID,'_sparse.mat'],'GTMasks_2')
-%         % [pixh, pixw, nGT] = size(FinalMasks);
-%         roi3 = reshape(full(saved_result.roifn), saved_result.pixh, saved_result.pixw, []);
-%         Masks3 = threshold_Masks(roi3, thb); %;%
-% %         roib = saved_result.roifn>th_binary*max(saved_result.roifn,[],1); %;%
-% %         Masks3 = reshape(full(roib), saved_result.pixh, saved_result.pixw, size(roib,2));
-%         save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
-%         % [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(GTMasks_2,roifn,0.5);
+        % [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(GTMasks_2,roifn,0.5);
         [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
 %         used_time(cv) = seconds(saved_result.process_time{2}-saved_result.process_time{1});
         Table_time{cv} = [end_history(1:end-4),Recall(cv), Precision(cv), F1(cv),used_time(cv),end_history(end-3:end)];
@@ -116,4 +128,4 @@ end
 %%
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
-% save(['eval_',data_name,'_thb ',saved_date,' cv 2round.mat'],'Table_time_ext');
+% save(['eval_',data_name,'_thb ',save_date,' cv test.mat'],'Table_time_ext');

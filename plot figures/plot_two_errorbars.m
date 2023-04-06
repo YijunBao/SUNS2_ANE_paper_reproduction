@@ -403,7 +403,7 @@ saveas(gcf,['Fig3E - F1 speed ',data_name,'.png']);
 %% Figure 3 - figure supplement 4B:
 % F1 and speed (log) for all methods for TENASPIS videos using initial GT masks
 % data_name = 'TENASPIS_refined_7par 0210'; % 
-data_name = 'TENASPIS_original_5 0217'; % 
+data_name = 'TENASPIS_original_5 0404'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 select = 1:5;
 % Recall = Recall(:,select);
@@ -428,7 +428,7 @@ colors = color([1,2,4:num_method+1],:);
 % colors(2,:)=(colors(2,:))/2;
 
 % %%
-figure('Position',[50,50,450,500],'color','w');
+figure('Position',[50,50,400,450],'color','w');
 hold on;
 % errorbar(fps_mean,F1_mean,F1_std,F1_std,fps_std,fps_std,'LineStyle','None','LineWidth',2);
 for k = 1:n_colors

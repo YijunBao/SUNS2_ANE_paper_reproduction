@@ -32,7 +32,7 @@ b(3).FaceColor  = color(4,:);
 b(4).FaceColor  = color(5,:);
 % b(5).FaceColor  = color(6,:);
 % b(6).FaceColor  = color(3,:);
-ylim([0.0,1.0]);
+ylim([0.0,1.1]);
 hold on
 ylabel('{\itF}_1')
 % xticklabels(list_params);
@@ -50,7 +50,24 @@ for i = 1:numbars
       errorbar(x, data(:,i), err(:,i), 'k', 'linestyle', 'none', 'lineWidth', 1,'HandleVisibility','off');
 end
 set(gca,'FontName','Arial','FontSize',12, 'LineWidth',1);
-% box off;
+box off;
+
+for g = 1:numgroups
+    xpoints=g - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
+    list_y_line = 1.02+(0:4)*0.03;
+    list_y_star = list_y_line+0.01;
+    line([xpoints(1),xpoints(end)],list_y_line(1)*[1,1],'color','k','LineWidth',2,'HandleVisibility','off')
+    text(xpoints(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(1).FaceColor);
+    line([xpoints(2),xpoints(end)],list_y_line(2)*[1,1],'color','k','LineWidth',2,'HandleVisibility','off')
+    text(xpoints(2),list_y_star(2),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(2).FaceColor);
+    line([xpoints(3),xpoints(end)],list_y_line(3)*[1,1],'color','k','LineWidth',2,'HandleVisibility','off')
+    if g==5
+        text(xpoints(3),list_y_star(3)+0.02,'n.s.','HorizontalAlignment', 'left','FontSize',12,'Color',b(3).FaceColor);
+    else
+        text(xpoints(3),list_y_star(3),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
+    end
+end
+
 % saveas(gcf,'F1_simu_CNMFEBG 0813.png')
 % saveas(gcf,'F1_simu_lowpassBG 1221.png')
 % saveas(gcf,'Fig2S-3 - F1_simu_lowpassBG_all.svg')Fig3
@@ -184,7 +201,7 @@ saveas(gcf,['Fig3C - Scores ',data_name,'.png']);
 
 %% Figure 3 - figure supplement 4A: 
 % Comparing Recall, Precision, and F1 of different segmentation methods on TENASPIS dataset using original GT masks.
-data_name = 'TENASPIS_original_5 0217'; % 
+data_name = 'TENASPIS_original_5 0404'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 select = 1:5;
 Recall = Recall(:,select);
@@ -195,7 +212,7 @@ list_method = list_method(:,select);
 list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE'};  % ,'SUNS2 (no SF)'
 data = [Recall(end-1,:); Precision(end-1,:); F1(end-1,:)];
 err = [Recall(end,:); Precision(end,:); F1(end,:)]; %/sqrt(9)
-figure('Position',[100,100,450,500],'Color','w');
+figure('Position',[100,100,400,450],'Color','w');
 b=bar(data);       
 % ylim([0.0,1.2]);
 hold on
@@ -306,7 +323,7 @@ saveas(gcf,['Fig3S-3A - Scores ',data_name,'.png']);
 % Comparing Recall, Precision, and F1 of different segmentation methods for TENASPIS dataset using different GT sets.
 data_name_refined = 'TENASPIS_refined_7par 0210'; % 
 refined = load(['F1 speed ',data_name_refined,'.mat'],'Recall','Precision','F1','Speed','list_method');
-data_name_original = 'TENASPIS_original_5 0217'; % 
+data_name_original = 'TENASPIS_original_5 0404'; % 
 original = load(['F1 speed ',data_name_original,'.mat'],'Recall','Precision','F1','Speed','list_method');
 list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE'};  % ,'SUNS2 (no SF)'
 
