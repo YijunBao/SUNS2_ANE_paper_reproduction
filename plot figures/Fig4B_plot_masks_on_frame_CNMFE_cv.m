@@ -25,36 +25,40 @@ addpath(genpath('C:\Matlab Files\missing_finder'))
 alpha = 0.8;
 
 %% neurons and masks frame
-list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
-             'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
+list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
+list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
+% list_title = {'upper left', 'upper right', 'lower left', 'lower right'};
+list_avg_radius = [5,6,8,14];
+data_ind = 4;
+data_name = list_data_names{data_ind};
+dir_video = fullfile('E:\data_CNMFE',data_name);
+dir_video_raw = dir_video;
+dir_video_SNR = fullfile(dir_video,'complete_TUnCaT_SF50\network_input\');
+list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
+
 num_Exp = length(list_Exp_ID);
 list_title = list_Exp_ID;
-rate_hz = 20; % frame rate of each video
-radius = 9;
-data_name = 'TENASPIS';
-dir_video = 'D:\data_TENASPIS\added_refined_masks\';
-dir_video_raw = dir_video;
-% varname = '/mov';
-dir_video_SNR = fullfile(dir_video,'complete_TUnCaT_SF25\network_input\');
-dir_traces = fullfile(dir_video,'complete_TUnCaT_SF25\TUnCaT\alpha= 1.000\');
+% rate_hz = 20; % frame rate of each video
+radius = list_avg_radius(data_ind);
+dir_traces = fullfile(dir_video,'complete_TUnCaT_SF50\TUnCaT\alpha= 1.000\');
 % varname = '/network_input';
 % dir_video_raw = fullfile(dir_video, 'SNR video');
 dir_GT_masks = fullfile(dir_video,'GT Masks');
 dir_MIN1PIPE = 'C:\Other methods\MIN1PIPE-3.0.0';
 dir_CNMFE = 'C:\Other methods\CNMF_E-1.1.2';
-% saved_date_MIN1PIPE = '20221216';
-% saved_date_CNMFE = '20221220';
-saved_date_MIN1PIPE = '20230111 cv 2round';
-saved_date_CNMFE = '20221221 cv 2round';
+% saved_date_MIN1PIPE = '20221215';
+% saved_date_CNMFE = '20221215';
+saved_date_MIN1PIPE = '20221215 cv';
+saved_date_CNMFE = '20221215 cv';
 mag=1;
-mag_crop=4;
+mag_crop=2;
 %%
-for k=1%:num_Exp_ID
+for k=4%:num_Exp_ID
 % clear video_SNR video_raw
 Exp_ID = list_Exp_ID{k};
-load(['TENASPIS mat\SNR_max\SNR_max_',Exp_ID,'.mat'],'SNR_max');
+load(['CNMFE mat\SNR_max\SNR_max_',Exp_ID,'.mat'],'SNR_max');
 % SNR_max=SNR_max';
-load(['TENASPIS mat\raw_max\raw_max_',Exp_ID,'.mat'],'raw_max');
+load(['CNMFE mat\raw_max\raw_max_',Exp_ID,'.mat'],'raw_max');
 % raw_max=raw_max';
 load(fullfile(dir_traces,[Exp_ID,'.mat']),'traces_nmfdemix'); % raw_traces
 unmixed_traces = traces_nmfdemix;
@@ -95,10 +99,10 @@ else
     GT_Masks_mag = GT_Masks;
 end
 
-% xrange=1:Lx; yrange=1:Ly;
+xrange=1:Lx; yrange=1:Ly;
 % xrange=(Lx/3+1):Lx*2/3; yrange=1:Ly/3;
 % xrange=(Lx/3+1):Lx*2/3; yrange=(Ly/3+1):Ly*2/3;
-xrange=(Lx*2/3+1):Lx; yrange=(Ly*2/3+1):Ly;
+% xrange=(Lx*2/3+1):Lx; yrange=(Ly*2/3+1):Ly;
 % xrange=410:460; yrange=395:435;
 % xrange=340:375; yrange=340:380;
 Lxc = length(xrange); Lyc = length(yrange); 
@@ -106,16 +110,16 @@ xrange_mag=((xrange(1)-1)*mag+1):(xrange(end)*mag);
 yrange_mag=((yrange(1)-1)*mag+1):(yrange(end)*mag);
 Lxc_mag = length(xrange_mag); Lyc_mag = length(yrange_mag); 
 crop_png=[86,64,Lxc,Lyc];
-N_neuron1 = 282; % 378; % 
-N_neuron2 = 436; % 
-N_neuron3 = 666; % 
-rect1=[395,419,30,40];
-rect2=[342,348,20,30];
-rect3=[362,343,20,30];
+N_neuron1 = 6; % 378; % 
+N_neuron2 = 9; % 
+N_neuron3 = 27; % 
+rect1=[36,96,80,60];
+rect2=[74,36,60,60];
+rect3=[134,31,55,90];
 rect1_sub=rect1 - [yrange(1)-1,xrange(1)-1,0,0];
 rect2_sub=rect2 - [yrange(1)-1,xrange(1)-1,0,0];
 rect3_sub=rect3 - [yrange(1)-1,xrange(1)-1,0,0];
-SNR_range = [2,14]; % [0,5]; % [0,10]; % 
+SNR_range = [0,8]; % [2,14]; % 
 
 save_folder = sprintf('figures_%d-%d,%d-%d crop',xrange(1),xrange(end),yrange(1),yrange(end));
 save_folder = ['.\',save_folder,'\'];
@@ -130,8 +134,13 @@ end
 % COM1 = COM1 + [xrange(1), yrange(1)]-1;
 % N_neuron = find(FinalMasks(COM1(1),COM1(2),:));
 trace_N = unmixed_traces(:,N_neuron1);
-PSNR = max(trace_N);
-high = find(trace_N > min(10,PSNR-1));
+[PSNR, loc] = max(trace_N);
+high = find(trace_N > min(PSNR*0.8,PSNR-2));
+inds = clusterdata(high,0.5);
+if max(inds) > 1
+    class_highest = inds(high==loc);
+    high = high(inds == class_highest);
+end
 % start = [rect1(2)+xrange(1)-1, rect1(1)+yrange(1)-1, 1];
 start = [rect1(2), rect1(1), 1];
 count = [rect1(4)+1, rect1(3)+1, 1];
@@ -144,23 +153,23 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
-figure('Position',[100,650,300,150],'Color','w');
+figure('Position',[100,650,300,250],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);
-ylim([-1,4]);
+ylim([-2,16]);
 hold on;
 plot(high,trace_N(high),'Color',color(7,:),'LineWidth',2);
-pos1=1800;
-pos2=2.5;
-plot(pos1+[0,200],pos2*[1,1],'k','LineWidth',2);
-plot(pos1*[1,1],pos2+1*[0,1],'k','LineWidth',2);
+pos1=1200;
+pos2=5;
+plot(pos1+[0,250],pos2*[1,1],'k','LineWidth',2);
+plot(pos1*[1,1],pos2+5*[0,1],'k','LineWidth',2);
 % text(pos1-20,pos2+0.5,{'SNR','1'},'HorizontalAlignment','right','FontSize',14); % ,'rotation',90
-text(pos1-100,pos2+0.5,'SNR=1','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
-text(pos1,pos2-0.4,'10 s','FontSize',14); % ,'rotation',0
+text(pos1-100,pos2+2.5,'SNR=5','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
+text(pos1,pos2-1.2,'50 s','FontSize',14); % ,'rotation',0
 if save_figures
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron1),'.png']);
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron1),'.emf']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron1),'.png']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron1),'.emf']);
 end
 
 %%
@@ -170,8 +179,13 @@ end
 % COM1 = COM1 + [xrange(1), yrange(1)]-1;
 % N_neuron = find(FinalMasks(COM1(1),COM1(2),:));
 trace_N = unmixed_traces(:,N_neuron2);
-PSNR = max(trace_N);
-high = find(trace_N > min(10,PSNR-1));
+[PSNR, loc] = max(trace_N);
+high = find(trace_N > min(PSNR*0.8,PSNR-2));
+inds = clusterdata(high,0.5);
+if max(inds) > 1
+    class_highest = inds(high==loc);
+    high = high(inds == class_highest);
+end
 % start = [rect1(2)+xrange(1)-1, rect1(1)+yrange(1)-1, 1];
 start = [rect2(2), rect2(1), 1];
 count = [rect2(4)+1, rect2(3)+1, 1];
@@ -184,23 +198,23 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
-figure('Position',[500,650,300,150],'Color','w');
+figure('Position',[500,650,300,250],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);
-ylim([-1,4]);
+ylim([-2,16]);
 hold on;
 plot(high,trace_N(high),'Color',color(7,:),'LineWidth',2);
-pos1=1300;
-pos2=2.5;
-plot(pos1+[0,200],pos2*[1,1],'k','LineWidth',2);
-plot(pos1*[1,1],pos2+1*[0,1],'k','LineWidth',2);
+pos1=1000;
+pos2=7;
+plot(pos1+[0,250],pos2*[1,1],'k','LineWidth',2);
+plot(pos1*[1,1],pos2+5*[0,1],'k','LineWidth',2);
 % text(pos1-20,pos2+0.5,{'SNR','1'},'HorizontalAlignment','right','FontSize',14); % ,'rotation',90
-text(pos1-100,pos2+0.5,'SNR=1','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
-text(pos1,pos2-0.4,'10 s','FontSize',14); % ,'rotation',0
+text(pos1-100,pos2+2.5,'SNR=5','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
+text(pos1,pos2-1.2,'50 s','FontSize',14); % ,'rotation',0
 if save_figures
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron2),'.png']);
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron2),'.emf']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron2),'.png']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron2),'.emf']);
 end
 
 %%
@@ -210,8 +224,13 @@ end
 % COM1 = COM1 + [xrange(1), yrange(1)]-1;
 % N_neuron = find(FinalMasks(COM1(1),COM1(2),:));
 trace_N = unmixed_traces(:,N_neuron3);
-PSNR = max(trace_N);
-high = find(trace_N > min(10,PSNR-1));
+[PSNR, loc] = max(trace_N);
+high = find(trace_N > min(PSNR*0.8,PSNR-2));
+inds = clusterdata(high,0.5);
+if max(inds) > 1
+    class_highest = inds(high==loc);
+    high = high(inds == class_highest);
+end
 % start = [rect1(2)+xrange(1)-1, rect1(1)+yrange(1)-1, 1];
 start = [rect3(2), rect3(1), 1];
 count = [rect3(4)+1, rect3(3)+1, 1];
@@ -224,31 +243,31 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
-figure('Position',[900,650,300,150],'Color','w');
+figure('Position',[900,650,300,250],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);
-ylim([-1,4]);
+ylim([-2,16]);
 hold on;
 plot(high,trace_N(high),'Color',color(7,:),'LineWidth',2);
-pos1=1300;
-pos2=2.5;
-plot(pos1+[0,200],pos2*[1,1],'k','LineWidth',2);
-plot(pos1*[1,1],pos2+1*[0,1],'k','LineWidth',2);
+pos1=1200;
+pos2=5;
+plot(pos1+[0,250],pos2*[1,1],'k','LineWidth',2);
+plot(pos1*[1,1],pos2+5*[0,1],'k','LineWidth',2);
 % text(pos1-20,pos2+0.5,{'SNR','1'},'HorizontalAlignment','right','FontSize',14); % ,'rotation',90
-text(pos1-100,pos2+0.5,'SNR=1','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
-text(pos1,pos2-0.4,'10 s','FontSize',14); % ,'rotation',0
+text(pos1-100,pos2+2.5,'SNR=5','HorizontalAlignment','center','rotation',90,'FontSize',14); % 
+text(pos1,pos2-1.2,'50 s','FontSize',14); % ,'rotation',0
 if save_figures
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron3),'.png']);
-    saveas(gcf,[save_folder, data_name,' ',list_title{k}, ' trace ',num2str(N_neuron3),'.emf']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron3),'.png']);
+    saveas(gcf,[save_folder, ' ',list_title{k}, ' trace ',num2str(N_neuron3),'.emf']);
 end
 
 %%
 SNR_max_mag = kron(SNR_max,mag_kernel);
 
 %% SUNS + missing finder
-dir_output_mask_SUNS = fullfile(dir_video,'complete_TUnCaT_SF25\4816[1]th5\output_masks');
-dir_output_mask = fullfile(dir_output_mask_SUNS,'add_new_blockwise_weighted_sum_unmask\trained dropout 0.8exp(-15)\avg_Xmask_0.5\classifier_res0_0+1 frames');
+dir_output_mask_SUNS = fullfile(dir_video,'complete_TUnCaT_SF50\4816[1]th4\output_masks');
+dir_output_mask = fullfile(dir_output_mask_SUNS,'add_new_blockwise_weighted_sum_unmask\trained dropout 0.8exp(-8)\avg_Xmask_0.5\classifier_res0_0+1 frames');
 % load([dir_output_mask, Exp_ID, '.mat'], 'Masks_2');
 % Masks = reshape(full(Masks_2'),487,487,[]);
 
@@ -351,16 +370,16 @@ if ~image_only
     set(get(h,'Label'),'String','Peak SNR');
     set(h,'FontSize',12);
 end
-rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',[140,3,16,4],'FaceColor','w','LineStyle','None'); % 20 um scale bar
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',[215,182,20,6],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_MF ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_MF ',list_title{k},' ',mat2str(SNR_range),'.tif']);
     else
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_MF ',list_title{k},' ',mat2str(SNR_range),'.png']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_MF ',list_title{k},' ',mat2str(SNR_range),'.png']);
     end
     % saveas(gcf,['figure 2\',Exp_ID,' SUNS noSF h.svg']);
 end
@@ -395,18 +414,18 @@ for kc=1:3
 end
 
 if save_figures
-    imwrite(zoom1_mag,fullfile(save_folder,[data_name,' Masks SUNS_MF ',...
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks SUNS_MF ',...
         num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom2_mag,fullfile(save_folder,[data_name,' Masks SUNS_MF ',...
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks SUNS_MF ',...
         num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom3_mag,fullfile(save_folder,[data_name,' Masks SUNS_MF ',...
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks SUNS_MF ',...
         num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-%     imwrite(cdata,[save_folder, data_name,' Masks SUNS_MF ',list_title{k},'.tif']);
+%     imwrite(cdata,[save_folder, ' Masks SUNS_MF ',list_title{k},'.tif']);
 end
 
 
 %% SUNS TUnCaT
-dir_output_mask = fullfile(dir_video,'complete_TUnCaT_SF25\4816[1]th5\output_masks');
+dir_output_mask = fullfile(dir_video,'complete_TUnCaT_SF50\4816[1]th4\output_masks');
 % load([dir_output_mask, Exp_ID, '.mat'], 'Masks_2');
 % Masks = reshape(full(Masks_2'),487,487,[]);
 load(fullfile(dir_output_mask, ['Output_Masks_', Exp_ID, '.mat']), 'Masks');
@@ -482,16 +501,16 @@ if ~image_only
     set(get(h,'Label'),'String','Peak SNR');
     set(h,'FontSize',12);
 end
-rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',1);
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
 % rectangle('Position',[3,65,5,26],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_TUnCaT ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_TUnCaT ',list_title{k},' ',mat2str(SNR_range),'.tif']);
     else
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_TUnCaT ',list_title{k},' ',mat2str(SNR_range),'.png']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_TUnCaT ',list_title{k},' ',mat2str(SNR_range),'.png']);
     end
     % saveas(gcf,['figure 2\',Exp_ID,' SUNS noSF h.svg']);
 end
@@ -505,39 +524,39 @@ cdata=img_all.cdata;
 % % figure; imshow(cdata);
 % 
 zoom1 = cdata(rect1_sub(2)+1:rect1_sub(2)+rect1_sub(4)-1,rect1_sub(1)+1:rect1_sub(1)+rect1_sub(3)-1,:);
-zoom1(3:4,3:10,:) = 255;
+zoom1(end-6:end-3,end-22:end-3,:) = 255;
 zoom1_mag=zeros(size(zoom1,1)*mag_crop,size(zoom1,2)*mag_crop,3,'uint8');
 for kc=1:3
     zoom1_mag(:,:,kc)=kron(zoom1(:,:,kc),mag_kernel_uint8);
 end
 
 zoom2 = cdata(rect2_sub(2)+1:rect2_sub(2)+rect2_sub(4)-1,rect2_sub(1)+1:rect2_sub(1)+rect2_sub(3)-1,:);
-zoom2(3:4,3:10,:) = 255;
+zoom2(end-6:end-3,end-22:end-3,:) = 255;
 zoom2_mag=zeros(size(zoom2,1)*mag_crop,size(zoom2,2)*mag_crop,3,'uint8');
 for kc=1:3
     zoom2_mag(:,:,kc)=kron(zoom2(:,:,kc),mag_kernel_uint8);
 end
 
 zoom3 = cdata(rect3_sub(2)+1:rect3_sub(2)+rect3_sub(4)-1,rect3_sub(1)+1:rect3_sub(1)+rect3_sub(3)-1,:);
-zoom3(3:4,3:10,:) = 255;
+zoom3(end-6:end-3,end-22:end-3,:) = 255;
 zoom3_mag=zeros(size(zoom3,1)*mag_crop,size(zoom3,2)*mag_crop,3,'uint8');
 for kc=1:3
     zoom3_mag(:,:,kc)=kron(zoom3(:,:,kc),mag_kernel_uint8);
 end
 
 if save_figures
-    imwrite(zoom1_mag,fullfile(save_folder,[data_name,' Masks SUNS_TUnCaT ',...
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks SUNS_TUnCaT ',...
         num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom2_mag,fullfile(save_folder,[data_name,' Masks SUNS_TUnCaT ',...
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks SUNS_TUnCaT ',...
         num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom3_mag,fullfile(save_folder,[data_name,' Masks SUNS_TUnCaT ',...
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks SUNS_TUnCaT ',...
         num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-%     imwrite(cdata,[save_folder, data_name,' Masks SUNS_TUnCaT ',list_title{k},'.tif']);
+%     imwrite(cdata,[save_folder, ' Masks SUNS_TUnCaT ',list_title{k},'.tif']);
 end
 
 
 %% SUNS FISSA
-dir_output_mask = fullfile(dir_video,'complete_FISSA_SF25\4816[1]th3\output_masks');
+dir_output_mask = fullfile(dir_video,'complete_FISSA_SF50\4816[1]th2\output_masks');
 % load([dir_output_mask, Exp_ID, '.mat'], 'Masks_2');
 % Masks = reshape(full(Masks_2'),487,487,[]);
 load(fullfile(dir_output_mask, ['Output_Masks_', Exp_ID, '.mat']), 'Masks');
@@ -613,16 +632,16 @@ if ~image_only
     set(get(h,'Label'),'String','Peak SNR');
     set(h,'FontSize',12);
 end
-rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',1);
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
 % rectangle('Position',[3,65,5,26],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_FISSA ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_FISSA ',list_title{k},' ',mat2str(SNR_range),'.tif']);
     else
-        saveas(gcf,[save_folder, data_name, ' Masks SUNS_FISSA ',list_title{k},' ',mat2str(SNR_range),'.png']);
+        saveas(gcf,[save_folder,  ' Masks SUNS_FISSA ',list_title{k},' ',mat2str(SNR_range),'.png']);
     end
     % saveas(gcf,['figure 2\',Exp_ID,' SUNS noSF h.svg']);
 end
@@ -658,23 +677,21 @@ end
 
 
 if save_figures
-    imwrite(zoom1_mag,fullfile(save_folder,[data_name,' Masks SUNS_FISSA ',...
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks SUNS_FISSA ',...
         num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom2_mag,fullfile(save_folder,[data_name,' Masks SUNS_FISSA ',...
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks SUNS_FISSA ',...
         num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom3_mag,fullfile(save_folder,[data_name,' Masks SUNS_FISSA ',...
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks SUNS_FISSA ',...
         num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-%     imwrite(cdata,[save_folder, data_name,' Masks SUNS_FISSA ',list_title{k},'.tif']);
+%     imwrite(cdata,[save_folder, ' Masks SUNS_FISSA ',list_title{k},'.tif']);
 end
 
 
 %% MIN1PIPE
-% load(fullfile(dir_MIN1PIPE,['eval_',data_name,'_thb ',saved_date_MIN1PIPE,'.mat']),'Table_time_ext');
-% best_param = Table_time_ext(k,1:end-4);
-% load(fullfile(dir_MIN1PIPE,['eval_',data_name,'_thb history ',saved_date_MIN1PIPE,'.mat']),'best_history');
-% best_param = best_history(end,1:end-4);
 load(fullfile(dir_MIN1PIPE,['eval_',data_name,'_thb ',saved_date_MIN1PIPE,'.mat']),'Table_time_ext');
 best_param = Table_time_ext(k,1:end-8);
+% load(fullfile(dir_MIN1PIPE,['eval_',data_name,'_thb history ',saved_date_MIN1PIPE(1:end-3),'.mat']),'best_history');
+% best_param = best_history(end,1:end-4);
 pix_select_sigthres = best_param(1);
 pix_select_corrthres = best_param(2);
 merge_roi_corrthres = best_param(3);
@@ -764,16 +781,16 @@ if ~image_only
     set(get(h,'Label'),'String','Peak SNR');
     set(h,'FontSize',12);
 end
-rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',1);
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
 % rectangle('Position',[3,65,5,26],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name, ' Masks min1pipe ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+        saveas(gcf,[save_folder,  ' Masks min1pipe ',list_title{k},' ',mat2str(SNR_range),'.tif']);
     else
-        saveas(gcf,[save_folder, data_name, ' Masks min1pipe ',list_title{k},' ',mat2str(SNR_range),'.png']);
+        saveas(gcf,[save_folder,  ' Masks min1pipe ',list_title{k},' ',mat2str(SNR_range),'.png']);
     end
     % saveas(gcf,['figure 2\',Exp_ID,' CaImAn Batch h.svg']);
 end
@@ -808,23 +825,21 @@ for kc=1:3
 end
 
 if save_figures
-    imwrite(zoom1_mag,fullfile(save_folder,[data_name,' Masks min1pipe ',...
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks min1pipe ',...
         num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom2_mag,fullfile(save_folder,[data_name,' Masks min1pipe ',...
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks min1pipe ',...
         num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom3_mag,fullfile(save_folder,[data_name,' Masks min1pipe ',...
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks min1pipe ',...
         num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-%     imwrite(cdata,[save_folder, data_name,' Masks min1pipe ',list_title{k},'.tif']);
+%     imwrite(cdata,[save_folder, ' Masks min1pipe ',list_title{k},'.tif']);
 end
 
 
 %% CNMF-E
-% load(fullfile(dir_CNMFE,['eval_',data_name,'_thb ',saved_date_CNMFE,' cv.mat']),'Table_time_ext');
-% best_param = Table_time_ext(k,1:end-4);
-% load(fullfile(dir_CNMFE,['eval_',data_name,'_thb history ',saved_date_CNMFE,'.mat']),'best_history');
-% best_param = best_history(end,1:end-4);
 load(fullfile(dir_CNMFE,['eval_',data_name,'_thb ',saved_date_CNMFE,'.mat']),'Table_time_ext');
 best_param = Table_time_ext(k,1:end-8);
+% load(fullfile(dir_CNMFE,['eval_',data_name,'_thb history ',saved_date_CNMFE,'.mat']),'best_history');
+% best_param = best_history(end,1:end-4);
 gSiz = 2 * radius; % 12;
 rbg = best_param(1);
 nk = best_param(2);
@@ -919,16 +934,16 @@ if ~image_only
     set(get(h,'Label'),'String','Peak SNR');
     set(h,'FontSize',12);
 end
-rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',1);
-rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',1);
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
 % rectangle('Position',[3,65,5,26],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name, ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+        saveas(gcf,[save_folder,  ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.tif']);
     else
-        saveas(gcf,[save_folder, data_name, ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.png']);
+        saveas(gcf,[save_folder,  ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.png']);
     end
     % saveas(gcf,['figure 2\',Exp_ID,' CaImAn Batch h.svg']);
 end
@@ -963,14 +978,148 @@ for kc=1:3
 end
 
 if save_figures
-    imwrite(zoom1_mag,fullfile(save_folder,[data_name,' Masks CNMF-E ',...
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks CNMF-E ',...
         num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom2_mag,fullfile(save_folder,[data_name,' Masks CNMF-E ',...
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks CNMF-E ',...
         num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-    imwrite(zoom3_mag,fullfile(save_folder,[data_name,' Masks CNMF-E ',...
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks CNMF-E ',...
         num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
-%     imwrite(cdata,[save_folder, data_name,' Masks CNMF-E ',list_title{k},'.tif']);
+%     imwrite(cdata,[save_folder, ' Masks CNMF-E ',list_title{k},'.tif']);
 end
+
+
+%% DeepWonder
+dir_output_mask = fullfile(dir_video,'DeepWonder',Exp_ID,'DeepWonder\mat');
+load(fullfile(dir_output_mask, ['seg_30_',Exp_ID, '_post.mat']), 'network_A_filt');
+Masks_DeepWonder = permute(network_A_filt,[2,1,3]); %;%
+N_DeepWonder = size(Masks_DeepWonder,3);
+% dir_output_mask = fullfile(dir_video,'CNMFE\gSiz=18,rbg=1.5,nk=2,rdmin=2.0,mc=0.20,mp=2,mt=0.20,mts=0.50,mtt=0.10');
+% load(fullfile(dir_output_mask, [Exp_ID, '_Masks_0.4.mat']), 'Masks3');
+% Masks3 = Masks3>0.2*max(Masks3,[],1); %;%
+% Masks_DeepWonder = reshape(Masks3,Lx,Ly,[]);
+% edge_Masks_DeepWonder = 0*Masks_DeepWonder;
+% for nn = 1:size(Masks_DeepWonder,3)
+%     edge_Masks_DeepWonder(:,:,nn) = edge(Masks_DeepWonder(:,:,nn));
+% end
+if mag > 1
+    Masks_DeepWonder_mag=zeros(Lxm,Lym,N_DeepWonder,'logical');
+    for n = 1:N_DeepWonder
+        Masks_DeepWonder_mag(:,:,n) = kron(Masks_DeepWonder(:,:,n),mag_kernel_bool);
+    end
+else
+    Masks_DeepWonder_mag = Masks_DeepWonder;
+end
+
+% Masks_DeepWonder = permute(Masks_DeepWonder,[2,1,3]);
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_DeepWonder,0.5);
+% Masks_DeepWonder_sum = sum(Masks_DeepWonder,3);
+% edge_Masks_DeepWonder_sum = sum(edge_Masks_DeepWonder,3);
+% Masks_DeepWonder_sum_mag=kron(Masks_DeepWonder_sum,mag_kernel_bool);
+% edge_Masks_DeepWonder_sum_mag=kron(edge_Masks_DeepWonder_sum,mag_kernel_bool);
+
+TP_6 = sum(m,1)>0;
+TP_62 = sum(m,2)>0;
+FP_6 = sum(m,1)==0;
+FN_6 = sum(m,2)==0;
+masks_TP = sum(Masks_DeepWonder(:,:,TP_6),3);
+masks_FP = sum(Masks_DeepWonder(:,:,FP_6),3);
+masks_FN = sum(GT_Masks(:,:,FN_6),3);
+    
+% Style 2: Three colors
+% figure(98)
+% subplot(2,3,4)
+figure('Position',[1450,50,600,500],'Color','w');
+%     imshow(raw_max,[0,1024]);
+if image_only
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range);
+else
+    imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
+    axis('image'); colormap gray;
+end
+xticklabels({}); yticklabels({});
+hold on;
+% contour(masks_TP(xrange,yrange), 'Color', green);
+% contour(masks_FP(xrange,yrange), 'Color', red);
+% contour(masks_FN(xrange,yrange), 'Color', blue);
+% contour(GT_Masks_sum_mag(xrange,yrange), 'EdgeColor',color(3,:),'LineWidth',0.5);
+% contour(Masks_DeepWonder_sum_mag(xrange,yrange), 'EdgeColor',color(2,:),'LineWidth',0.5);
+for n = 1:NGT
+    temp = GT_Masks_mag(xrange,yrange,n);
+    if any(temp,'all')
+        contour(temp, 'EdgeColor',color(3,:),'LineWidth',0.5);
+    end
+end
+for n = 1:N_DeepWonder
+    temp = Masks_DeepWonder_mag(xrange,yrange,n);
+    if any(temp,'all')
+        contour(temp, 'EdgeColor',colors_multi(21,:),'LineWidth',0.5);
+    end
+end
+% alphaImg = ones(Lxc_mag,Lyc_mag).*reshape(color(3,:),1,1,3);
+% image(alphaImg,'Alphadata',alpha*(edge_GT_Masks_sum_mag(xrange_mag,yrange_mag)));  
+% alphaImg = ones(Lx*mag,Ly*mag).*reshape(colors_multi(20,:),1,1,3);
+% alphaImg = ones(Lxc_mag,Lyc_mag).*reshape(color(2,:),1,1,3);
+% image(alphaImg,'Alphadata',alpha*(edge_Masks_DeepWonder_sum_mag(xrange_mag,yrange_mag)));  
+
+if ~image_only
+    title(sprintf('%s, DeepWonder, F1 = %1.2f',Exp_ID,F1),'FontSize',12,'Interpreter','None');
+    h=colorbar;
+    set(get(h,'Label'),'String','Peak SNR');
+    set(h,'FontSize',12);
+end
+rectangle('Position',rect1_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect2_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',rect3_sub,'EdgeColor',color_box,'LineWidth',2);
+rectangle('Position',[215,182,20,6],'FaceColor','w','LineStyle','None'); % 20 um scale bar
+
+if save_figures
+    if image_only
+        saveas(gcf,[save_folder,  ' Masks DeepWonder ',list_title{k},' ',mat2str(SNR_range),'.tif']);
+    else
+        saveas(gcf,[save_folder,  ' Masks DeepWonder ',list_title{k},' ',mat2str(SNR_range),'.png']);
+    end
+    % saveas(gcf,['figure 2\',Exp_ID,' CaImAn Batch h.svg']);
+end
+
+%% Save tif images with zoomed regions
+% % figure(1)
+% img_all=getframe(gcf,crop_png);
+img_all=getframe(gcf);
+cdata=img_all.cdata;
+% % cdata=permute(cdata,[2,1,3]);
+% % figure; imshow(cdata);
+% 
+zoom1 = cdata(rect1_sub(2)+1:rect1_sub(2)+rect1_sub(4)-1,rect1_sub(1)+1:rect1_sub(1)+rect1_sub(3)-1,:);
+zoom1(end-6:end-3,end-22:end-3,:) = 255;
+zoom1_mag=zeros(size(zoom1,1)*mag_crop,size(zoom1,2)*mag_crop,3,'uint8');
+for kc=1:3
+    zoom1_mag(:,:,kc)=kron(zoom1(:,:,kc),mag_kernel_uint8);
+end
+
+zoom2 = cdata(rect2_sub(2)+1:rect2_sub(2)+rect2_sub(4)-1,rect2_sub(1)+1:rect2_sub(1)+rect2_sub(3)-1,:);
+zoom2(end-6:end-3,end-22:end-3,:) = 255;
+zoom2_mag=zeros(size(zoom2,1)*mag_crop,size(zoom2,2)*mag_crop,3,'uint8');
+for kc=1:3
+    zoom2_mag(:,:,kc)=kron(zoom2(:,:,kc),mag_kernel_uint8);
+end
+
+zoom3 = cdata(rect3_sub(2)+1:rect3_sub(2)+rect3_sub(4)-1,rect3_sub(1)+1:rect3_sub(1)+rect3_sub(3)-1,:);
+zoom3(end-6:end-3,end-22:end-3,:) = 255;
+zoom3_mag=zeros(size(zoom3,1)*mag_crop,size(zoom3,2)*mag_crop,3,'uint8');
+for kc=1:3
+    zoom3_mag(:,:,kc)=kron(zoom3(:,:,kc),mag_kernel_uint8);
+end
+
+if save_figures
+    imwrite(zoom1_mag,fullfile(save_folder,[' Masks DeepWonder ',...
+        num2str(N_neuron1),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
+    imwrite(zoom2_mag,fullfile(save_folder,[' Masks DeepWonder ',...
+        num2str(N_neuron2),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
+    imwrite(zoom3_mag,fullfile(save_folder,[' Masks DeepWonder ',...
+        num2str(N_neuron3),' ',list_title{k},' ',mat2str(SNR_range),'.tif']));
+%     imwrite(cdata,[save_folder, ' Masks CNMF-E ',list_title{k},'.tif']);
+end
+
 
 %% Find the best place to present
 figure('Position',[1250,750,500,300],'Color','w');
@@ -1004,6 +1153,6 @@ better = (TP_12 & ~TP_22 & ~TP_42 & ~TP_52); %  & ~TP_42 & ~TP_52
 Masks_better = sum(FinalMasks(:,:,better),3);
 Masks_better_mag=kron(Masks_better,mag_kernel_bool);
 contour(Masks_better_mag(xrange_mag,yrange_mag), 'Color', blue);
-saveas(gcf,[save_folder, data_name, ' Masks difference ',list_title{k},' ',mat2str(SNR_range),'.png']);
+saveas(gcf,[save_folder, ' Masks difference ',list_title{k},' ',mat2str(SNR_range),'.png']);
 
 end
