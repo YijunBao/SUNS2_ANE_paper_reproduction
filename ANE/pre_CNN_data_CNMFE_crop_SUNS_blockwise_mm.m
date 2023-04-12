@@ -1,4 +1,3 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
 %%
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
@@ -19,8 +18,6 @@ thj = 0.7;
 meth_baseline='median'; % {'median','median_mean','median_median'}
 meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','median-based std'}
 
-% vid=2;
-% Exp_ID = list_Exp_ID{vid};
 sub_added = '';
 
 %% Load traces and ROIs
@@ -28,11 +25,10 @@ sub_added = '';
 % dir_parent=fullfile('E:\data_CNMFE\',[data_name,'_original_masks']);
 dir_parent=fullfile('E:\data_CNMFE\',[data_name,sub_added]);
 dir_video = dir_parent; 
-for th_SNR = 4%:5
-dir_SUNS = fullfile(dir_parent, ['complete_TUnCaT_SF50\4816[1]th',num2str(th_SNR)]); % 4 v1
+dir_SUNS = fullfile(dir_parent, ['complete_TUnCaT\4816[1]th4']);
 dir_masks = fullfile(dir_SUNS, 'output_masks');
 % dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
+dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 fs = rate_hz(data_ind);
 % folder = ['.\Result_',data_name];
 if ~ exist(dir_add_new,'dir')

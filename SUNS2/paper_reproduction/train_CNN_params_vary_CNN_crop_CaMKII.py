@@ -86,7 +86,7 @@ if __name__ == '__main__':
     dir_video = os.path.join('E:\\data_CNMFE', name_video) # +'_added_blockwise_weighted_sum_unmask'
     # folder of the ".mat" files stroing the GT masks in sparse 2D matrices
     dir_GTMasks = os.path.join(dir_video, 'GT Masks\\FinalMasks_')
-    dir_parent = os.path.join(dir_video, 'complete_FISSA_noSF2') # folder to save all the processed data
+    dir_parent = os.path.join(dir_video, 'complete_TUnCaT') # folder to save all the processed data
     dir_network_input = os.path.join(dir_parent, 'network_input') # folder of the SNR videos
     dir_mask = os.path.join(dir_parent, 'temporal_masks({})'.format(thred_std)) # foldr to save the temporal masks
     dir_sub = sub_folder
@@ -160,15 +160,15 @@ if __name__ == '__main__':
     print(Params_set)
 
 
-    # # pre-processing for training
-    # for Exp_ID in list_Exp_ID: #
-    #     # %% Pre-process video
-    #     video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
-    #         useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
-    #     # %% Determine active neurons in all frames using FISSA
-    #     file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
-    #     generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)
-    #     del video_input
+    # pre-processing for training
+    for Exp_ID in list_Exp_ID: #
+        # %% Pre-process video
+        video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
+            useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
+        # %% Determine active neurons in all frames using FISSA
+        file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
+        generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)
+        del video_input
 
         # list_thred_ratio = list(range(10,22,2))
         # from suns.PreProcessing.generate_masks import generate_masks_from_traces

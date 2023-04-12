@@ -4,16 +4,12 @@ import h5py
 from scipy.io import savemat, loadmat
 from scipy import sparse
 import glob
+import sys
 
 
 if __name__ == '__main__':
     # Set the path of the 'GT Masks' folder, which contains the manual labels in 3D arrays.
-    # dir_Masks = r'E:\data_CNMFE\CaMKII_120_TMT Exposure_5fps\GT Masks'
-    # dir_Masks = r'E:\data_CNMFE\bma22_epm\GT Masks'
-    # dir_Masks = r'E:\data_CNMFE\PFC4_15Hz\GT Masks'
-    dir_Masks = r'E:\data_CNMFE\blood_vessel_10Hz\GT Masks'
-    # dir_Masks = r'E:\data_CNMFE\PFC4_15Hz_original_masks\GT Masks dropout *'
-    # dir_Masks = r'D:\data_TENASPIS\added_refined_masks\add_neurons_*_rotate\GT Masks'
+    dir_Masks = sys.argv[1] # r'D:\data_TENASPIS\added_refined_masks\GT Masks'
 
     # %%
     dir_all = glob.glob(os.path.join(dir_Masks,'*FinalMasks*.mat'))

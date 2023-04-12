@@ -153,3 +153,4 @@ cython_debug/
 
 data\data_CNMFE\CaMKII_120_TMT Exposure_5fps\CaMKII_120_TMT Exposure_5fps_part*.h5
 readme.docx
+.vscode

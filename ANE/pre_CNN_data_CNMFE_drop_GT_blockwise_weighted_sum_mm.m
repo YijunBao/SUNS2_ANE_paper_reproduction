@@ -1,15 +1,14 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
 %%
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
-data_ind = 1;
+data_ind = 4;
 data_name = list_data_names{data_ind};
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
-% list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 rate_hz = [10,15,7.5,5]; % frame rate of each video
 list_avg_radius = [5,6,8,14];
+list_lam = [15,5,8,8];
 r_bg_ratio = 3;
 leng = r_bg_ratio*list_avg_radius(data_ind);
 
@@ -21,18 +20,14 @@ meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','m
 % vid=2;
 % Exp_ID = list_Exp_ID{vid};
 d0 = 0.8;
+lam = list_lam(data_ind);
 sub_added = '';
 
-for lam = [5,10,15,20] % blood_vessel_10Hz
-% for lam = [5,8,10,15] % CaMKII_120_TMT
-% for lam = [3,5,8,10] % PFC4_15Hz, bma22_epm
-%% Load traces and ROIs
-% folder of the GT Masks
 dir_parent=fullfile('E:\data_CNMFE\',[data_name,sub_added]);
 dir_video = dir_parent; 
 % dir_SUNS = fullfile(dir_parent, 'complete_TUnCaT'); % 4 v1
 dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
-dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
+dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 fs = rate_hz(data_ind);
 % folder = ['.\Result_',data_name];
 if ~ exist(dir_add_new,'dir')
@@ -40,14 +35,12 @@ if ~ exist(dir_add_new,'dir')
 end
 time_weights = zeros(num_Exp,1);
 
-% eid = 4;
 for eid = 1:num_Exp
     Exp_ID = list_Exp_ID{eid};
     load(fullfile(dir_masks,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');
     masks=logical(FinalMasks); % permute(logical(Masks),[3,2,1]);
     fname=fullfile(dir_video,[Exp_ID,'.h5']);
     video_raw = h5read(fname, '/mov');
-%     video_raw = mov;
 
 %     tic;
     video_sf =homo_filt(video_raw, 50);
@@ -55,11 +48,7 @@ for eid = 1:num_Exp
     video_SNR = (video_sf-mu)./sigma;
 
     video_SNR = imgaussfilt(video_SNR); % ,1
-%     save(fullfile(dir_trace,['SNR video ',Exp_ID,'.mat']),'video_SNR');
-%     fname=fullfile(dir_trace,['SNR video ', Exp_ID,'.mat']);
-%     load(fname, 'video_SNR');
 
-    % max_SNR = max(video_SNR,[],3);
     [Lx,Ly,T] = size(video_SNR);
     npatchx = ceil(Lx/leng)-1;
     npatchy = ceil(Ly/leng)-1;
@@ -79,13 +68,6 @@ for eid = 1:num_Exp
     fclose(fileID);
     mm = memmapfile(fileName,'Format',{video_class,[Lx,Ly,T],'video'}, 'Repeat', 1);
     mm2 = memmapfile(fileName,'Format',{video_class,[Lx*Ly,T],'video'}, 'Repeat', 1);
-%     max(max(max(mm.Data.video)));
-    
-%     fileName='FinalMasks.dat';
-%     fileID=fopen(fileName,'w');
-%     data_class=class(FinalMasks);
-%     fwrite(fileID,FinalMasks,data_class);
-%     fclose(fileID);
 
     %%
     traces_raw=generate_traces_from_masks_mm(mm2,masks);
@@ -171,7 +153,6 @@ for eid = 1:num_Exp
 %     
 %     save(fullfile(folder,[Exp_ID,'_added_auto.mat']), ...
 %         'masks_added_full','masks_added_crop','images_added_crop','list_valid');
-end
 end
 %%
 clear mm;

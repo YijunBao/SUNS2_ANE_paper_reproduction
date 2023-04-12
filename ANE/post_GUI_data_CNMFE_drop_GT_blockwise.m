@@ -1,29 +1,25 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
 %%
-% folder of the GT Masks
-% dir_parent='E:\data_CNMFE\';
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
 list_avg_radius = [5,6,8,14];
+list_lam = [15,5,8,8];
 r_bg_ratio = 3;
 % r_bg_ext = list_avg_radius(data_ind) * (r_bg_ratio+1);
 
-data_ind = 1;
+data_ind = 4;
 data_name = list_data_names{data_ind};
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 d0 = 0.8;
 sub_added = '';
+lam = list_lam(data_ind);
 
 %%
-for lam = [5,10,15,20] % blood_vessel_10Hz
-% for lam = [5,8,10,15] % CaMKII_120_TMT
-% for lam = [3,5,8,10] % PFC4_15Hz, bma22_epm
 for vid=1:4
     Exp_ID = list_Exp_ID{vid};
     dir_parent = fullfile('E:\data_CNMFE',[data_name,sub_added]);
     dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
-    dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
+    dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 
     %%
 %     load(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),'masks');
