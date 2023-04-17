@@ -1,8 +1,10 @@
+% data_ind = 4;
+gcp;
+
 %%
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
-data_ind = 4;
 data_name = list_data_names{data_ind};
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
@@ -23,12 +25,12 @@ d0 = 0.8;
 lam = list_lam(data_ind);
 sub_added = '';
 
-dir_parent=fullfile('E:\data_CNMFE\',[data_name,sub_added]);
+dir_parent=fullfile('..','data','data_CNMFE',[data_name,sub_added]);
 dir_video = dir_parent; 
 % dir_SUNS = fullfile(dir_parent, 'complete_TUnCaT'); % 4 v1
 dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
 dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
-fs = rate_hz(data_ind);
+% fs = rate_hz(data_ind);
 % folder = ['.\Result_',data_name];
 if ~ exist(dir_add_new,'dir')
     mkdir(dir_add_new);
@@ -95,7 +97,7 @@ for eid = 1:num_Exp
     list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy)); % nlist_list_valid, 
 
     %%
-    for ix = 1:npatchx
+    parfor ix = 1:npatchx
     for iy = 1:npatchy
         xmin = min(Lx-2*leng+1, (ix-1)*leng+1);
         xmax = min(Lx, (ix+1)*leng);

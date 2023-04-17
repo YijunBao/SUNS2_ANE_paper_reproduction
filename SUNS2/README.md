@@ -1,7 +1,17 @@
 ![NeuroToolbox logo](readme/neurotoolbox-logo.svg)
 
+[![DOI](https://zenodo.org/badge/205919974.svg)](https://zenodo.org/badge/latestdoi/205919974)
+
 # SUNS
 Shallow UNet Neuron Segmentation (SUNS) is an automatic algorithm to segment active neurons from calcium imaging videos. It used temporal filtering and whitening schemes to extract temporal features associated with active neurons, and used a compact shallow U-Net to extract spatial features of neurons.
+
+Originally, SUNS was developped only for two-photon videos (SUNS1). The new version (SUNS2) was also applicable to one-photon videos. To upgrade, see the following related instructions for SUNS2. 
+
+Copyright (C) 2020 Duke University NeuroToolbox
+
+If you want to reproduce our paper results, please visit the [legacy version](https://github.com/YijunBao/SUNS_paper_reproduction) 
+
+![Example video](readme/Masks%202%20raw.gif)
 
 - [SUNS](#suns)
 - [System requirement](#system-requirement)
@@ -21,7 +31,7 @@ Shallow UNet Neuron Segmentation (SUNS) is an automatic algorithm to segment act
   - [No training data?](#no-training-data)
   - [Use optional spatial filtering?](#use-optional-spatial-filtering)
 - [Known issues](#known-issues)
-- [Citing](#citing)
+- [Citation](#citation)
 - [Licensing and Copyright](#licensing-and-copyright)
 - [Sponsors](#sponsors)
 
@@ -39,13 +49,32 @@ cd SUNS_python_root_path
 cd installation
 conda env create -f environment_suns.yml -n suns
 ```
-* Go to the Anaconda environment foler, (e.g., `C:/ProgramData/Anaconda3/envs` or `C:/Users/{username}/.conda/envs`), and then go to folder `suns/Lib/site-packages/fissa`, overwrite `core.py` with the files provided in the `installation` folder. The modified files increase speed by eliminating redundant `separate` or `separation_prep` during initializating an `Experiment` object, and enable videos whose size are larger than 4 GB after converting to float32. If neither of them is important to you, then you can skip replacing the files. If you see a lot of text output when activating suns environment and do not want to see them, you can go to the Anaconda environment foler, go to folder `suns/etc/conda/activate.d`, and delete the two files under this folder. 
+* (For SUNS1 only) Go to the Anaconda environment foler, (e.g., `C:/ProgramData/Anaconda3/envs` or `C:/Users/{username}/.conda/envs`), and then go to folder `suns/Lib/site-packages/fissa`, overwrite `core.py` with the files provided in the `installation` folder. The modified files increase speed by eliminating redundant `separate` or `separation_prep` during initializating an `Experiment` object, and enable videos whose size are larger than 4 GB after converting to float32. If neither of them is important to you, then you can skip replacing the files. If you see a lot of text output when activating suns environment and do not want to see them, you can go to the Anaconda environment foler, go to folder `suns/etc/conda/activate.d`, and delete the two files under this folder. 
 
 The installation should take less than half an hour in total. The first run of the software may take some additional time (up to 20 minutes on a laptop) to add the GPU, but this extra time will not occur in later runs.
 
+**Update for SUNS2**: If you already installed the previous version of SUNS (SUNS1, version <= 1.1.1), you can upgrade to SUNS2 by the following steps:
+* Replace the original file `suns/PreProcessing/generate_masks.py` by the new file `suns/PreProcessing/generate_masks_tuncat.py` (change the file name to match the original file).
+* Install TUnCaT by typing `pip install tuncat` in Anaconda prompt.
+* Set `useSF = True` in any script. 
+
+We mainly tested our code in Tensorflow 1.15. We also did some preliminary test on Tensorflow 2.6, but we observed slower processing speed, especially for SUNS online. If you want to install SUNS in Tensorflow 2.6, use `environment_suns_tf2.yml` instead of `environment_suns.yml`. 
+
+Because the versions of many modules has changed since the code was developped, new users may see some version incompatibility issues. I have seen such errors caused by h5py (internally) and opencv ([#7](https://github.com/YijunBao/Shallow-UNet-Neuron-Segmentation_SUNS/issues/7#issuecomment-1136952261)). Therefore, we provided another file `environment_suns_fix_version.yml` to specify the version used in our computer. This file can be used instead of `environment_suns.yml`, or as a reference for sovling version compatibility issues. For a complete list of the package versions, see `environment_suns_exact.yml`, `environment_suns_exact_tf1.yml`, or `environment_suns_exact_tf2.yml`. These files can also be used instead of `environment_suns.yml` to install SUNS, but the package version may be so machine-specific that they may not work in other computers. 
+
 
 # Demo
-We provided three demos for all users to get familiar with our software, in three folders `train_3_test_1`, `train_3_test_1_multi_size`, and `train_1_test_3` in the directory `{SUNS_python_root_path}/demo`. We provided four two-photon imaging videos as well as their manually marked neurons in `demo/data`, adapted from [CaImAn dataset](https://zenodo.org/record/1659149). The demos will perform a cross validation over the four videos: train the CNN and search for optimal hyper-parameters using train video(s), and test SUNS with the training output on the remaining test video(s). Each demo contains four parts: training CNN and hyper-parameters, testing SUNS batch, testing SUNS online, and testing SUNS online with tracking. The demo `train_3_test_1` does standard leave-one-out cross validation on the four example videos (train on 3 videos and test on the remaining 1 video). This demo can only be trained using videos with the same lateral sizes. The demo `train_3_test_1_multi_size` also does standard leave-one-out cross validation, but it can accept videos with different lateral sizes. The demo `train_1_test_3` trains the CNN model and post-processing parameters on 1 video, and tests on the remaining 3 videos. The input, output, and intermediate files will be explained in [Input, Output, and Intermediate Files](#input-output-and-intermediate-files). 
+**Update for SUNS2**: We provided a demo for processing one-photon imaging videos. We provided four one-photon imaging videos as well as their manually marked neurons in `data/data_CNMFE/CaMKII_120_TMT Exposure_5fps`, adapted from the [CNMF-E dataset](https://doi.org/10.5061/dryad.kr17k). 
+
+To run the SUNS2 demo on Windows, launch Anaconda prompt and type the following script 
+```bat
+cd {SUNS_python_root_path}
+cd SUNS2\paper_reproduction
+conda activate suns
+.\SUNS2_demo.bat
+```
+
+We provided four demos for all users to get familiar with our software, in four folders `train_3_test_1`, `train_3_test_1_multi_size`, `train_1_test_3`, and `train_all_test_all` in the directory `{SUNS_python_root_path}/demo`. We provided four two-photon imaging videos as well as their manually marked neurons in `demo/data`, adapted from [CaImAn dataset](https://zenodo.org/record/1659149). The first three demos will perform a cross validation over the four videos: train the CNN and search for optimal hyper-parameters using train video(s), and test SUNS with the training output on the remaining test video(s). Each demo contains four parts: training CNN and hyper-parameters, testing SUNS batch, testing SUNS online, and testing SUNS online with tracking. The demo `train_3_test_1` does standard leave-one-out cross validation on the four example videos (train on 3 videos and test on the remaining 1 video). This demo can only be trained using videos with the same lateral sizes. The demo `train_3_test_1_multi_size` also does standard leave-one-out cross validation, but it can accept videos with different lateral sizes. The demo `train_1_test_3` trains the CNN model and post-processing parameters on 1 video, and tests on the remaining 3 videos. The demo `train_all_test_all` trains the CNN model and post-processing parameters on all 4 videos, and tests on the same 4 videos; this is not cross-validation, and train videos and test videos should be distinct in practice, but we used the same videos as both train and test videos only for demostration purpose. The input, output, and intermediate files will be explained in [Input, Output, and Intermediate Files](#input-output-and-intermediate-files). 
 
 To run the demo train_3_test_1 on Windows, launch Anaconda prompt and type the following script 
 ```bat
@@ -102,7 +131,7 @@ After running a complete pipeline of `train_3_test_1`, the intermediate and outp
 ## Intermediate files
 After running a complete pipeline of `train_3_test_1`, the intermediate and output files will be under a new folder `demo/data/noSF`. Most of intermediate files are numbered according to the video name and/or the index of cross validation. 
 * `network_input` stores the SNR videos after pre-processing (in dataset 'network_input') with shape = (T_SNR, Lx, Ly). Here, T_SNR is slightly smaller than T due to temporal filtering. 
-* `TUnCaT` stores the temporary output of [TUnCaT](https://github.com/YijunBao/TUnCaT) (For SUNS1, `FISSA` stores the temporary output of [FISSA](https://github.com/rochefort-lab/fissa)).
+* **Update for SUNS2**: `TUnCaT` stores the temporary output of [TUnCaT](https://github.com/YijunBao/TUnCaT) (For SUNS1, `FISSA` stores the temporary output of [FISSA](https://github.com/rochefort-lab/fissa)).
 * `traces` stores the traces of the GT neurons after decontamination using FISSA.
 * `temporal_masks(3)` stores the temporal masks of active neurons (in dataset 'temporal_masks')used to train CNN.
 * `Weights` stores the trained CNN model.
@@ -115,13 +144,14 @@ Of course, you can modify the demo scripts to process other videos. You need to 
 
 ## Use your own videos
 * Set the folder and file names of your video correctly. You need to change the variables `dir_video` and `list_Exp_ID` in all the python scripts. The variable `dir_video` is the folder containing the input videos. For example, if your videos are stored in `C:/Users/{username}/Documents/GitHub/Shallow-UNet-Neuron-Segmentation_SUNS/demo/data`, set `dir_video = 'C:/Users/{username}/Documents/GitHub/Shallow-UNet-Neuron-Segmentation_SUNS/demo/data'`. You can also use relative path, such as `dir_video = '../data'`. The variable `list_Exp_ID` is the list of the file names (without extension) of the input videos (e.g., `list_Exp_ID = ['YST_part11', 'YST_part12', 'YST_part21', 'YST_part22']` in the demo referes to the four input files in `{SUNS_python_root_path}/demo/data/YST_part??.h5`). 
+* If you use `train_all_test_all`, you need to specify the train and test videos separately. In the training script `demo_train_CNN_params.py`, you only need to specify the train videos, in a way similar to other demos. In the testing script `demo_test_xxxx.py`, you need to specify the folder of the test videos in `dir_video`, the folder of the train videos in `dir_video_train`, the names of the test videos in `list_Exp_ID`, and the number of train videos in `nvideo_train`. The test videos usually should not overlap with the train videos, and the number of videos do not need to be the same as well. We used the same videos as the train and test videos only for demo purpose. 
 * Currently, we only support .h5 files as the input video, so you need to convert the format of your data to .h5. You can save the video in a dataset with any name, but don't save the video under any group. The video should have a shape of (T, Lx, Ly), where T is the number of frames, and (Lx, Ly) is the lateral dimension of each frame. The support to more video formats will come soon. When doing format conversion, make sure the dimension is in the correct order. For example, if you save save the .h5 files from MATLAB, the shape of the dataset should be (Ly, Lx, T) in MATLAB. See [Input files](#input-files) for more explanation of the dimension order.
 
 ## Use your own GT masks
 * If you want to train your own network, create a folder `GT Masks` under the video folder, and copy all the ground truth markings into that folder. 
 * Currently, we only support .mat files as the GT masks, so you need to convert the format of your GT masks to .mat, and save the GT masks in dataset 'FinalMasks'. The name of the masks file should be `FinalMasks_{Exp_ID}.mat`, where the `{Exp_ID}` is the name of the corresponding video. The GT masks should be saved as a 3D array named `FinalMasks`, and the dimension should be (Ly, Lx, n_GT) in MATLAB, where Ly and Lx are the same as the lateral dimension of the video, and n_GT is the number of GT masks.
 * The masks created by some manual labeling software may contain an empty (all zero) image as the first frame. You need to remove the empty frame before saving them.
-* Because we mainly use sparse matrix representations of the masks to speed up evaluation, you also need to convert the masks from a 3D array to a 2D sparse matrix. You can modify the MATLAB script `utils/generate_sparse_GT.m` to do that by setting `dir_Masks` to the folder `GT Masks` (e.g., `dir_Masks = '..\demo\data\GT Masks\'` in the demo). The sparse matrices are saved as .mat files in 'v7' format. Please do not save them in 'v7.3' format, otherwise, you may need to use h5sparese (not installed) to read the files in python.
+* Because we mainly use sparse matrix representations of the masks to speed up evaluation, you also need to convert the masks from a 3D array to a 2D sparse matrix. You can modify the python script `utils/generate_sparse_GT.py` to do that by setting `dir_Masks` to the folder `GT Masks` (e.g., `dir_Masks = r'..\demo\data\GT Masks\'` in the demo). The sparse matrices are saved as .mat files in 'v7' format. Please do not save them in 'v7.3' format, otherwise, you may need to use h5sparese (not installed) to read the files in python.
 
 ## Use your own temporal filter kernel
 * We used a matched filter as our temporal filtering scheme, so we need a filter template, which is the reversed version of the temporal filter kernal. In the demo, we used `demo/YST_spike_tempolate.h5` to store the matched filter template, and you can use this as the starting point. We determined the filter template by averaging calcium transients within a moderate SNR range from the videos. The filter template was generated by the MATLAB scripts `utils/temporal filter/calculate_traces_bgtraces_demo.m` and `utils/temporal filter/temporal_filter_demo.m`. You can modify these scripts to generate the filter template for your dataset. In both scripts, you need to specify the folder of the video (e.g., `dir_video='..\..\demo\data\'`), the folder of the GT Masks (should be `dir_GTMasks=fullfile(dir_video,'GT Masks\')` according to our previous instruction), and the list of video names (e.g., `list_Exp_ID={'YST_part11';'YST_part12';'YST_part21';'YST_part22'}`). In `utils/temporal filter/temporal_filter_demo.m`, you also need to specify the frame rate of the video (e.g., `fs=10`), number of frames before spike peak (e.g., `before=15`), number of frames after spike peak (e.g., `after=60`), the minimum and maximum allowed SNR (e.g., `list_d=[5,6]`), and the file name of the saved filter template (e.g., `h5_name = 'YST_spike_tempolate.h5'`). You also need to change the variable `filename_TF_template` in all the python scripts to your saved filter template file (e.g. `filename_TF_template = '../YST_spike_tempolate.h5'`). 
@@ -130,12 +160,13 @@ Of course, you can modify the demo scripts to process other videos. You need to 
 
 ## Set the path and video parameters
 In all the python scripts, you need to specify a few path and video parameters:
-* The list of video names (e.g., `list_Exp_ID = ['YST_part11', 'YST_part12', 'YST_part21', 'YST_part22']`)
-* The folder of the video (e.g., `dir_video='../data'`);
+* The list of video names (e.g., `list_Exp_ID = ['YST_part11', 'YST_part12', 'YST_part21', 'YST_part22']`);
+* The folder of the videos (e.g., `dir_video='../data'`);
 * The folder of the GT Masks (should be `dir_GTMasks = os.path.join(dir_video, 'GT Masks', 'FinalMasks_')` according to our previous instruction);
 * The frame rate of the video (e.g., `rate_hz=10`);
 * Spatial magnification compared to ABO videos (e.g., `Mag=6/8`). If the pixel size of your video is `pixel_size` um/pixel, then set `Mag = 0.785 / pixel_size`.
 * In the demo `train_3_test_1_multi_size`, you need to specify `list_rate_hz` and `list_Mag` instead of `rate_hz` and `Mag`, which are lists of these parameters for different videos. The demo videos share the same parameters, but you can use different paraemters in this demo.
+* In the demo `train_all_test_all`, set the folder and names of the train videos and test videos separately. The test videos usually should not overlap with the train videos, and the number of videos do not need to be the same as well. We used the same videos as the train and test videos only for demo purpose. 
 
 ## Set your own post-processing parameters
 SUNS is a supervised learning algorithm, but the post-processing parameters highly affect the accuracy of the final output masks. These parameters include:
@@ -152,11 +183,11 @@ We determined `avgArea` according to the typical neuron area reported in the lit
 * `useTF` indicates whether temporal filtering is used in pre-processing (True in demo);
 * `BATCH_SIZE` is the batch size in CNN training; `batch_size_eval` is the batch size in CNN inference in SUNS batch; `batch_size_init` is the batch size in CNN inference in the initialization stage of SUNS online and SUNS online with tracking. You can adjust these values according to the GPU memory capacity of your computer; 
 * `thred_std` is SNR threshold used to determine when neurons are active to create temporal masks for training (3 in demo). When the video is longer or have higher signal to noise quality, you can increase this value;
-* `cross_validation` determines the cross-validation strategy: "leave-one-out" means training on all but one video and testing on that one video, "train_1_test_rest" means training on one video and testing on the other videos, and "use_all" means training on all videos and not doing cross validation (testing on other videos not in the list);
-* `use_validation` indicates if a validation set outside the training set is used in training CNN for validation purpose (True in demo); it does not affect the training result;
-* `update_baseline` indicates whether the baseline and noise are updated every a few frames during the online processing (False in demo).
+* `cross_validation` determines the cross-validation strategy: "leave-one-out" means training on all but one video and testing on that one video, "train_1_test_rest" means training on one video and testing on the other videos, and "use_all" means training on all videos and not doing cross validation (usually testing on other videos not in the training list);
+* `use_validation` indicates if a validation set outside the training set is used in training CNN for validation purpose (True in most demos, but False in `train_all_test_all`); it does not affect the training result;
+* `update_baseline` indicates whether the baseline and noise are updated every a few frames during the online processing (True in demo).
 
-You can read the code for explanations of other options and parameters. You can choose diffferent start up scripts depending on the `cross_validation` option: When using "leave-one-out", you can use the scripts under the folder `demo/data/train_3_test_1`; When using "use_all", you can use the same scripts to start, but set `cross_validation = "use_all"` in `demo_train_CNN_params.py`, and change the variable `CV` to the number of training videos used when defining the strings `filename_CNN` and `filename_params_post` in the test scripts (`demo_test_xxxx.py`); When using "train_1_test_rest", you can use the scripts under the folder `demo/data/train_1_test_3`;
+You can read the code for explanations of other options and parameters. You can choose diffferent start up scripts depending on the `cross_validation` option: When using "leave-one-out", you can use the scripts under the folder `demo/data/train_3_test_1`; When using "use_all", you can use the scripts under the folder `demo/data/train_all_test_all`; When using "train_1_test_rest", you can use the scripts under the folder `demo/data/train_1_test_3`;
 
 ## No training data?
 * SUNS requires a CNN model and post-processing parameters to process a video. It is best to train your own CNN models and post-processing parameters for your dataset, because the optimal CNN models and post-processing parameters, especially parameters, can be different with different imaging conditions. Therefore, our expectation is that you manually label at least one video recorded by your two-photon microscope, and use that to train the CNN and parameters. 
@@ -169,7 +200,7 @@ We have an optional spatial filtering step in the pre-processing. Althought it d
 # Known issues
 There are some known issues with the code. We have listed them in the issues page, including [#1](https://github.com/YijunBao/Shallow-UNet-Neuron-Segmentation_SUNS/issues/1) and [#5](https://github.com/YijunBao/Shallow-UNet-Neuron-Segmentation_SUNS/issues/5).The issue [#5](https://github.com/YijunBao/Shallow-UNet-Neuron-Segmentation_SUNS/issues/5) is particularly troublesome, because it may cause computer crash, and it will slow down the pre-processing speed signficantly when the operation system is Windows, the CPU is AMD, and the lateral size is a multiple of 256. We have solutions to bypass the issues, but we welcome any feedback, analysis, or better solutions to the issues. 
 
-# Citing 
+# Citation
 If you use any part of this software in your work, please cite Bao et al. 2021:
 * Bao, Y., S. Soltanian-Zadeh, S. Farsiu, and Y. Gong, Segmentation of neurons from fluorescence calcium recordings beyond real time. *Nature Machine Intelligence* (2021). DOI: [10.1038/s42256-021-00342-x](https://doi.org/10.1038/s42256-021-00342-x)
 

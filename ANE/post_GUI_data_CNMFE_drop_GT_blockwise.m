@@ -1,3 +1,5 @@
+% data_ind = 4;
+
 %%
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
@@ -7,7 +9,6 @@ list_lam = [15,5,8,8];
 r_bg_ratio = 3;
 % r_bg_ext = list_avg_radius(data_ind) * (r_bg_ratio+1);
 
-data_ind = 4;
 data_name = list_data_names{data_ind};
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 d0 = 0.8;
@@ -17,7 +18,7 @@ lam = list_lam(data_ind);
 %%
 for vid=1:4
     Exp_ID = list_Exp_ID{vid};
-    dir_parent = fullfile('E:\data_CNMFE',[data_name,sub_added]);
+    dir_parent = fullfile('..','data','data_CNMFE',[data_name,sub_added]);
     dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
     dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 
@@ -47,8 +48,8 @@ for vid=1:4
 %     list_list_valid{nn} = list_valid;
 
     %%
-    figure; imagesc(sum(masks_added_full,3)); axis image; colorbar;
-    figure; imagesc(sum(masks_add_GT,3)); axis image; colorbar;
+%     figure; imagesc(sum(masks_added_full,3)); axis image; colorbar;
+%     figure; imagesc(sum(masks_add_GT,3)); axis image; colorbar;
 
     %% Calculate the neighboring neurons, and updating masks
     N = length(added_frames);
@@ -85,5 +86,4 @@ for vid=1:4
 %     load(fullfile(dir_masks,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');
 %     FinalMasks = cat(3,FinalMasks,list_added_final);
 %     save(fullfile(dir_add_new,['FinalMasks_',Exp_ID,'_added_blockwise.mat']),'FinalMasks');
-end
 end

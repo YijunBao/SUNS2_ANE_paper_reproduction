@@ -1,25 +1,22 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
 %%
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
-% list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 rate_hz = 20; % frame rate of each video
 avg_radius = 10;
+lam = 15;
 r_bg_ratio = 3;
 leng = r_bg_ratio*avg_radius;
 d0 = 0.8;
 
 %% Load traces and ROIs
-% folder of the GT Masks
-for lam = [5,10,15,20] % 20 % 
-dir_parent='D:\data_TENASPIS\added_refined_masks\';
-% dir_parent=fullfile('E:\data_CNMFE\',[data_name,'_added_blockwise_weighted_sum_unmask']);
+% dir_parent=fullfile('..','data','data_TENASPIS','original_masks');
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 dir_video = dir_parent; 
 dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_traces_raw=fullfile(dir_video,'complete_TUnCaT_SF25\TUnCaT\raw');
-dir_traces_unmix=fullfile(dir_video,'complete_TUnCaT_SF25\TUnCaT\alpha= 1.000');
+dir_traces_raw=fullfile(dir_video,'complete_TUnCaT','TUnCaT','raw');
+dir_traces_unmix=fullfile(dir_video,'complete_TUnCaT','TUnCaT','alpha= 1.000');
 % folder = ['.\Result_',data_name];
 doesunmix = 1;
 
@@ -29,7 +26,6 @@ if ~ exist(dir_add_new,'dir')
 end
 list_keep = cell(1,num_Exp);
 
-% eid = 4;
 for eid = 1:num_Exp
     %% Calculate PSNR
     Exp_ID = list_Exp_ID{eid};
@@ -67,5 +63,4 @@ num_keep = cellfun(@sum, list_keep);
 num_drop = num_total-num_keep;
 drop_ratio = sum(num_drop)/sum(num_total)
 save(fullfile(dir_add_new,'list_keep.mat'),'list_keep','num_total','num_keep','num_drop');
-end
-disp('Finished this step');
+% disp('Finished this step');

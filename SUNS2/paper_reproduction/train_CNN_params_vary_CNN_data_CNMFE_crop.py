@@ -39,7 +39,17 @@ else: # tf_version == 2:
 
 # %%
 if __name__ == '__main__':
-    # sys.argv = ['py', '3', '4', '[1]', 'elu', 'True', '4816[1]', '6', '9']
+    list_name_video = ['blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps']
+    # list_radius = [8,10,8,6] # 
+    list_rate_hz = [10,15,7.5,5] # 
+    # list_decay_time = [0.4, 0.5, 0.4, 0.75]
+    Dimens = [(120,120),(80,80), (88,88),(240,192)]
+    list_nframes = [6000, 9000, 9000, 1500]
+    ID_part = ['_part11', '_part12', '_part21', '_part22']
+    # list_Mag = [x/8 for x in list_radius]
+    # list_thred_std = [5,5,5,3]
+
+    # sys.argv = ['py', '3', '4', '[1]', 'elu', 'True', '4816[1]', '3', '50', '9']
     # n_depth = int(sys.argv[1])
     # n_channel = int(sys.argv[2])
     # skip = eval(sys.argv[3])
@@ -49,17 +59,9 @@ if __name__ == '__main__':
     sub_folder = '4816[1]th' + sys.argv[1]
     gauss_filt_size = int(sys.argv[2]) # standard deviation of the spatial Gaussian filter in pixels
     max_eid = int(sys.argv[3])
+    ind_video = int(sys.argv[5]) # 3
 
-    # %% setting parameters
-    rate_hz = 20 # frame rate of the video
-    Dimens = (480,480) # lateral dimensions of the video
-    nn = 2100 # number of frames used for preprocessing. 
-        # Can be slightly larger than the number of frames of a video
-    # num_total = 6000 # number of frames used for CNN training. 
-        # Can be slightly smaller than the number of frames of a video
-    Mag = 1 # spatial magnification compared to ABO videos.
-
-    num_train_per = 200 # Number of frames per video used for training 
+    num_train_per = 2400 # Number of frames per video used for training 
     BATCH_SIZE = 20 # Batch size for training 
     NO_OF_EPOCHS = 200 # Number of epoches used for training 
     batch_size_eval = 200 # batch size in CNN inference
@@ -81,13 +83,21 @@ if __name__ == '__main__':
     # Params_loss = {'DL':1, 'BCE':0, 'FL':100, 'gamma':1, 'alpha':0.25} # Parameters of the loss function
     Params_loss = {'DL':1, 'BCE':20, 'FL':0, 'gamma':1, 'alpha':0.25} # Parameters of the loss function
 
+    name_video = list_name_video[ind_video]
+    # %% setting parameters
+    rate_hz = list_rate_hz[ind_video] # frame rate of the video
+    Dimens = Dimens[ind_video] # lateral dimensions of the video
+    nn = list_nframes[ind_video] # number of frames used for preprocessing. 
+        # Can be slightly larger than the number of frames of a video
+    # num_total = 6000 # number of frames used for CNN training. 
+        # Can be slightly smaller than the number of frames of a video
+    Mag = 1 # spatial magnification compared to ABO videos.
+
     # %% set folders
     # file names of the ".h5" files storing the raw videos. 
-    list_Exp_ID = [ 'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', \
-                    'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M']
+    list_Exp_ID = [name_video+x for x in ID_part]
     # folder of the raw videos
-    # dir_video = '../../data/data_TENASPIS/original_masks' 
-    dir_video = '../../data/data_TENASPIS/added_refined_masks' 
+    dir_video = os.path.join('../../data/data_CNMFE', name_video) # +'_added_blockwise_weighted_sum_unmask'
     # folder of the ".mat" files stroing the GT masks in sparse 2D matrices
     dir_GTMasks = os.path.join(dir_video, 'GT Masks/FinalMasks_')
     if not useSF:
@@ -121,7 +131,7 @@ if __name__ == '__main__':
     gauss_filt_size = gauss_filt_size*Mag # standard deviation of the spatial Gaussian filter in pixels
     num_median_approx = 1000 # number of frames used to caluclate median and median-based standard deviation
     list_thred_ratio = list(range(2,7)) # [thred_std] # A list of SNR threshold used to determine when neurons are active.
-    filename_TF_template = os.path.join(dir_video, 'TENASPIS_spike_tempolate.h5')
+    filename_TF_template = os.path.join(dir_video, name_video+'_spike_tempolate.h5')
 
     h5f = h5py.File(filename_TF_template,'r')
     Poisson_filt = np.array(h5f['filter_tempolate']).squeeze().astype('float32')
@@ -129,22 +139,66 @@ if __name__ == '__main__':
     # dictionary of pre-processing parameters
     Params = {'gauss_filt_size':gauss_filt_size, 'num_median_approx':num_median_approx, 
         'nn':nn, 'Poisson_filt': Poisson_filt}
-    num_total = 1500 # nn - Poisson_filt.size + 1
+    num_total = nn - Poisson_filt.size + 1
 
     # %% set the range of post-processing hyper-parameters to be optimized in
-    # minimum area of a neuron (unit: pixels in ABO videos). must be in ascend order
-    list_minArea = list(range(80,250,20)) # list(range(100,340,20)) # 
-    # average area of a typical neuron (unit: pixels in ABO videos)
-    list_avgArea = [228] # [305] # 
-    # uint8 threshould of probablity map (uint8 variable, = float probablity * 256 - 1)
-    list_thresh_pmap = list(range(40,256,20))
-    # threshold to binarize the neuron masks. For each mask, 
-    # values higher than "thresh_mask" times the maximum value of the mask are set to one.
-    thresh_mask = 0.5
-    # maximum COM distance of two masks to be considered the same neuron in the initial merging (unit: pixels in ABO videos)
-    thresh_COM0 = 2
-    # maximum COM distance of two masks to be considered the same neuron (unit: pixels in ABO videos)
-    list_thresh_COM = list(np.arange(4, 10, 1))
+    if ind_video == 0:
+        # minimum area of a neuron (unit: pixels in ABO videos). must be in ascend order
+        list_minArea = list(range(20,75,10)) 
+        # average area of a typical neuron (unit: pixels in ABO videos)
+        list_avgArea = [61] # list(range(30,58,5)) # 
+        # uint8 threshould of probablity map (uint8 variable, = float probablity * 256 - 1)
+        list_thresh_pmap = list(range(40,256,20))
+        # threshold to binarize the neuron masks. For each mask, 
+        # values higher than "thresh_mask" times the maximum value of the mask are set to one.
+        thresh_mask = 0.5
+        # maximum COM distance of two masks to be considered the same neuron in the initial merging (unit: pixels in ABO videos)
+        thresh_COM0 = 1
+        # maximum COM distance of two masks to be considered the same neuron (unit: pixels in ABO videos)
+        list_thresh_COM = list(np.arange(2, 6, 0.5)) 
+    elif ind_video == 1:
+        # minimum area of a neuron (unit: pixels in ABO videos). must be in ascend order
+        list_minArea = list(range(40,105,10)) 
+        # average area of a typical neuron (unit: pixels in ABO videos)
+        list_avgArea = [108] # list(range(30,58,5)) # 
+        # uint8 threshould of probablity map (uint8 variable, = float probablity * 256 - 1)
+        list_thresh_pmap = list(range(40,256,20))
+        # threshold to binarize the neuron masks. For each mask, 
+        # values higher than "thresh_mask" times the maximum value of the mask are set to one.
+        thresh_mask = 0.5
+        # maximum COM distance of two masks to be considered the same neuron in the initial merging (unit: pixels in ABO videos)
+        thresh_COM0 = 1
+        # maximum COM distance of two masks to be considered the same neuron (unit: pixels in ABO videos)
+        list_thresh_COM = list(np.arange(2, 6, 0.5)) 
+    elif ind_video == 2:
+        # minimum area of a neuron (unit: pixels in ABO videos). must be in ascend order
+        list_minArea = list(range(20,155,20)) 
+        # average area of a typical neuron (unit: pixels in ABO videos)
+        list_avgArea = [170] # list(range(30,58,5)) # 
+        # uint8 threshould of probablity map (uint8 variable, = float probablity * 256 - 1)
+        list_thresh_pmap = list(range(40,256,20))
+        # threshold to binarize the neuron masks. For each mask, 
+        # values higher than "thresh_mask" times the maximum value of the mask are set to one.
+        thresh_mask = 0.5
+        # maximum COM distance of two masks to be considered the same neuron in the initial merging (unit: pixels in ABO videos)
+        thresh_COM0 = 1
+        # maximum COM distance of two masks to be considered the same neuron (unit: pixels in ABO videos)
+        list_thresh_COM = list(np.arange(2, 6, 0.5)) 
+    elif ind_video == 3:
+        # minimum area of a neuron (unit: pixels in ABO videos). must be in ascend order
+        list_minArea = list(range(200,605,50)) 
+        # average area of a typical neuron (unit: pixels in ABO videos)
+        list_avgArea = [613] # list(range(30,58,5)) # 
+        # uint8 threshould of probablity map (uint8 variable, = float probablity * 256 - 1)
+        list_thresh_pmap = list(range(40,256,20))
+        # threshold to binarize the neuron masks. For each mask, 
+        # values higher than "thresh_mask" times the maximum value of the mask are set to one.
+        thresh_mask = 0.5
+        # maximum COM distance of two masks to be considered the same neuron in the initial merging (unit: pixels in ABO videos)
+        thresh_COM0 = 2
+        # maximum COM distance of two masks to be considered the same neuron (unit: pixels in ABO videos)
+        list_thresh_COM = list(np.arange(4, 12, 1)) 
+
     # minimum IoU of two masks to be considered the same neuron
     list_thresh_IOU = [0.5] 
     # minimum consecutive number of frames of active neurons
@@ -171,10 +225,18 @@ if __name__ == '__main__':
         video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
             useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
 
-        # %% Determine active neurons in all frames using TUnCaT
+        # %% Determine active neurons in all frames using FISSA
         file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
         generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)
         del video_input
+
+        # list_thred_ratio = list(range(10,22,2))
+        # if unmix.upper() == 'FISSA':
+        #     from suns.PreProcessing.generate_masks_fissa import generate_masks_from_traces
+        # else:
+        #     from suns.PreProcessing.generate_masks_tuncat import generate_masks_from_traces
+        # file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
+        # generate_masks_from_traces(file_mask, list_thred_ratio, dir_parent, Exp_ID)
 
     # %% CNN training
     for CV in range(0,nvideo): # [0]: # 
@@ -205,8 +267,8 @@ if __name__ == '__main__':
     # %% parameter optimization
     parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Params_set, \
         (rows, cols), dir_network_input, weights_path, dir_GTMasks, dir_temp, dir_output, \
-        batch_size_eval, useWT=useWT, useMP=True, load_exist=load_exist, max_eid=max_eid) # 
+        batch_size_eval, useWT=useWT, useMP=True, load_exist=load_exist) # , max_eid=max_eid
     # parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Params_set, \
     #     (rows, cols), (rowspad, colspad), dir_network_input, weights_path, dir_GTMasks, dir_temp, dir_output, \
-    #     batch_size_eval, useWT=useWT, useMP=True, load_exist=load_exist, max_eid=max_eid, \
-    #     n_depth=n_depth, n_channel=n_channel, skip=skip, activation=activation, double=double) # 
+    #     batch_size_eval, useWT=useWT, useMP=True, load_exist=load_exist, \
+    #     n_depth=n_depth, n_channel=n_channel, skip=skip, activation=activation, double=double) #  max_eid=max_eid,

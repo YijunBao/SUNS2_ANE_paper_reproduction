@@ -1,14 +1,17 @@
+% data_ind = 4;
+gcf;
+
 %%
 % name of the videos
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
-data_ind = 4;
 data_name = list_data_names{data_ind};
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
 % list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 rate_hz = [10,15,7.5,5]; % frame rate of each video
 list_avg_radius = [5,6,8,14];
+list_th_SNR = [5,4,4,4];
 r_bg_ratio = 3;
 leng = r_bg_ratio*list_avg_radius(data_ind);
 
@@ -17,15 +20,14 @@ thj_inclass = 0.4;
 thj = 0.7;
 meth_baseline='median'; % {'median','median_mean','median_median'}
 meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','median-based std'}
-
 sub_added = '';
 
 %% Load traces and ROIs
 % folder of the GT Masks
-% dir_parent=fullfile('E:\data_CNMFE\',[data_name,'_original_masks']);
-dir_parent=fullfile('E:\data_CNMFE\',[data_name,sub_added]);
+dir_parent=fullfile('..','data','data_CNMFE',[data_name,sub_added]);
 dir_video = dir_parent; 
-dir_SUNS = fullfile(dir_parent, ['complete_TUnCaT\4816[1]th4']);
+th_SNR = list_th_SNR(data_ind);
+dir_SUNS = fullfile(dir_parent, 'complete_TUnCaT',['4816[1]th',num2str(th_SNR)]);
 dir_masks = fullfile(dir_SUNS, 'output_masks');
 % dir_masks = fullfile(dir_parent, 'GT Masks');
 dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
@@ -79,12 +81,6 @@ for eid = 1:num_Exp
     mm2 = memmapfile(fileName,'Format',{video_class,[Lx*Ly,T],'video'}, 'Repeat', 1);
 %     max(max(max(mm.Data.video)));
     
-%     fileName='FinalMasks.dat';
-%     fileID=fopen(fileName,'w');
-%     data_class=class(FinalMasks);
-%     fwrite(fileID,FinalMasks,data_class);
-%     fclose(fileID);
-
     %%
     traces_raw=generate_traces_from_masks_mm(mm2,masks);
 %     traces_bg_exclude=generate_bgtraces_from_masks_exclude(video_SNR,masks);
@@ -181,7 +177,6 @@ for eid = 1:num_Exp
 %     
 %     save(fullfile(folder,[Exp_ID,'_added_auto.mat']), ...
 %         'masks_added_full','masks_added_crop','images_added_crop','list_valid');
-end
 end
 %%
 clear mm;

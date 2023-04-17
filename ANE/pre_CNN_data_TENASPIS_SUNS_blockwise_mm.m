@@ -1,12 +1,23 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
+% For added_refined_masks
+% dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th5');
+% dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th3');
+% dir_SUNS_sub = fullfile('complete_TUnCaT_noSF','4816[1]th2');
+% dir_SUNS_sub = fullfile('complete_FISSA_noSF','4816[1]th2');
+% For original_masks
+% dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4');
+% dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th2');
+% dir_SUNS_sub = fullfile('complete_TUnCaT_noSF','4816[1]th2');
+% dir_SUNS_sub = fullfile('complete_FISSA_noSF','4816[1]th2');
+
+gcf;
 %%
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
-% list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 rate_hz = 20; % frame rate of each video
-avg_radius = 9;
+avg_radius = 10; % original_masks
+% avg_radius = 9; % added_refined_masks
 r_bg_ratio = 3;
 leng = r_bg_ratio*avg_radius;
 
@@ -16,20 +27,15 @@ thj = 0.7;
 meth_baseline='median'; % {'median','median_mean','median_median'}
 meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','median-based std'}
 
-% vid=2;
-% Exp_ID = list_Exp_ID{vid};
-
 %% Load traces and ROIs
 % folder of the GT Masks
-% dir_parent='D:\data_TENASPIS\original_masks\';
-dir_parent='D:\data_TENASPIS\added_refined_masks\';
+% dir_parent=fullfile('..','data','data_TENASPIS','original_masks');
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 dir_video = dir_parent; 
-for th_SNR = 3
-dir_SUNS = fullfile(dir_parent, ['complete_TUnCaT\4816[1]th',num2str(th_SNR)]); % 4 v1
-% dir_SUNS = fullfile(dir_parent, ['complete_FISSA_SF25\4816[1]th',num2str(th_SNR)]); % 4 v1
+dir_SUNS = fullfile(dir_parent, dir_SUNS_sub);
 dir_masks = fullfile(dir_SUNS, 'output_masks');
 % dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
+dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 fs = rate_hz;
 % folder = ['.\Result_',data_name];
 if ~ exist(dir_add_new,'dir')
@@ -96,7 +102,7 @@ for eid = 1:num_Exp
 
     %%
     area = squeeze(sum(sum(masks,1),2));
-    avg_area = mean(area);
+    avg_area = median(area);
 %     avg_radius = sqrt(mean(area)/pi);
 %     r_bg = avg_radius*r_bg_ratio;
 %     r_bg_ext = round(list_avg_radius(data_ind) * (r_bg_ratio+1));
@@ -176,7 +182,6 @@ for eid = 1:num_Exp
 %     
 %     save(fullfile(folder,[Exp_ID,'_added_auto.mat']), ...
 %         'masks_added_full','masks_added_crop','images_added_crop','list_valid');
-end
 end
 %%
 clear mm;

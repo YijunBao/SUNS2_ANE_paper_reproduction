@@ -34,7 +34,8 @@ else: # tf_version == 2:
 
 
 if __name__ == "__main__":
-    # sys.argv = ['.py', 'classifier_res0', '0', 'mask', '0', '1', '_weighted_sum_unmask', '0.8exp(-5)']
+    # sys.argv = ['.py', 'classifier_res0', '0', 'Xmask', '0', '2', '_weighted_sum_unmask', '0.8exp(-3)']
+    ind_video = int(sys.argv[2]) # 3
     classifier = 'classifier_res0'
     num_frame = 0
     mask_option = 'Xmask'
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     exec('from CNN_classifier import CNN_' + classifier + ' as CNN_classifier')
 
     #%
-    batch_size = 16
+    batch_size = 8
     num_classes = 2
     epochs = 2000
     # test_fraction = 0.25
@@ -59,13 +60,20 @@ if __name__ == "__main__":
     # Lx, Ly = 50, 50
 
     # %%the data, shuffled and split between train and test sets
+    list_name_video = ['blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps']
+    # list_radius = [8,10,8,6] # 
+    list_rate_hz = [10,15,7.5,5] # 
+    # list_decay_time = [0.4, 0.5, 0.4, 0.75]
+    Dimens = [(120,120),(80,80), (88,88),(192,240)]
+    list_nframes = [6000, 9000, 9000, 1500]
+    ID_part = ['_part11', '_part12', '_part21', '_part22']
+    list_lam = [15,5,8,8]
 
-    list_Exp_ID = [ 'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', \
-                    'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M']
-    lam = 15
+    name_video = list_name_video[ind_video]
+    lam = list_lam[ind_video]
     drop_rate = '0.8exp(-{})'.format(lam) # sys.argv[1] # 
-    dir_video = '../data/data_TENASPIS/added_refined_masks/GT Masks dropout {}/add_new_blockwise'.format(drop_rate)
-    # dir_video = '../data/data_TENASPIS/original_masks/GT Masks dropout {}/add_new_blockwise'.format(drop_rate)
+    dir_video = '../data/data_CNMFE/{}/GT Masks dropout {}/add_new_blockwise'.format(name_video, drop_rate)
+    list_Exp_ID = [name_video+x for x in ID_part]
     nvideo = len(list_Exp_ID) # number of videos used for cross validation
 
     list_th_cnn = np.arange(0.2, 0.81, 0.05)
@@ -234,7 +242,7 @@ if __name__ == "__main__":
         print('The best th_cnn is', th_cnn_best)
         
         #% Save model and weights
-        model_name = 'cnn_model_cv' + str(cv) #str(datetime.datetime.now()).replace(' ', '-').replace(':', '-')
+        model_name = 'cnn_model_' + name_video + '_cv' + str(cv) #str(datetime.datetime.now()).replace(' ', '-').replace(':', '-')
         model_json = model.to_json()
         json_path = os.path.join(save_dir, model_name + '.json')
         
@@ -258,7 +266,7 @@ if __name__ == "__main__":
             accuracy = model_history
         history = { "loss": model_history['loss'], "accuracy": accuracy,'th_cnn_best': th_cnn_best,                
                     "list_recall": list_recall, "list_precision": list_precision, "list_f1": list_f1}
-        sio.savemat(os.path.join(save_dir,"training_output_cv{}.mat".format(cv)), history)
+        sio.savemat(os.path.join(save_dir,"training_output_{}_cv{}.mat".format(name_video, cv)), history)
 
         # txt=open(os.path.join(save_dir,"optimal_th_cnn_{}.txt".format(name_video)),'w')
         # txt.write(str(th_cnn_best))

@@ -1,26 +1,23 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
 %%
-% folder of the GT Masks
-% dir_parent='E:\data_CNMFE\';
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
 avg_radius = 10; % original_masks
 % avg_radius = 9; % added_refined_masks
+lam = 15;
 r_bg_ratio = 3;
 % r_bg_ext = list_avg_radius(data_ind) * (r_bg_ratio+1);
 
 %%
 d0 = 0.8;
-for lam = [15] % [5,10,15,20] % [5,8,10] % 
+% dir_parent=fullfile('..','data','data_TENASPIS','original_masks');
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
+dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
+dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
+
 for vid=1:num_Exp
     Exp_ID = list_Exp_ID{vid};
-    dir_parent='D:\data_TENASPIS\original_masks\';
-%     dir_parent='D:\data_TENASPIS\added_refined_masks\';
-    dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
-    dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
-
     %%
 %     load(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),'masks');
     load(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
@@ -47,8 +44,8 @@ for vid=1:num_Exp
 %     list_list_valid{nn} = list_valid;
 
     %%
-    figure; imagesc(sum(masks_added_full,3)); axis image; colorbar;
-    figure; imagesc(sum(masks_add_GT,3)); axis image; colorbar;
+    % figure; imagesc(sum(masks_added_full,3)); axis image; colorbar;
+    % figure; imagesc(sum(masks_add_GT,3)); axis image; colorbar;
 
     %% Calculate the neighboring neurons, and updating masks
     N = length(added_frames);
@@ -85,5 +82,4 @@ for vid=1:num_Exp
 %     load(fullfile(dir_masks,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');
 %     FinalMasks = cat(3,FinalMasks,list_added_final);
 %     save(fullfile(dir_add_new,['FinalMasks_',Exp_ID,'_added_blockwise.mat']),'FinalMasks');
-end
 end

@@ -32,35 +32,39 @@ else: # tf_version == 2:
 
 
 if __name__ == "__main__":
-    #%
-    batch_size = 16
-    # num_classes = 2
-    # epochs = 2000
-    # test_fraction = 0.25
-    # augmentation = True
-    # th_cnn = 0.5
-    # input image dimensions
-    # Lx, Ly = 50, 50
+    ind_video = int(sys.argv[2]) # 3
+    batch_size = 8
+    num_classes = 2
+    epochs = 2000
+    augmentation = True
 
     # %%the data, shuffled and split between train and test sets
-    list_Exp_ID = [ 'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', \
-                    'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M']
+    list_name_video = ['blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps']
+    # list_radius = [8,10,8,6] # 
+    list_rate_hz = [10,15,7.5,5] # 
+    # list_decay_time = [0.4, 0.5, 0.4, 0.75]
+    Dimens = [(120,120),(80,80), (88,88),(192,240)]
+    list_nframes = [6000, 9000, 9000, 1500]
+    ID_part = ['_part11', '_part12', '_part21', '_part22']
+    list_lam = [15,5,8,8]
+    name_video = list_name_video[ind_video]
+    list_Exp_ID = [name_video+x for x in ID_part]
     nvideo = len(list_Exp_ID)
+
     opt_th_cnn = False
     classifier = 'classifier_res0'
     num_frame = 0
     mask_option = 'Xmask'
     random_shuffle_channel = False
     num_mask_channel = 1 
-    lam = 15
+    lam = list_lam[ind_video]
     drop_rate = '0.8exp(-{})'.format(lam) # sys.argv[1] # 
-    dir_init = sys.argv[1] # 'complete_TUnCaT\\4816[1]th5\\output_masks'
+    dir_init = sys.argv[1] # 'complete_TUnCaT\\4816[1]th4\\output_masks'
     if num_frame <= 1:
         img_option = 'avg'
     else:
         img_option = 'multi_frame'
-    # dir_parent = '../data/data_TENASPIS/original_masks'
-    dir_parent = '../data/data_TENASPIS/added_refined_masks'
+    dir_parent = os.path.join('../data/data_CNMFE', name_video)
     dir_CNN = os.path.join(dir_parent, 'GT Masks dropout {}/add_new_blockwise'.format(drop_rate))
 
     # model = CNN_classifier(input_shape, num_classes)
@@ -75,12 +79,12 @@ if __name__ == "__main__":
             os.makedirs(dir_save) 
 
         for (cv,Exp_ID) in enumerate(list_Exp_ID): #
-            training_output = sio.loadmat(os.path.join(dir_CNN, "training_output_cv{}.mat".format(cv)))
+            training_output = sio.loadmat(os.path.join(dir_CNN, "training_output_{}_cv{}.mat".format(name_video, cv)))
             if opt_th_cnn:
                 th_cnn = training_output['th_cnn_best']
             else:
                 th_cnn = 0.5
-            model_name = os.path.join(dir_CNN, 'cnn_model_cv' + str(cv))
+            model_name = os.path.join(dir_CNN, 'cnn_model_' + name_video + '_cv' + str(cv))
             model_file = model_name + ".json"
             with open(model_file, 'r') as json_file:
                 print('USING MODEL:' + model_file)
