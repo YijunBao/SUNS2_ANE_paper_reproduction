@@ -1,4 +1,5 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
+addpath(genpath('.'))
+
 %%
 scale_lowBG = 1e3;
 scale_noise = 0.3;
@@ -31,7 +32,6 @@ for vid=1:num_Exp
     dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
 
     %%
-%     load(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),'masks');
     load(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
         'images_added_crop', 'patch_locations')

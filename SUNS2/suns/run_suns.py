@@ -287,10 +287,10 @@ def suns_online(filename_video, filename_CNN, Params_pre, Params_post, \
         # if the learned 2D and 3D wisdom files have been saved, load them. 
         # Otherwise, learn wisdom later
         Length_data2=str((rowsfft, colsfft))
-        cc2 = load_wisdom_txt('wisdom\\'+Length_data2)
+        cc2 = load_wisdom_txt(os.path.join('wisdom', Length_data2))
         
         Length_data3=str((frames_init, rowsfft, colsfft))
-        cc3 = load_wisdom_txt('wisdom\\'+Length_data3)
+        cc3 = load_wisdom_txt(os.path.join('wisdom', Length_data3))
         if cc3:
             export = False
             pyfftw.import_wisdom(cc3)
@@ -303,7 +303,7 @@ def suns_online(filename_video, filename_CNN, Params_pre, Params_post, \
         (bb, bf, fft_object_b, fft_object_c) = plan_fft(frames_init, (rowsfft, colsfft), prealloc)
         if export:
             cc = pyfftw.export_wisdom()
-            export_wisdom_txt(cc, 'wisdom\\'+Length_data3)
+            export_wisdom_txt(cc, os.path.join('wisdom', Length_data3))
     else:
         bb=np.zeros((frames_init, rowsnb, colsnb), dtype='float32')
         (mask2, bf, fft_object_b, fft_object_c) = (None, None, None, None)
@@ -403,7 +403,7 @@ def suns_online(filename_video, filename_CNN, Params_pre, Params_post, \
         (bb, bf, fft_object_b, fft_object_c) = plan_fft2((rowsfft, colsfft))
         if export:
             cc2 = pyfftw.export_wisdom()
-            export_wisdom_txt(cc2, 'wisdom\\'+Length_data2)
+            export_wisdom_txt(cc2, os.path.join('wisdom', Length_data2))
     else:
         (bf, fft_object_b, fft_object_c) = (None, None, None)
         bb=np.zeros(dimsnb, dtype='float32')
@@ -679,10 +679,10 @@ def suns_online_track(filename_video, filename_CNN, Params_pre, Params_post, \
         # if the learned 2D and 3D wisdom files have been saved, load them. 
         # Otherwise, learn wisdom later
         Length_data2=str((rowsfft, colsfft))
-        cc2 = load_wisdom_txt('wisdom\\'+Length_data2)
+        cc2 = load_wisdom_txt(os.path.join('wisdom', Length_data2))
         
         Length_data3=str((frames_init, rowsfft, colsfft))
-        cc3 = load_wisdom_txt('wisdom\\'+Length_data3)
+        cc3 = load_wisdom_txt(os.path.join('wisdom', Length_data3))
         if cc3:
             export = False
             pyfftw.import_wisdom(cc3)
@@ -695,7 +695,7 @@ def suns_online_track(filename_video, filename_CNN, Params_pre, Params_post, \
         (bb, bf, fft_object_b, fft_object_c) = plan_fft(frames_init, (rowsfft, colsfft), prealloc)
         if export:
             cc = pyfftw.export_wisdom()
-            export_wisdom_txt(cc, 'wisdom\\'+Length_data3)
+            export_wisdom_txt(cc, os.path.join('wisdom', Length_data3))
     else:
         bb=np.zeros((frames_init, rowsnb, colsnb), dtype='float32')
         (mask2, bf, fft_object_b, fft_object_c) = (None, None, None, None)
@@ -815,7 +815,7 @@ def suns_online_track(filename_video, filename_CNN, Params_pre, Params_post, \
         (bb, bf, fft_object_b, fft_object_c) = plan_fft2((rowsfft, colsfft))
         if export:
             cc2 = pyfftw.export_wisdom()
-            export_wisdom_txt(cc2, 'wisdom\\'+Length_data2)
+            export_wisdom_txt(cc2, os.path.join('wisdom', Length_data2))
     else:
         (bf, fft_object_b, fft_object_c) = (None, None, None)
         bb=np.zeros(dimsnb, dtype='float32')

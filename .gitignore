@@ -155,5 +155,6 @@ readme.docx
 .vscode
 data/*/*/*.h5
 # data/data_CNMFE/CaMKII_120_TMT Exposure_5fps/CaMKII_120_TMT Exposure_5fps_part*.h5
-# data/
+data/
 *.asv
+Manual labeling GUI/Results_*

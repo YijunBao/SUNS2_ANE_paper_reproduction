@@ -2,6 +2,7 @@
 % dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th3');
 % dir_SUNS_sub = fullfile('complete_TUnCaT_noSF','4816[1]th2');
 % dir_SUNS_sub = fullfile('complete_FISSA_noSF','4816[1]th2');
+addpath(genpath('.'))
 
 %%
 % name of the videos

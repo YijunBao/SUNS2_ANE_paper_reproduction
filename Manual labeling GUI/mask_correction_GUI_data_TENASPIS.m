@@ -1,4 +1,6 @@
 %%
+addpath(genpath('.'))
+addpath(genpath(fullfile('..','ANE')))
 global gui;
 global txtFntSz;
 global video;
@@ -18,11 +20,10 @@ global sum_edges;
 global traces_raw;
 global traces_out_exclude;
 global traces_bg_exclude;
-% global 
 
 %%
 % folder of the GT Masks
-dir_parent='D:\data_TENASPIS\original_masks\';
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
@@ -30,7 +31,7 @@ rate_hz = 20; % frame rate of each video
 r_bg_ratio = 2;
 
 %% Load traces and ROIs
-vid=8;
+vid=1;
 Exp_ID = list_Exp_ID{vid};
 dir_masks = fullfile(dir_parent,'added_blockwise\GT Masks');
 dir_trace = fullfile(dir_parent,'SNR traces');

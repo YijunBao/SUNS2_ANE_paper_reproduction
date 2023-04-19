@@ -1,3 +1,5 @@
+addpath(genpath('.'))
+
 %%
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
@@ -19,7 +21,6 @@ dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
 for vid=1:num_Exp
     Exp_ID = list_Exp_ID{vid};
     %%
-%     load(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),'masks');
     load(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
         'images_added_crop', 'patch_locations')

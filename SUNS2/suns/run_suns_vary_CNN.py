@@ -12,7 +12,7 @@ from scipy import sparse
 from scipy.io import savemat, loadmat
 import multiprocessing as mp
 
-sys.path.insert(1, '..\\..') # the path containing "suns" folder
+# sys.path.insert(1, '../..') # the path containing "suns" folder
 os.environ['KERAS_BACKEND'] = 'tensorflow'
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
@@ -272,10 +272,10 @@ def suns_online(filename_video, filename_CNN, Params_pre, Params_post, dims, \
         # if the learned 2D and 3D wisdom files have been saved, load them. 
         # Otherwise, learn wisdom later
         Length_data2=str((rows1, cols1))
-        cc2 = load_wisdom_txt('wisdom\\'+Length_data2)
+        cc2 = load_wisdom_txt(os.path.join('wisdom', Length_data2))
         
         Length_data3=str((frames_init, rows1, cols1))
-        cc3 = load_wisdom_txt('wisdom\\'+Length_data3)
+        cc3 = load_wisdom_txt(os.path.join('wisdom', Length_data3))
         if cc3:
             pyfftw.import_wisdom(cc3)
 
@@ -607,10 +607,10 @@ def suns_online_track(filename_video, filename_CNN, Params_pre, Params_post, dim
         # if the learned 2D and 3D wisdom files have been saved, load them. 
         # Otherwise, learn wisdom later
         Length_data2=str((rows1, cols1))
-        cc2 = load_wisdom_txt('wisdom\\'+Length_data2)
+        cc2 = load_wisdom_txt(os.path.join('wisdom', Length_data2))
         
         Length_data3=str((frames_init, rows1, cols1))
-        cc3 = load_wisdom_txt('wisdom\\'+Length_data3)
+        cc3 = load_wisdom_txt(os.path.join('wisdom', Length_data3))
         if cc3:
             pyfftw.import_wisdom(cc3)
 

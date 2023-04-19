@@ -35,7 +35,7 @@ else: # tf_version == 2:
 
 if __name__ == "__main__":
     # sys.argv = ['.py', 'classifier_res0', '0', 'Xmask', '0', '2', '_weighted_sum_unmask', '0.8exp(-3)']
-    ind_video = int(sys.argv[2]) # 3
+    ind_video = int(sys.argv[1]) # 3
     classifier = 'classifier_res0'
     num_frame = 0
     mask_option = 'Xmask'

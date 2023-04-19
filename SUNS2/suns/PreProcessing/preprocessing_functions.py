@@ -469,7 +469,7 @@ def preprocess_video(dir_video:str, Exp_ID:str, Params:dict,
             start_plan = time.time()
         # if the learned wisdom files have been saved, load them. Otherwise, learn wisdom later
         Length_data=str((nn, rowsfft, colsfft))
-        cc = load_wisdom_txt('wisdom\\'+Length_data)
+        cc = load_wisdom_txt(os.path.join('wisdom', Length_data))
         if cc:
             export = False
             pyfftw.import_wisdom(cc)
@@ -480,7 +480,7 @@ def preprocess_video(dir_video:str, Exp_ID:str, Params:dict,
         bb, bf, fft_object_b, fft_object_c = plan_fft(nn, (rowsfft, colsfft), prealloc)
         if export:
             cc = pyfftw.export_wisdom()
-            export_wisdom_txt(cc, 'wisdom\\'+Length_data)
+            export_wisdom_txt(cc, os.path.join('wisdom', Length_data))
 
         if display:
             end_plan = time.time()

@@ -1,4 +1,5 @@
 % Semi-automatically label neurons from the full videos of CNMF-E dataset.
+% We labeld the full videos (https://doi.org/10.5061/dryad.kr17k), and cropped the full videos to quarters. 
 
 % Use an initial drawing GUI to draw masks by looking at 
 % either the frame-by-frame video or the summary images.
@@ -6,6 +7,7 @@ ManualLabeling_CNMFE_full
 
 % Supplement neurons through residual activities using a hierarchical clustering 
 % algorithm assisted with a manual confirmation GUI.
+pre_CNN_data_CNMFE_full_manual_blockwise_weighted_sum_mm
 use_GUI_find_missing_data_CNMFE_full
 merge_masks_CNMFE_full
 

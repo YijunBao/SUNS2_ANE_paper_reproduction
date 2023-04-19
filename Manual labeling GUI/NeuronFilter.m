@@ -487,7 +487,7 @@ function NeuronFilter(vid, Mask, markings, trace) % markings variable =  for ext
 %         end
         
 %         num_output=length(output)-sum(cellfun(@isempty, output));
-        fileName=['.\Results\transients_',replace(char(datetime),':','-')];
+        fileName=fullfile('Results',['transients_',replace(char(datetime),':','-')]);
 %         while exist([fileName,'.mat'],'file')
 %             fileName=[fileName,'+'];
 %         end

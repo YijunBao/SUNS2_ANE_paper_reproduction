@@ -22,7 +22,6 @@ dir_video = dir_parent;
 dir_masks = fullfile(dir_parent, 'GT Masks');
 dir_traces_raw=fullfile(dir_video,'complete_TUnCaT','TUnCaT','raw');
 dir_traces_unmix=fullfile(dir_video,'complete_TUnCaT','TUnCaT','alpha= 1.000');
-% folder = ['.\Result_',data_name];
 doesunmix = 1;
 
 dir_add_new = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));

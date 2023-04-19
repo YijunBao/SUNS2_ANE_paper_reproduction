@@ -6,6 +6,7 @@
 % data_ind = 2; dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th2');
 % data_ind = 3; dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th2');
 % data_ind = 4; dir_SUNS_sub = fullfile('complete_FISSA','4816[1]th2');
+addpath(genpath('.'))
 
 %%
 % name of the videos

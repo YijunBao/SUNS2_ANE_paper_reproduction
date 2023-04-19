@@ -12,7 +12,7 @@ matlab -nojvm -nodesktop -r "data_ind = 1; pre_CNN_data_CNMFE_crop_SUNS_blockwis
 python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th5/output_masks" 0
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 1; post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "data_ind = 1; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th5');  post_CNN_data_CNMFE_drop_blockwise_cv"
 
 
 @REM PFC4_15Hz
@@ -24,7 +24,7 @@ matlab -nojvm -nodesktop -r "data_ind = 2; pre_CNN_data_CNMFE_crop_SUNS_blockwis
 python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 1
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 2; post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "data_ind = 2; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"
 
 
 @REM bma22_epm
@@ -36,7 +36,7 @@ matlab -nojvm -nodesktop -r "data_ind = 3; pre_CNN_data_CNMFE_crop_SUNS_blockwis
 python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 2
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 3; post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "data_ind = 3; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"
 
 
 @REM CaMKII_120_TMT Exposure_5fps
@@ -48,4 +48,4 @@ matlab -nojvm -nodesktop -r "data_ind = 4; pre_CNN_data_CNMFE_crop_SUNS_blockwis
 python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 3
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 4; post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "data_ind = 4; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"

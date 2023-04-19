@@ -1,4 +1,5 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
+addpath(genpath('.'))
+
 %%
 % folder of the GT Masks
 % dir_parent='E:\data_CNMFE\';

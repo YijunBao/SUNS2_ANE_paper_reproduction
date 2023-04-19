@@ -10,4 +10,4 @@ matlab -nojvm -nodesktop -r "data_ind = 4; pre_CNN_data_CNMFE_crop_SUNS_blockwis
 python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 3
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 4; post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "data_ind = 4; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"

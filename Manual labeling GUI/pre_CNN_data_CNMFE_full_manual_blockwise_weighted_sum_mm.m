@@ -1,17 +1,18 @@
-addpath(genpath('.'))
+% data_ind = 4;
 gcp;
 
 %%
 % name of the videos
-list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
-             'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
+list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
+list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
+data_name = list_data_names{data_ind};
+list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
-rate_hz = 20; % frame rate of each video
-avg_radius = 10; % added_refined_masks
-% avg_radius = 9; % original_masks
-lam = 15;
+rate_hz = [10,15,7.5,5]; % frame rate of each video
+list_avg_radius = [5,6,8,14];
+list_lam = [15,5,8,8];
 r_bg_ratio = 3;
-leng = r_bg_ratio*avg_radius;
+leng = r_bg_ratio*list_avg_radius(data_ind);
 
 th_IoU_split = 0.5;
 thj_inclass = 0.4;
@@ -19,13 +20,14 @@ thj = 0.7;
 meth_baseline='median'; % {'median','median_mean','median_median'}
 meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','median-based std'}
 d0 = 0.8;
+lam = list_lam(data_ind);
+sub_added = '';
 
-% dir_parent=fullfile('..','data','data_TENASPIS','original_masks');
-dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
+dir_parent=fullfile('..','data','data_CNMFE',[data_name,sub_added]);
 dir_video = dir_parent; 
 dir_masks = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
 dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
-% fs = rate_hz;
+% fs = rate_hz(data_ind);
 if ~ exist(dir_add_new,'dir')
     mkdir(dir_add_new);
 end
@@ -49,7 +51,7 @@ for eid = 1:num_Exp
     npatchx = ceil(Lx/leng)-1;
     npatchy = ceil(Ly/leng)-1;
     num_avg = max(60, min(90, ceil(T*0.01)));
-    
+
     %% Create memory mapping files for SNR video and masks
     fileName='video_SNR.dat';
     if exist('mm','var')
@@ -97,6 +99,7 @@ for eid = 1:num_Exp
         list_added_weights{ix,iy} = select_weight_calss;
         n_class = size(image_new_crop,3);
         list_locations{ix,iy} = [xmin, xmax, ymin, ymax].*ones(n_class,1);
+
     end    
     end    
 
@@ -113,8 +116,8 @@ for eid = 1:num_Exp
     %     'sum_edges','traces_raw','video','masks');
     save(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
-        'images_added_crop', 'patch_locations'); % ,'time_weights','list_valid'
-end
+        'images_added_crop', 'patch_locations'); % ,'time_weights'
+    end
 %%
 clear mm;
 delete(fileName);

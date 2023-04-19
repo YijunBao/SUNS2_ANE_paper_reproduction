@@ -6,7 +6,9 @@ ManualLabeling_TENASPIS
 
 % Supplement neurons through residual activities using a hierarchical clustering 
 % algorithm assisted with a manual confirmation GUI.
+pre_CNN_data_TENASPIS_manual_blockwise_weighted_sum_mm
 use_GUI_find_missing_data_TENASPIS
+% Merge masks added in different spatial patches belonging to the same neuron.
 merge_masks_TENASPIS
 
 % Computationally refine the shapes of the masks generated in the previous two steps by 

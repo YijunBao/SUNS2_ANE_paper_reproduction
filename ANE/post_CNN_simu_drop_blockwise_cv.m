@@ -1,4 +1,5 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
+addpath(genpath('.'))
+
 %%
 scale_lowBG = 1e3;
 scale_noise = 0.3;
