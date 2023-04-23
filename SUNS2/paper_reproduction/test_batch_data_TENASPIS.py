@@ -27,6 +27,9 @@ else: # tf_version == 2:
     gpus = tf.config.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+    # tf.config.set_logical_device_configuration(gpus[0], \
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*16)])
+
 
 # %%
 if __name__ == '__main__':
@@ -46,6 +49,8 @@ if __name__ == '__main__':
     Dimens = (480,480) # lateral dimensions of the video
     nn = 2100 # number of frames used for preprocessing. 
         # Can be slightly larger than the number of frames of a video
+    # num_total = 6000 # number of frames used for CNN training. 
+        # Can be slightly smaller than the number of frames of a video
     Mag = 1 # spatial magnification compared to ABO videos.
 
     useSF=gauss_filt_size>0 # True # True if spatial filtering is used in pre-processing.
@@ -78,7 +83,6 @@ if __name__ == '__main__':
         os.makedirs(dir_output) 
 
     # %% pre-processing parameters
-    nn = 1500
     num_median_approx = 1000 # number of frames used to caluclate median and median-based standard deviation
     dims = (Lx, Ly) = Dimens # lateral dimensions of the video
     filename_TF_template = os.path.join(dir_video, 'TENASPIS_spike_tempolate.h5')

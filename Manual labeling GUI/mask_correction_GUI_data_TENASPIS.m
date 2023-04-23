@@ -1,6 +1,6 @@
-%%
 addpath(genpath('.'))
 addpath(genpath(fullfile('..','ANE')))
+%%
 global gui;
 global txtFntSz;
 global video;
@@ -33,13 +33,10 @@ r_bg_ratio = 2;
 %% Load traces and ROIs
 vid=1;
 Exp_ID = list_Exp_ID{vid};
-dir_masks = fullfile(dir_parent,'added_blockwise\GT Masks');
+DirSave = ['Results_',Exp_ID];
 dir_trace = fullfile(dir_parent,'SNR traces');
-dir_refine = fullfile(dir_parent,'refine_from_added');
+dir_refine = fullfile(DirSave,'refined');
 fs = rate_hz;
-if ~ exist(Exp_ID,'dir')
-    mkdir(Exp_ID);
-end
 if ~ exist(dir_refine,'dir')
     mkdir(dir_refine);
 end
@@ -58,7 +55,7 @@ max_SNR = max(video_SNR,[],3);
 T = size(video_SNR,3);
 % tile_size = [ceil(T/10/100),10]; % [9,10];
 
-load(fullfile(dir_masks,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');
+load(fullfile(dir_refine,[Exp_ID,'_manual_added.mat']),'FinalMasks');
 masks=logical(FinalMasks);
 [Lx,Ly,N]=size(masks);
 ROIs2 = reshape(masks,Lx*Ly,N);
@@ -115,12 +112,16 @@ for nn = 1:N
 %     max_inside = prctile(video_sub_2(mask_sub_2,:),95,1);
 %     max_outside = prctile(video_sub_2(nearby_outside_2,:),95,1);
     order_compare = 3:10;
-    sort_inside = sort(video_sub_2(mask_sub_2,:),1,'descend');
-    max_inside = sort_inside(order_compare,:);
-    sort_outside = sort(video_sub_2(nearby_outside_2,:),1,'descend');
-%     sort_outside = sort(video_sub_2(~mask_sub_2,:),1,'descend');
-    max_outside = sort_outside(order_compare,:);
-    list_weight_frame{nn} = max(0,min(max_inside-max_outside));
+    if sum(nearby_outside_2) < max(order_compare)
+        list_weight_frame{nn} = ones(1,T);
+    else
+        sort_inside = sort(video_sub_2(mask_sub_2,:),1,'descend');
+        max_inside = sort_inside(order_compare,:);
+        sort_outside = sort(video_sub_2(nearby_outside_2,:),1,'descend');
+    %     sort_outside = sort(video_sub_2(~mask_sub_2,:),1,'descend');
+        max_outside = sort_outside(order_compare,:);
+        list_weight_frame{nn} = max(0,min(max_inside-max_outside));
+    end
     
     %% Calculate the weight from trace
     dn = d(nn,:);
@@ -139,7 +140,7 @@ for nn = 1:N
     d_diff(weight_frame<=0) = 0;
     d_diff_sort = sort(d_diff,'descend');
     if T > 6000
-        thred = prctile(d_diff,99);
+        thred = min(90,prctile(d_diff,99));
     else
         thred = d_diff_sort(60);
     end
@@ -168,7 +169,6 @@ save(fullfile(dir_refine,[Exp_ID,'_weights.mat']),'list_weight','list_weight_tra
 % list_added = {};
 % list_delete = false(1,N);
 % ListStrings = num2cell(1:N);
-folder = fullfile(dir_refine,Exp_ID);
-GUI_refine(video,folder,masks);
-% GUI_refine(video,folder,masks,update_result);
+GUI_refine(video,dir_refine,masks);
+% GUI_refine(video,dir_refine,masks,update_result);
 

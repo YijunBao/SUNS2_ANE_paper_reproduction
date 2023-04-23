@@ -1,30 +1,16 @@
-addpath('C:\Matlab Files\SUNS-1p\1p-CNMFE');
+% data_name = 'lowBG=5e+03,poisson=1';
 %%
-scale_lowBG = 5e3;
-scale_noise = 0.3;
-results_folder = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
-list_patch_dims = [253,316]; 
 num_Exp = 10;
-
-list_data_names={results_folder};
-rate_hz = 10; % frame rate of each video
-radius = 6;
-data_ind = 1;
-data_name = list_data_names{data_ind};
-path_name = fullfile('E:\simulation_CNMFE_corr_noise',data_name);
 list_Exp_ID = arrayfun(@(x) ['sim_',num2str(x)],0:(num_Exp-1), 'UniformOutput',false);
-dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
+lam = 8; 
+d0 = 0.8;
 
 %% Load traces and ROIs
-d0 = 0.8;
-% folder of the GT Masks
-for lam = [3,5,8,10] % 20 % 
-dir_parent=path_name;
+dir_parent = fullfile('..','data','data_simulation',data_name);
 dir_video = dir_parent; 
 dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_traces_raw=fullfile(dir_video,'complete_TUnCaT\TUnCaT\raw');
-dir_traces_unmix=fullfile(dir_video,'complete_TUnCaT\TUnCaT\alpha= 1.000');
-% folder = ['.\Result_',data_name];
+dir_traces_raw=fullfile(dir_video,'SUNS_TUnCaT_SF25','TUnCaT','raw');
+dir_traces_unmix=fullfile(dir_video,'SUNS_TUnCaT_SF25','TUnCaT','alpha= 1.000');
 doesunmix = 1;
 
 dir_add_new = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));
@@ -33,7 +19,6 @@ if ~ exist(dir_add_new,'dir')
 end
 list_keep = cell(1,num_Exp);
 
-% eid = 4;
 for eid = 1:num_Exp
     %% Calculate PSNR
     Exp_ID = list_Exp_ID{eid};
@@ -71,5 +56,4 @@ num_keep = cellfun(@sum, list_keep);
 num_drop = num_total-num_keep;
 drop_ratio = sum(num_drop)/sum(num_total)
 save(fullfile(dir_add_new,'list_keep.mat'),'list_keep','num_total','num_keep','num_drop');
-end
-disp('Finished this step');
+% disp('Finished this step');

@@ -27,6 +27,9 @@ else: # tf_version == 2:
     gpus = tf.config.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+    # tf.config.set_logical_device_configuration(gpus[0], \
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*16)])
+
 
 # %%
 if __name__ == '__main__':

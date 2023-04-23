@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # Params_loss = {'DL':1, 'BCE':20, 'FL':0, 'gamma':1, 'alpha':0.25} # Parameters of the loss function
 
     # pre-processing for training
-    for ind_video in range(1,4): #
+    for ind_video in range(4): #
         Exp_ID = list_Exp_ID[ind_video]
         # %% setting parameters
         rate_hz = list_rate_hz[ind_video] # frame rate of the video

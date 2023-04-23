@@ -18,7 +18,6 @@ from suns.PreProcessing.preprocessing_functions import preprocess_video
 from suns.train_CNN_params import train_CNN, parameter_optimization_cross_validation
 # from suns.Network.train_CNN_params_vary_CNN import train_CNN, parameter_optimization_cross_validation
 
-sys.argv = ['py', '5', '25', '3', 'TUnCaT']
 unmix = sys.argv[4] # 'TUnCaT' # 'FISSA' 
 if unmix.upper() == 'FISSA':
     from suns.PreProcessing.generate_masks_fissa import generate_masks
@@ -36,10 +35,13 @@ else: # tf_version == 2:
     gpus = tf.config.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+    # tf.config.set_logical_device_configuration(gpus[0], \
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*16)])
 
 
 # %%
 if __name__ == '__main__':
+    # sys.argv = ['py', '5', '25', '3', 'TUnCaT']
     # n_depth = int(sys.argv[1])
     # n_channel = int(sys.argv[2])
     # skip = eval(sys.argv[3])
@@ -92,7 +94,9 @@ if __name__ == '__main__':
     dir_GTMasks = os.path.join(dir_video, 'GT Masks/FinalMasks_')
     if not useSF:
         unmix = unmix + '_noSF'
-    dir_parent = os.path.join(dir_video, 'complete_'+unmix) # folder to save all the processed data
+    else:
+        unmix = unmix + '_SF{}'.format(gauss_filt_size)
+    dir_parent = os.path.join(dir_video, 'SUNS_'+unmix) # folder to save all the processed data
     dir_network_input = os.path.join(dir_parent, 'network_input') # folder of the SNR videos
     dir_mask = os.path.join(dir_parent, 'temporal_masks({})'.format(thred_std)) # foldr to save the temporal masks
     dir_sub = sub_folder

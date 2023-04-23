@@ -13,35 +13,48 @@ os.environ['KERAS_BACKEND'] = 'tensorflow'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
 from suns.PostProcessing.evaluate import GetPerformance_Jaccard_2
-from suns.run_suns_vary_CNN import suns_batch
+from suns.run_suns import suns_batch
+# from suns.run_suns_vary_CNN import suns_batch
 
 import tensorflow as tf
-config = tf.ConfigProto()
-# config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
-sess = tf.Session(config = config)
+tf_version = int(tf.__version__[0])
+if tf_version == 1:
+    config = tf.ConfigProto()
+    # config.gpu_options.allow_growth = True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.9
+    sess = tf.Session(config = config)
+else: # tf_version == 2:
+    gpus = tf.config.list_physical_devices('GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    # tf.config.set_logical_device_configuration(gpus[0], \
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*16)])
+
 
 # %%
 if __name__ == '__main__':
-    list_name_video = ['lowBG=5e+03,poisson=0.3']
-    # list_radius = [8,10,8,6] # 
-    list_rate_hz = [10] # 
-    # list_decay_time = [0.4, 0.5, 0.4, 0.75]
-    Dimens = [(316,253)]
-    list_nframes = [2000]
-    num_Exp = 10
-    list_Exp_ID = ['sim_'+str(x) for x in range(0,num_Exp)]
-    # list_thred_std = [5,5,5,3]
-
     # sys.argv = ['py', '3', '4', '[1]', 'elu', 'False', '444[1]']
-    n_depth = int(sys.argv[1])
-    n_channel = int(sys.argv[2])
-    skip = eval(sys.argv[3])
-    activation = sys.argv[4]
-    double = eval(sys.argv[5])
-    sub_folder = sys.argv[6] # + '+BGlayer' # + '_2out' 
+    unmix = sys.argv[4] # 'TUnCaT' # 'FISSA' 
+    # n_depth = int(sys.argv[1])
+    # n_channel = int(sys.argv[2])
+    # skip = eval(sys.argv[3])
+    # activation = sys.argv[4]
+    # double = eval(sys.argv[5])
+    thred_std = int(sys.argv[1]) # SNR threshold used to determine when neurons are active
+    sub_folder = '4816[1]th' + sys.argv[1]
+    gauss_filt_size = int(sys.argv[2]) # standard deviation of the spatial Gaussian filter in pixels
+    name_video = sys.argv[5] # 'lowBG=5e+03,poisson=0.3'
+
+    # %% setting parameters
+    rate_hz = 10 # frame rate of the video
+    Dimens = (316,253) # lateral dimensions of the video
+    nn = 2000 # number of frames used for preprocessing. 
+        # Can be slightly larger than the number of frames of a video
+    # num_total = 6000 # number of frames used for CNN training. 
+        # Can be slightly smaller than the number of frames of a video
+    Mag = 1 # spatial magnification compared to ABO videos.
     
-    useSF=True # True if spatial filtering is used in pre-processing.
+    useSF=gauss_filt_size>0 # True # True if spatial filtering is used in pre-processing.
     useTF=True # True if temporal filtering is used in pre-processing.
     useSNR=True # True if pixel-by-pixel SNR normalization filtering is used in pre-processing.
     med_subtract=False # True if the spatial median of every frame is subtracted before temporal filtering.
@@ -51,22 +64,17 @@ if __name__ == '__main__':
     batch_size_eval = 200 # batch size in CNN inference
     useWT=False # True if using additional watershed
     display=True # True if display information about running time 
-    ind_video = 0
-    name_video = list_name_video[ind_video]
-    # %% setting parameters
-    rate_hz = list_rate_hz[ind_video] # frame rate of the video
-    Dimens = Dimens[ind_video] # lateral dimensions of the video
-    # num_total = 6000 # number of frames used for CNN training. 
-        # Can be slightly smaller than the number of frames of a video
-    Mag = 1 # spatial magnification compared to ABO videos.
 
     # file names of the ".h5" files storing the raw videos. 
-    # list_Exp_ID = [name_video+x for x in ID_part]
+    num_Exp = 10
+    list_Exp_ID = ['sim_'+str(x) for x in range(0,num_Exp)]
     # folder of the raw videos
-    dir_video = os.path.join('E:\\simulation_CNMFE_corr_noise', name_video)
+    dir_video = os.path.join('../../data/data_simulation', name_video)
     # folder of the ".mat" files stroing the GT masks in sparse 2D matrices
-    dir_GTMasks = os.path.join(dir_video, 'GT Masks\\FinalMasks_')
-    dir_parent = os.path.join(dir_video, 'complete_TUnCaT') # folder to save all the processed data
+    dir_GTMasks = os.path.join(dir_video, 'GT Masks/FinalMasks_')
+    if not useSF:
+        unmix = unmix + '_noSF'
+    dir_parent = os.path.join(dir_video, 'complete_'+unmix) # folder to save all the processed data
     dir_sub = sub_folder
     weights_path = os.path.join(dir_parent, dir_sub, 'Weights') # folder to save the trained CNN
     dir_output = os.path.join(dir_parent, dir_sub, 'output_masks') # folder to save the optimized hyper-parameters
@@ -75,9 +83,6 @@ if __name__ == '__main__':
         os.makedirs(dir_output) 
 
     # %% pre-processing parameters
-    nn = list_nframes[ind_video] # number of frames used for preprocessing. 
-        # Can be slightly larger than the number of frames of a video
-    gauss_filt_size = 50*Mag # standard deviation of the spatial Gaussian filter in pixels
     num_median_approx = 1000 # number of frames used to caluclate median and median-based standard deviation
     dims = (Lx, Ly) = Dimens # lateral dimensions of the video
     filename_TF_template = os.path.join(dir_video, name_video+'_spike_tempolate.h5')
@@ -132,9 +137,12 @@ if __name__ == '__main__':
 
         # The entire process of SUNS batch
         Masks, Masks_2, times_active, time_total, time_frame = suns_batch(
-            dir_video, Exp_ID, filename_CNN, Params_pre, Params_post, dims, batch_size_eval, \
-            useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, useWT=useWT, prealloc=prealloc, display=display, p=p,\
-            n_depth=n_depth, n_channel=n_channel, skip=skip, activation=activation, double=double)
+            dir_video, Exp_ID, filename_CNN, Params_pre, Params_post, batch_size_eval, \
+            useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, useWT=useWT, prealloc=prealloc, display=display, p=p)
+        # Masks, Masks_2, times_active, time_total, time_frame = suns_batch(
+        #     dir_video, Exp_ID, filename_CNN, Params_pre, Params_post, dims, batch_size_eval, \
+        #     useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, useWT=useWT, prealloc=prealloc, display=display, p=p,\
+        #     n_depth=n_depth, n_channel=n_channel, skip=skip, activation=activation, double=double)
 
         # %% Evaluation of the segmentation accuracy compared to manual ground truth
         filename_GT = dir_GTMasks + Exp_ID + '_sparse.mat'

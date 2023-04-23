@@ -1,3 +1,5 @@
+addpath(genpath('.'))
+addpath(genpath(fullfile('..','ANE')))
 %%
 global gui;
 global txtFntSz;
@@ -18,24 +20,24 @@ global sum_edges;
 global traces_raw;
 global traces_out_exclude;
 global traces_bg_exclude;
-% global 
 
 %%
 % folder of the GT Masks
-dir_parent='E:\data_CNMFE\';
+dir_parent=fullfile('E:','data_CNMFE');
 % name of the videos
 list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
-rate_hz = [10,15,7.5,5]; % frame rate of each video
+rate_hz = 20; % frame rate of each video
 r_bg_ratio = 2;
 
 %% Load traces and ROIs
-vid=1;
+vid=4;
 Exp_ID = list_Exp_ID{vid};
-dir_masks = fullfile(dir_parent, 'GT Masks original');
+DirSave = ['Results_',Exp_ID];
 dir_trace = fullfile(dir_parent,'SNR traces');
-fs = rate_hz(vid);
-if ~ exist(Exp_ID,'dir')
-    mkdir(Exp_ID);
+dir_refine = fullfile(DirSave,'refined');
+fs = rate_hz;
+if ~ exist(dir_refine,'dir')
+    mkdir(dir_refine);
 end
 
 load(fullfile(dir_trace,['raw and bg traces ',Exp_ID,'.mat']),'traces_raw','traces_bg_exclude','traces_out_exclude');
@@ -52,7 +54,7 @@ max_SNR = max(video_SNR,[],3);
 T = size(video_SNR,3);
 % tile_size = [ceil(T/10/100),10]; % [9,10];
 
-load(fullfile(dir_masks,['FinalMasks_',Exp_ID,'_added_blockwise.mat']),'FinalMasks');
+load(fullfile(dir_refine,[Exp_ID,'_manual_added.mat']),'FinalMasks');
 masks=logical(FinalMasks);
 [Lx,Ly,N]=size(masks);
 ROIs2 = reshape(masks,Lx*Ly,N);
@@ -135,9 +137,14 @@ for nn = 1:N
     list_d_diff{nn} = d_diff;
     weight_frame = list_weight_frame{nn};
     d_diff(weight_frame<=0) = 0;
-    thred = prctile(d_diff,99);
+    d_diff_sort = sort(d_diff,'descend');
+    if T > 6000
+        thred = min(90,prctile(d_diff,99));
+    else
+        thred = d_diff_sort(60);
+    end
     if thred<thred_min
-        d_diff_sort = sort(d_diff,'descend');
+%         d_diff_sort = sort(d_diff,'descend');
         thred = min(thred_min,d_diff_sort(10));
     end
     list_thred(nn) = thred;
@@ -148,7 +155,7 @@ for nn = 1:N
 end
 
 %%
-save([Exp_ID,'_weights.mat'],'list_weight','list_weight_trace','list_weight_frame',...
+save(fullfile(dir_refine,[Exp_ID,'_weights.mat']),'list_weight','list_weight_trace','list_weight_frame',...
     'comx','comy','area','list_neighbors','r_bg_ratio','edges','sum_edges',...
     'traces_raw','traces_out_exclude','video','masks');
 
@@ -161,8 +168,6 @@ save([Exp_ID,'_weights.mat'],'list_weight','list_weight_trace','list_weight_fram
 % list_added = {};
 % list_delete = false(1,N);
 % ListStrings = num2cell(1:N);
-folder = ['.\Result_',Exp_ID];
-GUI_refine(video,folder,masks);
-% folder = 'Result_PFC4_15Hz';
-% GUI_refine(video,folder,masks,update_result);
+GUI_refine(video,dir_refine,masks);
+% GUI_refine(video,dir_refine,masks,update_result);
 

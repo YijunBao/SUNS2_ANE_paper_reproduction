@@ -14,12 +14,12 @@ function main_SelectNeuron(vid,guimask,DirSave,name,video_SNR)
         guimask = zeros(x,y,0);
     end
     %% Manually add missing neurons
-    saveName = [DirSave,filesep,'Added_',name,'.mat'];
-if exist('video_SNR','var')
-    SNRvideo = AddROI(vid,saveName, guimask,video_SNR);
-else
-    SNRvideo = AddROI(vid,saveName, guimask);
-end
+    saveName = [DirSave,filesep,'Added_',name];
+    if exist('video_SNR','var')
+        SNRvideo = AddROI(vid,saveName, guimask,video_SNR);
+    else
+        SNRvideo = AddROI(vid,saveName, guimask);
+    end
     fig = gcf;
     waitfor(fig);
 
@@ -100,9 +100,8 @@ end
     end
 
     %% GUI main
-    saveName = [DirSave,filesep,'FinalMasks_',name,'.mat'];
 %     SelectNeuron(vid,guimask,guitrace)
-    NeuronFilter(SNRvideo,guimask,resultSpikes,guitrace)
+    NeuronFilter(SNRvideo,guimask,resultSpikes,guitrace,DirSave)
     waitfor(gui.Window)
     
 %     for i = 1:ncells
@@ -123,10 +122,15 @@ end
     list_text = {'',' Yes',' No'};
     resultString = arrayfun(@(x) [num2str(x),list_text{3-result(x)}],1:ncells,'UniformOutput',false);
 
-    save(saveName,'FinalMasks','FinalTimes');
+    saveName = [DirSave,filesep,'FinalMasks_',name];
+    saveName_date=[saveName,'_',replace(char(datetime),':','-')];
+    save([saveName,'.mat'],'FinalMasks','FinalTimes');
+    copyfile([saveName,'.mat'],[saveName_date,'.mat'])
 
-    saveName = [DirSave,filesep,'ManualIDs_traces_',name,'.mat'];
-    save(saveName,'guimask','guitrace','result','resultString','resultSpikes')
+    saveName = [DirSave,filesep,'ManualIDs_traces_',name];
+    saveName_date=[saveName,'_',replace(char(datetime),':','-')];
+    save([saveName,'.mat'],'guimask','guitrace','result','resultString','resultSpikes')
+    copyfile([saveName,'.mat'],[saveName_date,'.mat'])
 
     clear gui finalMask Y guimask guitrace result resultSpikes
 

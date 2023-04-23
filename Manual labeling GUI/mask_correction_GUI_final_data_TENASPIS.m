@@ -1,13 +1,17 @@
-% load('.\Result_PFC4_15Hz\masks_update(1--237)-1+3.mat','update_result')
+addpath(genpath('.'))
+addpath(genpath(fullfile('..','ANE')))
 %%
 % folder of the GT Masks
-dir_parent='D:\data_TENASPIS\original_masks\';
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 
-vid=5;
+vid=1;
 Exp_ID = list_Exp_ID{vid};
+DirSave = ['Results_',Exp_ID];
+dir_refine = fullfile(DirSave,'refined');
+load(fullfile(dir_refine,'masks_update.mat'),'update_result');
 
 masks_update = update_result.masks_update;
 list_delete = update_result.list_delete;
@@ -27,9 +31,8 @@ times = cell(1,num_added);
 list_added_final = reshape(full(list_added_sparse_final),Lx,Ly,[]);
 
 %%
-dir_save = fullfile(dir_parent,'GT Masks refined');
-if ~ exist(dir_save,'dir')
-    mkdir(dir_save);
+FinalMasks = masks_update(:,:,~list_delete);
+if ~isempty(list_added_final)
+    FinalMasks = cat(3,FinalMasks,list_added_final);
 end
-FinalMasks = cat(3,masks_update(:,:,~list_delete),list_added_final);
-save(fullfile(dir_save,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');
+save(fullfile(DirSave,['FinalMasks_',Exp_ID,'.mat']),'FinalMasks');

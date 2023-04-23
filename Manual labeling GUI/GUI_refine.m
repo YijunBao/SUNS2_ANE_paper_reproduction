@@ -1420,6 +1420,7 @@ function SaveMasks(~, ~)
     while exist(fullfile(folder,fileName),'file')
         fileName=[fileName(1:end-4),'+','.mat'];
     end
+    save(fullfile(folder,'masks_update.mat'), 'update_result');
     save(fullfile(folder,fileName), 'update_result');
     close(gui.Window);
 end

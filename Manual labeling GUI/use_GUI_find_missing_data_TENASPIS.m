@@ -1,6 +1,7 @@
 %%
 addpath(genpath('.'))
 addpath(genpath(fullfile('..','ANE')))
+clear gui;
 global gui;
 global txtFntSz;
 global video;
@@ -28,23 +29,33 @@ list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
 dir_video=fullfile('..','data','data_TENASPIS','added_refined_masks');
 eid = 1;
 Exp_ID = list_Exp_ID{eid};
-% dir_SUNS = fullfile(dir_parent, 'complete_TUnCaT'); % 4 v1
-% dir_masks = fullfile(dir_parent, 'GT Masks');
-DirSave = ['Results_',Exp_ID];
-dir_add_new = fullfile(DirSave, 'add_new_blockwise');
 
-load(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),...
+DirSave = ['Results_',Exp_ID];
+dir_add = fullfile(DirSave, 'add_new_blockwise');
+
+load(fullfile(dir_add,[Exp_ID,'_weights_blockwise.mat']),...
     'list_weight','list_weight_trace','list_weight_frame',...
     'sum_edges','traces_raw','video','masks');
-load(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
+load(fullfile(dir_add,[Exp_ID,'_added_auto_blockwise.mat']), ...
     'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
     'images_added_crop', 'patch_locations'); % ,'time_weights'
-folder = dir_add_new;
 
-GUI_find_missing_4train_blockwise_weighted_sum_unmask(video, folder, masks, patch_locations,...
+% global fileName;
+% clear fileName;
+GUI_find_missing_4train_blockwise(video, dir_add, masks, patch_locations,...
 images_added_crop, masks_added_crop, added_frames, added_weights); % , update_result
 
-%%% If using a previously saved results "masks_processed(x--y).mat", load it first.
-% load(fullfile(dir_add_new, 'masks_processed(x--y).mat'), update_result);
+%% If using a previously saved results "masks_processed(x--y).mat", load it first.
+% load(fullfile(dir_add_new, 'masks_processed(x--y).mat'), 'update_result');
 % GUI_find_missing_4train_blockwise_weighted_sum_unmask(video, folder, masks, patch_locations,...
 % images_added_crop, masks_added_crop, added_frames, added_weights, update_result); % 
+
+%%
+% waitfor(gui.Window);
+% % uiwait(gui.Window);
+% load(fullfile(dir_add, gui.fileName), 'update_result');
+% list_valid = cellfun(@(x) (isempty(x) || x==1), update_result.list_valid);
+% FinalMasks = masks_added_full(:,:,list_valid);
+% save(fullfile(dir_add,[Exp_ID,'_confirmed.mat']),'FinalMasks');
+% % copyfile(fullfile(dir_add,fileName), fullfile(dir_add,[Exp_ID,'_masks_processed.mat']));
+

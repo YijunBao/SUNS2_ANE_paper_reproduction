@@ -9,9 +9,9 @@ import h5py
 from scipy.io import savemat, loadmat
 import multiprocessing as mp
 import tensorflow as tf
+import gc
 
 os.environ['KERAS_BACKEND'] = 'tensorflow'
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
 from suns.Network.data_gen import data_gen
 from suns.Network.shallow_unet import get_shallow_unet
@@ -55,6 +55,7 @@ def train_CNN(dir_img, dir_mask, file_CNN, list_Exp_ID_train, list_Exp_ID_val, \
     nvideo_train = len(list_Exp_ID_train) # Number of training videos
     # set how to choose training images
     train_every = max(1,num_total//num_train_per)
+    num_train_per = min(num_total,num_train_per)
     start_frame_train = random.randint(0,train_every-1)
     NO_OF_TRAINING_IMAGES = num_train_per * nvideo_train
     
@@ -102,12 +103,12 @@ def train_CNN(dir_img, dir_mask, file_CNN, list_Exp_ID_train, list_Exp_ID_val, \
         # select a frame every "val_every" frames, totally "num_val_per" frames  
         for cnt, Exp_ID in enumerate(list_Exp_ID_val):
             h5_img = h5py.File(os.path.join(dir_img, Exp_ID+'.h5'), 'r')
+            h5_mask = h5py.File(os.path.join(dir_mask, Exp_ID+'.h5'), 'r')
             val_imgs[cnt*num_val_per:(cnt+1)*num_val_per,:,:] \
                 = np.array(h5_img['network_input'][start_frame_val:val_every*num_val_per:val_every])
-            h5_img.close()
-            h5_mask = h5py.File(os.path.join(dir_mask, Exp_ID+'.h5'), 'r')
             val_masks[cnt*num_val_per:(cnt+1)*num_val_per,:,:] \
                 = np.array(h5_mask['temporal_masks'][start_frame_val:val_every*num_val_per:val_every])
+            h5_img.close()
             h5_mask.close()
 
     # generater for training and validation images and masks
@@ -182,7 +183,12 @@ def parameter_optimization_pipeline(file_CNN, network_input, dims, \
 
     # CNN inference
     start_test = time.time()
-    prob_map = fff.predict(network_input, batch_size=batch_size_eval)
+    if network_input.size < 1e9 or int(tf.__version__[0])==1:
+        prob_map = fff.predict(network_input, batch_size=batch_size_eval)
+    else:
+        prob_map_list = [fff.predict(network_input[t:t+batch_size_eval], batch_size=batch_size_eval) \
+            for t in range(0,network_input.shape[0],batch_size_eval)]
+        prob_map = np.concatenate(prob_map_list, axis=0)
     finish_test = time.time()
     Time_frame = (finish_test-start_test)/network_input.shape[0]*1000
     print('Average infrence time {} ms/frame'.format(Time_frame))
@@ -279,11 +285,11 @@ def parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Param
         # Notice that meshgrid swaps the first two dimensions, so they are placed in a different way.
 
     # %% start parameter optimization for each video with various CNN models
-    p = mp.Pool(mp.cpu_count())
     for (eid,Exp_ID) in enumerate(list_Exp_ID):
         if max_eid is not None:
             if eid > max_eid:
                 continue
+        gc.collect()
         list_saved_results = glob.glob(os.path.join(dir_temp, 'Parameter Optimization CV* Exp{}.mat'.format(Exp_ID)))
         saved_results_CVall = os.path.join(dir_temp, 'Parameter Optimization CV{} Exp{}.mat'.format(nvideo, Exp_ID))
         if saved_results_CVall in list_saved_results:
@@ -314,6 +320,7 @@ def parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Param
         else: # cross_validation == 'use_all'
             list_CV = [nvideo]
 
+        p = mp.Pool(mp.cpu_count())
         for CV in list_CV:
             mat_filename = os.path.join(dir_temp, 'Parameter Optimization CV{} Exp{}.mat'.format(CV,Exp_ID))
             if os.path.exists(mat_filename) and load_exist: 
@@ -338,7 +345,7 @@ def parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Param
                 mdict={'list_Recall':list_Recall, 'list_Precision':list_Precision, 'list_F1':list_F1, 'Table':Table, 'Params_set':Params_set}
                 savemat(mat_filename, mdict) 
 
-    p.close()
+        p.close()
             
     # %% Find the optimal postprocessing parameters
     if cross_validation == 'use_all':

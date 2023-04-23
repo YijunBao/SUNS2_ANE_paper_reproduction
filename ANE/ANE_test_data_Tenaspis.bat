@@ -4,10 +4,10 @@
 
 @REM Calculate the weight of each frame in each block for test data, 
 @REM and propose putative missing neurons using clustering for test data
-matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th5'); pre_CNN_data_TENASPIS_SUNS_blockwise_mm; exit"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5'); clustering_mm_SUNS_data_TENASPIS; exit"
 
 @REM Apply CNN discriminator to determine whether each putative missing neuron is valid
-python test_CNN_classifier_data_TENASPIS_cv_drop.py "complete_TUnCaT/4816[1]th5/output_masks"
+python test_CNN_classifier_cv_data_TENASPIS.py "SUNS_TUnCaT_SF25/4816[1]th5/output_masks"
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th5'); post_CNN_data_TENASPIS_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5'); post_CNN_cv_data_TENASPIS"

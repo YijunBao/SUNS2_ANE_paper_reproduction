@@ -6,46 +6,46 @@
 @REM blood_vessel_10Hz
 @REM Calculate the weight of each frame in each block for test data, 
 @REM and propose putative missing neurons using clustering for test data
-matlab -nojvm -nodesktop -r "data_ind = 1; pre_CNN_data_CNMFE_crop_SUNS_blockwise_mm; exit"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5');  data_ind = 1; clustering_mm_SUNS_data_CNMFE_crop; exit"
 
 @REM Apply CNN discriminator to determine whether each putative missing neuron is valid
-python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th5/output_masks" 0
+python test_CNN_classifier_cv_data_CNMFE_crop.py "SUNS_TUnCaT_SF25/4816[1]th5/output_masks" 0
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 1; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th5');  post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5');  data_ind = 1; post_CNN_cv_data_CNMFE_crop"
 
 
 @REM PFC4_15Hz
 @REM Calculate the weight of each frame in each block for test data, 
 @REM and propose putative missing neurons using clustering for test data
-matlab -nojvm -nodesktop -r "data_ind = 2; pre_CNN_data_CNMFE_crop_SUNS_blockwise_mm; exit"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4'); data_ind = 2; clustering_mm_SUNS_data_CNMFE_crop; exit"
 
 @REM Apply CNN discriminator to determine whether each putative missing neuron is valid
-python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 1
+python test_CNN_classifier_cv_data_CNMFE_crop.py "SUNS_TUnCaT_SF25/4816[1]th4/output_masks" 1
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 2; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4'); data_ind = 2; post_CNN_cv_data_CNMFE_crop"
 
 
 @REM bma22_epm
 @REM Calculate the weight of each frame in each block for test data, 
 @REM and propose putative missing neurons using clustering for test data
-matlab -nojvm -nodesktop -r "data_ind = 3; pre_CNN_data_CNMFE_crop_SUNS_blockwise_mm; exit"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4'); data_ind = 3; clustering_mm_SUNS_data_CNMFE_crop; exit"
 
 @REM Apply CNN discriminator to determine whether each putative missing neuron is valid
-python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 2
+python test_CNN_classifier_cv_data_CNMFE_crop.py "SUNS_TUnCaT_SF25/4816[1]th4/output_masks" 2
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 3; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4'); data_ind = 3; post_CNN_cv_data_CNMFE_crop"
 
 
 @REM CaMKII_120_TMT Exposure_5fps
 @REM Calculate the weight of each frame in each block for test data, 
 @REM and propose putative missing neurons using clustering for test data
-matlab -nojvm -nodesktop -r "data_ind = 4; pre_CNN_data_CNMFE_crop_SUNS_blockwise_mm; exit"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF50','4816[1]th4'); data_ind = 4; clustering_mm_SUNS_data_CNMFE_crop; exit"
 
 @REM Apply CNN discriminator to determine whether each putative missing neuron is valid
-python test_CNN_classifier_data_CNMFE_cv_drop.py "complete_TUnCaT/4816[1]th4/output_masks" 3
+python test_CNN_classifier_cv_data_CNMFE_crop.py "SUNS_TUnCaT_SF50/4816[1]th4/output_masks" 3
 
 @REM Add valid missing neurons to output neurons
-matlab -nojvm -nodesktop -r "data_ind = 4; dir_SUNS_sub = fullfile('complete_TUnCaT','4816[1]th4'); post_CNN_data_CNMFE_drop_blockwise_cv"
+matlab -nojvm -nodesktop -r "dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF50','4816[1]th4'); data_ind = 4; post_CNN_cv_data_CNMFE_crop"

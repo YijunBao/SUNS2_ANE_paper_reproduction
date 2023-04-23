@@ -12,9 +12,8 @@ from scipy import sparse
 from scipy.io import savemat, loadmat
 import multiprocessing as mp
 
-# sys.path.insert(1, '../..') # the path containing "suns" folder
+import tensorflow as tf
 os.environ['KERAS_BACKEND'] = 'tensorflow'
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
 from suns.Online.functions_online import merge_2, merge_2_nocons, merge_complete, select_cons, \
     preprocess_online, CNN_online, separate_neuron_online, refine_seperate_cons_online
@@ -127,7 +126,12 @@ def suns_batch(dir_video, Exp_ID, filename_CNN, Params_pre, Params_post, dims, \
 
     # CNN inference
     video_input = np.expand_dims(video_input, axis=-1)
-    prob_map = fff.predict(video_input, batch_size=batch_size_eval)
+    if video_input.size < 1e9 or int(tf.__version__[0])==1:
+        prob_map = fff.predict(video_input, batch_size=batch_size_eval)
+    else:
+        prob_map_list = [fff.predict(video_input[t:t+batch_size_eval], batch_size=batch_size_eval) \
+            for t in range(0,video_input.shape[0],batch_size_eval)]
+        prob_map = np.concatenate(prob_map_list, axis=0)
     if display:
         end_network = time.time()
         time_CNN = end_network-end_pre

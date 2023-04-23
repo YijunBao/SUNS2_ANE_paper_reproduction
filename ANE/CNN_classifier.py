@@ -14,6 +14,10 @@ from keras.layers import Dropout, Activation, Flatten
 
 import tensorflow as tf
 from sklearn.utils import class_weight as cw
+try:
+    from keras.optimizers import rmsprop as RMSprop
+except:
+    from tensorflow.keras.optimizers import RMSprop
 
 # %%
 def CNN_classifier_res0(input_shape, num_classes):
@@ -41,7 +45,7 @@ def CNN_classifier_res0(input_shape, num_classes):
     model.add(Dense(num_classes))
     model.add(Activation('softmax'))
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
                 metrics=['accuracy'])
@@ -79,7 +83,7 @@ def CNN_classifier_res1(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -118,7 +122,7 @@ def CNN_classifier_res2(input_shape, num_classes, padding = 'valid'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -158,7 +162,7 @@ def CNN_classifier_res3(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -197,7 +201,7 @@ def CNN_classifier_res4(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -237,7 +241,7 @@ def CNN_classifier_res5(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -277,7 +281,7 @@ def CNN_classifier_res6(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -317,7 +321,7 @@ def CNN_classifier_res7(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -357,7 +361,7 @@ def CNN_classifier_res8(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,
@@ -397,7 +401,7 @@ def CNN_classifier_res9(input_shape, num_classes, padding = 'same'):
     x = Dense(num_classes)(x)
     output = Activation('softmax')(x)
     
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+    opt = RMSprop(lr=0.0001, decay=1e-6)
     model = keras.Model(inputs=[input], outputs=[output])
     model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=opt,

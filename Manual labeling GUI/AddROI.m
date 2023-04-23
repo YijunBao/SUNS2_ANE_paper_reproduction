@@ -478,6 +478,8 @@ set(stxthand, 'String', sprintf('Slice# %d / %d',S, sno));
 
         FinalMasks = logical(FinalMasks);
         save(name,'FinalMasks');
+        name_date=[name,'_',replace(char(datetime),':','-')];
+        save(name_date,'FinalMasks');
         close(fig)
     end
 

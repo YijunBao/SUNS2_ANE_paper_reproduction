@@ -3,11 +3,7 @@
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
-rate_hz = 20; % frame rate of each video
-avg_radius = 10;
 lam = 15;
-r_bg_ratio = 3;
-leng = r_bg_ratio*avg_radius;
 d0 = 0.8;
 
 %% Load traces and ROIs
@@ -15,8 +11,8 @@ d0 = 0.8;
 dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 dir_video = dir_parent; 
 dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_traces_raw=fullfile(dir_video,'complete_TUnCaT','TUnCaT','raw');
-dir_traces_unmix=fullfile(dir_video,'complete_TUnCaT','TUnCaT','alpha= 1.000');
+dir_traces_raw=fullfile(dir_video,'SUNS_TUnCaT_SF25','TUnCaT','raw');
+dir_traces_unmix=fullfile(dir_video,'SUNS_TUnCaT_SF25','TUnCaT','alpha= 1.000');
 doesunmix = 1;
 
 dir_add_new = fullfile(dir_parent, sprintf('GT Masks dropout %gexp(-%g)',d0,lam));

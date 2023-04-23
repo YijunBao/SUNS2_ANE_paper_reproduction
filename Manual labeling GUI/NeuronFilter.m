@@ -3,7 +3,7 @@
 % Last updated 8/29/2019 by Agnim Agarwal
 %
 
-function NeuronFilter(vid, Mask, markings, trace) % markings variable =  for external markings OR 0 for no file input
+function NeuronFilter(vid, Mask, markings, trace, DirSave) % markings variable =  for external markings OR 0 for no file input
 % vid is the input video
 % Mask is the mask of neurons
 % markings is the existing marking of temproal spikes. It can be empty.
@@ -487,11 +487,13 @@ function NeuronFilter(vid, Mask, markings, trace) % markings variable =  for ext
 %         end
         
 %         num_output=length(output)-sum(cellfun(@isempty, output));
-        fileName=fullfile('Results',['transients_',replace(char(datetime),':','-')]);
+        fileName=fullfile(DirSave,'transients');
+        fileName_date=[fileName,'_',replace(char(datetime),':','-')];
 %         while exist([fileName,'.mat'],'file')
 %             fileName=[fileName,'+'];
 %         end
         save([fileName,'.mat'], 'resultSpikes');
+        save([fileName_date,'.mat'], 'resultSpikes');
         close(gui.Window);
     end
  

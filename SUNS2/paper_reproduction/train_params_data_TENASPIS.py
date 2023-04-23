@@ -12,7 +12,7 @@ import h5py
 
 sys.path.insert(1, '..') # the path containing "suns" folder
 os.environ['KERAS_BACKEND'] = 'tensorflow'
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
 from suns.PreProcessing.preprocessing_functions import preprocess_video
 from suns.train_CNN_params import train_CNN, parameter_optimization_cross_validation
@@ -35,6 +35,8 @@ else: # tf_version == 2:
     gpus = tf.config.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+    # tf.config.set_logical_device_configuration(gpus[0], \
+    #     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*16)])
 
 
 # %%
@@ -92,14 +94,16 @@ if __name__ == '__main__':
     dir_GTMasks = os.path.join(dir_video, 'GT Masks/FinalMasks_')
     if not useSF:
         unmix = unmix + '_noSF'
-    dir_parent = os.path.join(dir_video, 'complete_'+unmix) # folder to save all the processed data
+    else:
+        unmix = unmix + '_SF{}'.format(gauss_filt_size)
+    dir_parent = os.path.join(dir_video, 'SUNS_'+unmix) # folder to save all the processed data
     dir_network_input = os.path.join(dir_parent, 'network_input') # folder of the SNR videos
     dir_mask = os.path.join(dir_parent, 'temporal_masks({})'.format(thred_std)) # foldr to save the temporal masks
     dir_sub = sub_folder
     weights_path = os.path.join(dir_parent, dir_sub, 'Weights') # folder to save the trained CNN
     training_output_path = os.path.join(dir_parent, dir_sub, 'training output') # folder to save the loss functions during training
-    dir_output = os.path.join(dir_parent, dir_sub, 'output_masks') # folder to save the optimized hyper-parameters
-    dir_temp = os.path.join(dir_parent, dir_sub, 'temp') # temporary folder to save the F1 with various hyper-parameters
+    dir_output = os.path.join(dir_parent, dir_sub, 'output_masks2') # folder to save the optimized hyper-parameters
+    dir_temp = os.path.join(dir_parent, dir_sub, 'temp2') # temporary folder to save the F1 with various hyper-parameters
 
     if not os.path.exists(dir_network_input):
         os.makedirs(dir_network_input) 
