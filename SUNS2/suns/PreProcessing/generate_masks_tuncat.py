@@ -3,7 +3,6 @@ import numpy as np
 import time
 from scipy import special
 import h5py
-import fissa
 from tuncat.run_TUnCaT import run_TUnCaT
 import os
 from scipy.io import loadmat

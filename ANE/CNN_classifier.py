@@ -17,7 +17,11 @@ from sklearn.utils import class_weight as cw
 try:
     from keras.optimizers import rmsprop as RMSprop
 except:
-    from tensorflow.keras.optimizers import RMSprop
+    tf_version = tf.__version__.split('.')[:2]
+    if int(tf_version[0]) >=2 and int(tf_version[1]) >=3:
+        from tensorflow.keras.optimizers.legacy import RMSprop
+    else:
+        from tensorflow.keras.optimizers import RMSprop
 
 # %%
 def CNN_classifier_res0(input_shape, num_classes):

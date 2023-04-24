@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 # os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import keras
 from keras import backend as K
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     #%
     batch_size = 8
     num_classes = 2
-    epochs = 2000
+    epochs = 20
     # test_fraction = 0.25
     augmentation = True
     # input image dimensions

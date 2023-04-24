@@ -1,10 +1,8 @@
 @REM Generate sparse GT masks
-@REM python generate_sparse_GT.py "../../data/data_simulation/*/GT Masks"
+python generate_sparse_GT.py "../../data/data_simulation/*/GT Masks"
 
 @REM Training
-python train_CNN_simu.py 4 25 0 TUnCaT lowBG=5e+03,poisson=1
-python train_params_simu.py 4 25 4 TUnCaT lowBG=5e+03,poisson=1
-python train_params_simu.py 4 25 9 TUnCaT lowBG=5e+03,poisson=1
+python train_CNN_params_simu.py 4 25 9 TUnCaT lowBG=5e+03,poisson=1
 
 @REM Argument meanings (same for training and testing scripts):
 @REM 1. SNR threshold

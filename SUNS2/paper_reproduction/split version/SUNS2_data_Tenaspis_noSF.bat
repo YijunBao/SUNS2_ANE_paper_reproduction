@@ -2,7 +2,9 @@
 python generate_sparse_GT.py "../../data/data_TENASPIS/added_refined_masks/GT Masks"
 
 @REM Training
-python train_CNN_params_data_TENASPIS.py 5 0 7 FISSA
+python train_CNN_data_TENASPIS.py 5 0 0 TUnCaT
+python train_params_data_TENASPIS.py 5 0 3 TUnCaT
+python train_params_data_TENASPIS.py 5 0 7 TUnCaT
 
 @REM Argument meanings (same for training and testing scripts):
 @REM 1. SNR threshold
@@ -12,4 +14,4 @@ python train_CNN_params_data_TENASPIS.py 5 0 7 FISSA
 @REM 5. Video index of the CNMF-E dataset
 
 @REM Testing
-python test_batch_data_TENASPIS.py 5 0 7 FISSA
+python test_batch_data_TENASPIS.py 5 0 7 TUnCaT

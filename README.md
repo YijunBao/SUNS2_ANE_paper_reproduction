@@ -16,6 +16,7 @@ Among these folders, the first three folders are the original code we developed,
 Shallow UNet Neuron Segmentation (SUNS) was a python software developed in our [previous work](https://doi.org/10.1038/s42256-021-00342-x) for two-photon calcium imaging videos. We extended the original version (SUNS1) to process one-photon videos (SUNS2) by applying spatial homomorphic filtering in pre-processing and replacing FISSA by TUnCaT. The folder `paper_reproduction` contains the code to reproduce the paper results, and the remaining folders contain the code of SUNS2. Because we also ran SUNS1 in the paper for comparison, the installation and paper reproduction code also include necessary files to run SUNS1. 
 
 We compiled a series of code running in sequence to Windows bat files, including training and testing SUNS1 or SUNS2 on each dataset:
+* SUNS2_demo.bat: Trainand test SUNS2 on the demo dataset.
 * SUNS2_simu.bat: Trainand test SUNS2 on the simulated dataset.
 * SUNS2_data_Tenaspis.bat: Trainand test SUNS2 on the Tenaspis dataset.
 * SUNS2_data_Tenaspis_noSF.bat: Trainand test SUNS2 without spatial filtering on the Tenaspis dataset.
@@ -26,10 +27,10 @@ We compiled a series of code running in sequence to Windows bat files, including
 * SUNS1_data_Tenaspis_noSF.bat: Trainand test SUNS1 without spatial filtering on the Tenaspis dataset.
 * SUNS1_data_CNMFE.bat: Train and test SUNS1 on the CNMF-E dataset.
 * SUNS1_data_CNMFE_noSF.bat: Train and test SUNS1 without spatial filtering on the CNMF-E dataset.
-Users can skip the training steps and directly run the testing steps using the training results that we provided. 
+Users can skip the training steps and directly run the testing steps using the training results that we provided. If the training get hung after finishing CNN training and starting parameter optimization (i.e., you see `Using thresh_pmap=` but the CPU utilization dropped to zero), please go to the folder `split_version` and run the corresponding scripts instead.
 
 # ANE
-Additional neuron extraction (ANE) is a supplementary algorithm developed in MATLAB and python to locate small or dim neurons missed by SUNS. It started from the output masks of SUNS2, and used hierarchical clustering and CNN discrimination to extract additional neurons. 
+Additional neuron extraction (ANE) is a supplementary algorithm developed in MATLAB and python to locate small or dim neurons missed by SUNS. It started from the output masks of SUNS2, and used hierarchical clustering and CNN discrimination to extract additional neurons. They python portions of the program can be run in the SUNS environment installed before. 
 
 We compiled a series of code running in sequence to Windows bat files, including training and testing ANE on each dataset:
 * ANE_train_demo.bat: Train ANE on the demo dataset.
@@ -40,14 +41,14 @@ We compiled a series of code running in sequence to Windows bat files, including
 * ANE_test_simu.bat: Test ANE on the simulated dataset.
 * ANE_test_data_Tenaspis.bat: Test ANE on the Tenaspis dataset.
 * ANE_test_data_CNMFE.bat: Test ANE on the CNMF-E dataset.
-Users can skip the training steps and directly run the testing steps using the training results that we provided. 
+Users can skip the training steps and directly run the testing steps using the training results that we provided. But it is possible that the saved training results cannot be correctly loaded to programs run in a different environment. It is the best practice to train and test in the same environment. 
 
 # Manual labeling GUI
 We developed three MATLAB GUIs to semi-automatically label neurons and refine their shapes, so that they can be used as ground truth neurons for training and evaluation. 
 
 We compiled a series of code running in sequence to Windows bat files, including manual labeling on the Tenaspis and the CNMF-E dataset:
-* pipeline_labeling_Tenaspis.bat: manual labeling on the Tenaspis dataset.
-* pipeline_labeling_CNMFE_full.bat: manual labeling on the full videos of the CNMF-E dataset.
+* pipeline_labeling_data_Tenaspis.m: manual labeling on the Tenaspis dataset.
+* pipeline_labeling_data_CNMFE_full.m: manual labeling on the full videos of the CNMF-E dataset.
 
 # Software requirement and installation
 We used python and MATLAB to implement and run our code. We tested our code on python 3.7.8 (Anaconda) and MATLAB R2019a on a Windows 10 computer (AMD 1920X CPU, 128 GB RAM, NVIDIA Titan RTX GPU). Please refer to the readme of SUNS2 for installation of the custom python package. 

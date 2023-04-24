@@ -1,0 +1,25 @@
+name: suns
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - pip
+  - numpy
+  - h5py
+  - matplotlib
+  - numba
+  - opencv
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - shapely 
+  # - tensorflow
+  - tensorflow-gpu
+  - tensorflow-estimator
+  - keras
+  - pip:
+    - tuncat
+    # - fissa==0.7.2
+    - pyfftw
+    - py-cpuinfo
