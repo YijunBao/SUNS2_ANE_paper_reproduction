@@ -1,12 +1,18 @@
 %% initialize working space and prepare for the computation
 clear; clc; close all;
-addpath('../functions/');
-addpath('./extra');
-work_dir = fileparts(mfilename('fullpath'));
-prepare_env;
+addpath(genpath('.'));
+try
+    temp = Sources2D();
+    clear temp;
+catch
+    cnmfe_setup;
+end
+% work_dir = fileparts(mfilename('fullpath'));
+% prepare_env;
 scale_lowBG = 5e3;
-scale_noise = 0.3;
-results_folder = sprintf('E:\\simulation_CNMFE_corr_noise\\lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
+scale_noise = 0.5;
+data_name = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
+results_folder = fullfile('..','..','data','data_simulation',data_name);
 GT_folder = fullfile(results_folder,'GT Masks');
 GT_info = fullfile(results_folder,'GT info');
 if ~exist(GT_folder, 'dir')
@@ -16,12 +22,12 @@ if ~exist(GT_info, 'dir')
     mkdir(GT_info);
 end
 %%
-for cv = 0:9
+for cv = 0%:9
     seed = cv;
     filename = ['sim_',num2str(cv)];
 
     %% load the extracted background and noise from the data
-    load('../fig_initialization/data_BG','D','F','sn');
+    load('fig_initialization/data_BG','D','F','sn');
     [d1,d2] = size(sn);
     [rank,T0] = size(F);
     Fs0 = 15;   % frame rate used in the background
@@ -39,6 +45,7 @@ for cv = 0:9
     minEventSize = 2;  % minimum event size
     T = 2000;   % number of frames
     Fs = 10;     % frame rate
+    elong = 0.1; % elongation
     neuron_amp = 2.0;   % amplify neural signals to modify the signal to noise ratio
     if Fs~=Fs0
         F = imresize(F, [size(F,1), round(size(F,2)*Fs/Fs0)]);
@@ -132,6 +139,7 @@ for cv = 0:9
     max_Y = max(Y3,[],3);
     min_Y = min(Y3,[],3);
     mean_Y = mean(Y3,3);
+    std_Y = std(Y3,1,3);
     imagesc(max_Y);
     axis('image');
     colormap gray;
@@ -141,7 +149,7 @@ for cv = 0:9
     contour(masks_sum,'y');
 
     figure('Position',[700,100,600,400]);
-    imagesc((max_Y-min_Y)./mean_Y);
+    imagesc((max_Y-mean_Y)./std_Y);
     axis('image');
     colormap gray;
     colorbar;
@@ -149,7 +157,6 @@ for cv = 0:9
     contour(masks_sum,'y');
 
     %% Save video and GT
-    % panel_rss;
 %     video_mat = fullfile(results_folder, [filename,'.mat']);
 %     save(video_mat, 'Y', '-v7.3');
     video_h5 = fullfile(results_folder, [filename,'.h5']);

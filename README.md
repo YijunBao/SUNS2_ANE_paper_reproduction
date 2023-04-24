@@ -59,3 +59,8 @@ The above code ran on three datasets, which can be accessed in [figShare](https:
 The expected segmentation result of SUNS2-ANE on the video “CaMKII_120_TMT Exposure_5fps_part22” should look like Fig. 4A of our paper. The average processing time of the four videos on our test computer when only running the test script is 3.6 s using SUNS2 and 20.0 s using ANE. 
 
 Of course, you can modify the demo scripts to process other videos. You need to set the folders of the videos and GT masks, and change some parameters in the python scripts to direct to your videos. The videos should be in h5 format. If you don’t have GT masks for training, you can use the Manual labeling GUI to create them. 
+
+# Simulate test videos
+The folder `simulation_1p` contains the code to simulate our videos. The code is modified from [the simulation code used in the CNMF-E paper](https://github.com/zhoupc/eLife_submission). The main script is `sim_data_10_randBG_corr_noise.m`. We changed the parameter `scale_lowBG` within [1e3, 5e3] to set the scale of the slowly varying background as low and high. We changed the parameter `scale_noise` within [0.1, 0.3, 1] to set the scale of the random noise as high, medium, and low. 
+
+The simulation results will be saved in the folder `data/data_simulation/lowBG={scale_lowBG},poisson={scale_noise}`. The videos are saved as `sim_{n}.h5`. The ground truth masks are saved as `GT Masks/FinalMasks_sim_{n}.mat`. Some other information are saved in `GT info/GT_sim_{n}.mat`. 

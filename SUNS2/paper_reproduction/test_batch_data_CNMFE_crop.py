@@ -81,7 +81,9 @@ if __name__ == '__main__':
     dir_GTMasks = os.path.join(dir_video, 'GT Masks/FinalMasks_')
     if not useSF:
         unmix = unmix + '_noSF'
-    dir_parent = os.path.join(dir_video, 'complete_'+unmix) # folder to save all the processed data
+    else:
+        unmix = unmix + '_SF{}'.format(gauss_filt_size)
+    dir_parent = os.path.join(dir_video, 'SUNS_'+unmix) # folder to save all the processed data
     dir_sub = sub_folder
     weights_path = os.path.join(dir_parent, dir_sub, 'Weights') # folder to save the trained CNN
     dir_output = os.path.join(dir_parent, dir_sub, 'output_masks') # folder to save the optimized hyper-parameters
