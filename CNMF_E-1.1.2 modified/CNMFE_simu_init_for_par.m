@@ -1,28 +1,19 @@
 %% clear the workspace and select data
 warning off;
 gcp;
-addpath(genpath('C:\Other methods\CNMF_E-1.1.2'));
-addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'));
+addpath(genpath('../ANE'))
 clear; clc; close all;  
 
 %% 
-% scale_lowBG = 5e3;
-% scale_noise = 0.3;
-% results_folder = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
-% list_patch_dims = [253,316]; 
-% num_Exp = 10;
-neuron_amp = 0.01;
+scale_lowBG = 5e3;
 scale_noise = 1;
-results_folder = sprintf('amp=%g,poisson=%g',neuron_amp,scale_noise);
-list_patch_dims = [64,64]; 
-num_Exp = 9;
+data_name = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
+list_patch_dims = [253,316]; 
+num_Exp = 10;
 
-list_data_names={results_folder};
 rate_hz = 10; % frame rate of each video
 radius = 6;
-data_ind = 1;
-data_name = list_data_names{data_ind};
-path_name = fullfile('E:\simulation_constantBG_noise',data_name);
+path_name = fullfile('../data/data_simulation',data_name);
 list_Exp_ID = arrayfun(@(x) ['sim_',num2str(x)],0:(num_Exp-1), 'UniformOutput',false);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 

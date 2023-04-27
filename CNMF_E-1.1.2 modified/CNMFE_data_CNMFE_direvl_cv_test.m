@@ -6,25 +6,37 @@ clear; clc; close all;
 
 
 %% 
-patch_dims = [160,160]; 
-list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
-             'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
+list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
+list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
+list_patch_dims = [120,120; 80,80; 88,88; 192,240]; 
+rate_hz = [10,15,15,5]; % frame rate of each video
+radius = [5,6,8,14];
+
+data_ind = 4;
+data_name = list_data_names{data_ind};
+path_name = fullfile('../data/data_CNMFE',data_name);
+list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
-rate_hz = 20; % frame rate of each video
-radius = 10;
-data_name = 'TENASPIS';
-path_name = '../data/data_TENASPIS/added_refined_masks';
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 
 dir_save = fullfile(path_name,'CNMFE');
-save_date = '20221221';
+switch data_ind 
+    case 1
+        save_date = '20221216';
+    case 2
+        save_date = '20221215';
+    case 3
+        save_date = '20221218';
+    case 4
+        save_date = '20221215';
+end
 dir_sub_save = ['cv_save_',save_date];
 if ~ exist(fullfile(dir_save,dir_sub_save),'dir')
     mkdir(fullfile(dir_save,dir_sub_save));
 end
 
 %% Set range of parameters to optimize over
-gSiz = 2 * radius; % 12;
+gSiz = 2 * radius(data_ind); % 12;
 % list_params.rbg = [1.5, 1.8, 2]; % 1.5; % 
 % list_params.nk = [1, 2, 3]; % 3; % 
 % list_params.rdmin = [2, 2.5, 3, 4]; % 3; % 
@@ -45,7 +57,7 @@ gSiz = 2 * radius; % 12;
 % -------------------------    COMPUTATION    -------------------------  %
 pars_envs = struct('memory_size_to_use', 120, ...   % GB, memory space you allow to use in MATLAB
     'memory_size_per_patch', 10, ...   % GB, space for loading data within one patch
-    'patch_dims', patch_dims);  %GB, patch size
+    'patch_dims', list_patch_dims(data_ind,:));  %GB, patch size
 
 % -------------------------      SPATIAL      -------------------------  %
 ssub = 1;           % spatial downsampling factor
@@ -54,7 +66,7 @@ spatial_constraints = struct('connected', true, 'circular', false);  % you can i
 spatial_algorithm = 'hals_thresh';
 
 % -------------------------      TEMPORAL     -------------------------  %
-Fs = rate_hz;             % frame rate
+Fs = rate_hz(data_ind);             % frame rate
 tsub = 1;           % temporal downsampling factor
 deconv_options = struct('type', 'ar1', ... % model of the calcium traces. {'ar1', 'ar2'}
     'method', 'foopsi', ... % method for running deconvolution {'foopsi', 'constrained', 'thresholded'}
@@ -106,9 +118,9 @@ kt = 3;                 % frame intervals
 Table_time = cell(num_Exp,1);
 
 for cv = 1:num_Exp
-    load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,'.mat']),...
+    load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),...
         'best_Recall','best_Precision','best_F1',...
-        'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history') % ' cv', num2str(cv),
+        'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history')
     %% Initialize variable parameters
     % init_ind_param = round(num_params/2);
 %     init_ind_param = [1, 3, 2, 3, 2, 6, 8, 4]'; % bv
@@ -194,15 +206,16 @@ for cv = 1:num_Exp
             update_sn = true;
 
             %% distribute data and be ready to run source extraction
+            process_time = cell(1,4);
             process_time{1} = datetime;
             neuron.getReady(pars_envs);
             process_time{2} = datetime;
 
             %% initialize neurons from the video data within a selected temporal range
-            if choose_params
-                % change parameters for optimized initialization
-                [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-            end
+            % if choose_params
+            %     % change parameters for optimized initialization
+            %     [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
+            % end
 
             K = [];
             [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
@@ -215,11 +228,9 @@ for cv = 1:num_Exp
                 plot(center(:, 2), center(:, 1), '.r', 'markersize', 10);
             end
 
-            try
-                    %% estimate the background components
-                neuron.update_background_parallel(use_parallel);
-                neuron_init = neuron.copy();
-            end
+            %% estimate the background components
+            neuron.update_background_parallel(use_parallel);
+            neuron_init = neuron.copy();
             process_time{3} = datetime;
 
             if ~isempty(neuron.A)
@@ -303,11 +314,11 @@ for cv = 1:num_Exp
 
             %% evaluate spatial segmentation accuracy
             A = neuron.A;
-            thb = end_history(end-4);
             A3 = neuron.reshape(A, 2);
+            thb = end_history(end-4);
             Masks3 = threshold_Masks(A3, thb); %;%
-%             Ab = A>thb*max(A,[],1); %;% 0.5
-%             Masks3 = neuron.reshape(Ab, 2); 
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
@@ -331,11 +342,11 @@ for cv = 1:num_Exp
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'neuron');
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
             A = neuron.A;
-            thb = end_history(end-4);
             A3 = neuron.reshape(A, 2);
+            thb = end_history(end-4);
             Masks3 = threshold_Masks(A3, thb); %;%
-%             Ab = A>thb*max(A,[],1); %;% 0.5
-%             Masks3 = neuron.reshape(Ab, 2); 
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
@@ -351,4 +362,4 @@ end
 %%
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
-save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,'original_masks test.mat']),'Table_time_ext');
+save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,' cv test.mat']),'Table_time_ext');

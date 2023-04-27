@@ -1,11 +1,7 @@
 %% clear the workspace and select data
 warning off;
 % gcp;
-% if isempty(gcp('nocreate'))
-%     parpool;
-% end
-addpath(genpath('C:\Other methods\CNMF_E-1.1.2'));
-addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'));
+addpath(genpath('../ANE'))
 clear; clc; close all;  
 
 
@@ -17,7 +13,7 @@ num_Exp = length(list_Exp_ID);
 rate_hz = 20; % frame rate of each video
 radius = 9;
 data_name = 'TENASPIS';
-path_name = 'D:\data_TENASPIS\added_refined_masks';
+path_name = '../data/data_TENASPIS/added_refined_masks';
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 
 dir_save = fullfile(path_name,'CNMFE');
