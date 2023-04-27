@@ -203,7 +203,7 @@ saveas(gcf,'FigS2D - F1_simu_lowpassBG_all.png')
 
 %% Figure 3C: 
 % Comparing Recall, Precision, and F1 of different segmentation methods on TENASPIS dataset.
-data_name = 'TENASPIS_refined_8par 0407'; % 
+data_name = 'TENASPIS_refined_8par 0425'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 select = 1:5;
 Recall = Recall(:,select);
@@ -251,9 +251,9 @@ text(xpoints(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,
 line([xpoints(2),xpoints(end)],list_y_line(2)*[1,1],'color','k','LineWidth',2)
 text(xpoints(2),list_y_star(2),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(2).FaceColor);
 line([xpoints(3),xpoints(end)],list_y_line(3)*[1,1],'color','k','LineWidth',2)
-text(xpoints(3),list_y_star(3),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
+text(xpoints(3),list_y_star(3),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
 line([xpoints(4),xpoints(end)],list_y_line(4)*[1,1],'color','k','LineWidth',2)
-text(xpoints(4),list_y_star(4),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
+text(xpoints(4),list_y_star(4),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
 % line([xpoints(6),xpoints(4)],list_y_line(5)*[1,1],'color','k','LineWidth',2)
 % text(xpoints(5),list_y_star(5),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(6).FaceColor);
 
@@ -311,7 +311,7 @@ saveas(gcf,'Fig3D - Training time TENASPIS single.png');
 
 %% Figure 4A: 
 % Comparing Recall, Precision, and F1 of SUNS1 and SUNS2 with or without SF for TENASPIS dataset.
-data_name = 'TENASPIS_refined_8par 0407'; % 
+data_name = 'TENASPIS_refined_8par 0425'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 % list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE','SUNS1 (no SF)','SUNS2 (no SF)'};
 select = [6,3,7,4];
@@ -362,7 +362,7 @@ text(xpoints(2),list_y_star(3)+0.03,'n.s.','HorizontalAlignment', 'left','FontSi
 line([xpoints(1),xpoints(2)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
 text(xpoints(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(1).FaceColor);
 line([xpoints(3),xpoints(end)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
-text(xpoints(3),list_y_star(1),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
+text(xpoints(3),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
 line([xpoints(1),xpoints(end)],list_y_line(4)*[1,1],'color','k','LineWidth',2)
 text(xpoints(1),list_y_star(4),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(1).FaceColor);
 
@@ -375,7 +375,7 @@ saveas(gcf,['Fig4A - Scores ',data_name(1:end-8),' noSF.png']);
 
 %% Figure 4C:
 % Comparing Recall, Precision, and F1 of different segmentation methods with ANE for TENASPIS dataset.
-data_name = 'TENASPIS_ANE_4 0217'; % 
+data_name = 'TENASPIS_ANE_4 0425'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 % list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE'};  % ,'SUNS2 (no SF)'
 list_method = cellfun(@(x)[x,'-ANE'],list_method,'UniformOutput',false);
@@ -433,17 +433,17 @@ saveas(gcf,['Fig4C - Scores ',data_name,'.png']);
 
 %% Figure 4E: 
 % Comparing Recall, Precision, and F1 of different segmentation methods with or without ANE on TENASPIS dataset.
-data_name_init = 'TENASPIS_refined_8par 0407';
+data_name_init = 'TENASPIS_refined_8par 0425';
 init = load(['F1 speed ',data_name_init,'.mat'],'Recall','Precision','F1','Speed','list_method');
-data_name_ANE = 'TENASPIS_ANE_4 0217'; %
+data_name_ANE = 'TENASPIS_ANE_4 0425'; %
 ANE = load(['F1 speed ',data_name_ANE,'.mat'],'Recall','Precision','F1','Speed','list_method');
 list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2'};  % ,'SUNS2-ANE','SUNS2 (no SF)'
 
-Precision = init.F1(:,1:4);
+F1_init = init.F1(:,1:4);
 F1 = ANE.F1(:,1:4);
 
-data = [Precision(end-1,:); F1(end-1,:)];
-err = [Precision(end,:); F1(end,:)]; %/sqrt(9)
+data = [F1_init(end-1,:); F1(end-1,:)];
+err = [F1_init(end,:); F1(end,:)]; %/sqrt(9)
 figure('Position',[100,100,320,450],'Color','w');
 b=bar(data);       
 ylim([0.0,1.1]);
@@ -466,7 +466,7 @@ groupwidth = min(0.8, numbars/(numbars+1.5));
 for i = 1:numbars
       % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
       x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
-      plot(x,[Precision(1:end-2,i),F1(1:end-2,i)],'o',...
+      plot(x,[F1_init(1:end-2,i),F1(1:end-2,i)],'o',...
           'MarkerFaceColor',[0.5,0.5,0.5],'MarkerEdgeColor',[0.5,0.5,0.5],'LineStyle','None');
       errorbar(x, data(:,i), err(:,i), 'k', 'linestyle', 'none', 'lineWidth', 1);
 end
@@ -474,16 +474,16 @@ set(gca,'FontName','Arial','FontSize',14, 'LineWidth',1);
 
 xpoints1=1 - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
 xpoints2=2 - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
-list_y_line = 0.88+(0:4)*0.05;
+list_y_line = 0.94+(0:4)*0.05;
 list_y_star = list_y_line+0.01;
 line([xpoints1(1),xpoints2(1)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
 text(xpoints1(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(1).FaceColor);
 line([xpoints1(2),xpoints2(2)],list_y_line(2)*[1,1],'color','k','LineWidth',2)
 text(xpoints1(2),list_y_star(2),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(2).FaceColor);
 line([xpoints1(3),xpoints2(3)],list_y_line(3)*[1,1],'color','k','LineWidth',2)
-text(xpoints1(3),list_y_star(3),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
+text(xpoints1(3),list_y_star(3),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
 line([xpoints1(4),xpoints2(4)],list_y_line(4)*[1,1],'color','k','LineWidth',2)
-text(xpoints1(4),list_y_star(4),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
+text(xpoints1(4),list_y_star(4),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
 % line([xpoints1(5),xpoints2(5)],list_y_line(5)*[1,1],'color','k','LineWidth',2)
 % text(xpoints1(5),list_y_star(5),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(5).FaceColor);
 % text(xpoints2(5),list_y_star(5)+0.035,'n.s.','HorizontalAlignment', 'right','FontSize',12,'Color',b(5).FaceColor);
@@ -497,7 +497,7 @@ saveas(gcf,['Fig4E - F1 TENASPIS ANE all.png']);
 
 %% Figure 4F: 
 % Comparing Recall, Precision, and F1 of different segmentation methods on TENASPIS dataset using original GT masks.
-data_name = 'TENASPIS_original_5 0404'; % 
+data_name = 'TENASPIS_original_5 0425'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 select = 1:5;
 Recall = Recall(:,select);
@@ -510,7 +510,7 @@ data = [Recall(end-1,:); Precision(end-1,:); F1(end-1,:)];
 err = [Recall(end,:); Precision(end,:); F1(end,:)]; %/sqrt(9)
 figure('Position',[100,100,450,450],'Color','w');
 b=bar(data);       
-% ylim([0.0,1.2]);
+ylim([0.0,1.1]);
 hold on
 % errorbar(x,data,err,err, 'Color','k','LineStyle','None','LineWidth',2);    
 ylabel('Score')
@@ -537,7 +537,7 @@ end
 set(gca,'FontName','Arial','FontSize',14, 'LineWidth',1);
 
 xpoints=numgroups - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
-list_y_line = 0.95+(0:4)*0.05;
+list_y_line = 0.92+(0:4)*0.05;
 list_y_star = list_y_line+0.01;
 line([xpoints(1),xpoints(end)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
 % text(xpoints(2),list_y_star(1)+0.01,'n.s.','HorizontalAlignment', 'right','FontSize',12,'Color',b(2).FaceColor);
@@ -545,9 +545,9 @@ text(xpoints(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,
 line([xpoints(2),xpoints(end)],list_y_line(2)*[1,1],'color','k','LineWidth',2)
 text(xpoints(2),list_y_star(2),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(2).FaceColor);
 line([xpoints(3),xpoints(end)],list_y_line(3)*[1,1],'color','k','LineWidth',2)
-text(xpoints(3),list_y_star(3),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
+text(xpoints(3),list_y_star(3),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
 line([xpoints(4),xpoints(end)],list_y_line(4)*[1,1],'color','k','LineWidth',2)
-text(xpoints(4),list_y_star(4),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
+text(xpoints(4),list_y_star(4),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
 % line([xpoints(6),xpoints(4)],list_y_line(5)*[1,1],'color','k','LineWidth',2)
 % text(xpoints(5),list_y_star(5),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(6).FaceColor);
 
@@ -560,20 +560,20 @@ saveas(gcf,['Fig4F - Scores ',data_name,'.png']);
 
 %% Figure 4H: 
 % Comparing Recall, Precision, and F1 of different segmentation methods for TENASPIS dataset using different GT sets.
-data_name_refined = 'TENASPIS_refined_8par 0407'; % 
+data_name_refined = 'TENASPIS_refined_8par 0425'; % 
 refined = load(['F1 speed ',data_name_refined,'.mat'],'Recall','Precision','F1','Speed','list_method');
-data_name_original = 'TENASPIS_original_5 0404'; % 
+data_name_original = 'TENASPIS_original_5 0425'; % 
 original = load(['F1 speed ',data_name_original,'.mat'],'Recall','Precision','F1','Speed','list_method');
 list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE'};  % ,'SUNS2 (no SF)'
 
-Precision = original.F1;
+F1_original = original.F1;
 F1 = refined.F1(:,1:5);
 
-data = [Precision(end-1,:); F1(end-1,:)];
-err = [Precision(end,:); F1(end,:)]; %/sqrt(9)
+data = [F1_original(end-1,:); F1(end-1,:)];
+err = [F1_original(end,:); F1(end,:)]; %/sqrt(9)
 figure('Position',[100,100,330,450],'Color','w');
 b=bar(data);       
-ylim([0.0,1.2]);
+ylim([0.0,1.1]);
 hold on
 % errorbar(x,data,err,err, 'Color','k','LineStyle','None','LineWidth',2);    
 ylabel('{\itF}_1')
@@ -594,7 +594,7 @@ groupwidth = min(0.8, numbars/(numbars+1.5));
 for i = 1:numbars
       % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
       x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
-      plot(x,[Precision(1:end-2,i),F1(1:end-2,i)],'o',...
+      plot(x,[F1_original(1:end-2,i),F1(1:end-2,i)],'o',...
           'MarkerFaceColor',[0.5,0.5,0.5],'MarkerEdgeColor',[0.5,0.5,0.5],'LineStyle','None');
       errorbar(x, data(:,i), err(:,i), 'k', 'linestyle', 'none', 'lineWidth', 1);
 end
@@ -602,7 +602,7 @@ set(gca,'FontName','Arial','FontSize',14, 'LineWidth',1);
 
 xpoints1=1 - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
 xpoints2=2 - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
-list_y_line = 0.9+(0:4)*0.07;
+list_y_line = 0.89+(0:4)*0.05;
 list_y_star = list_y_line+0.01;
 line([xpoints1(1),xpoints2(1)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
 text(xpoints1(1),list_y_star(1),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(1).FaceColor);
@@ -611,7 +611,7 @@ text(xpoints1(2),list_y_star(2),'**','HorizontalAlignment', 'left','FontSize',14
 line([xpoints1(3),xpoints2(3)],list_y_line(3)*[1,1],'color','k','LineWidth',2)
 text(xpoints1(3),list_y_star(3),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(3).FaceColor);
 line([xpoints1(4),xpoints2(4)],list_y_line(4)*[1,1],'color','k','LineWidth',2)
-text(xpoints1(4),list_y_star(4),'*','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
+text(xpoints1(4),list_y_star(4),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(4).FaceColor);
 line([xpoints1(5),xpoints2(5)],list_y_line(5)*[1,1],'color','k','LineWidth',2)
 text(xpoints1(5),list_y_star(5),'**','HorizontalAlignment', 'left','FontSize',14,'Color',b(5).FaceColor);
 % text(xpoints2(5),list_y_star(5)+0.035,'n.s.','HorizontalAlignment', 'right','FontSize',12,'Color',b(5).FaceColor);
@@ -625,7 +625,7 @@ saveas(gcf,['Fig4H - F1 TENASPIS original vs refined.png']);
 
 %% Figure S4C: 
 % Comparing Recall, Precision, and F1 of DeepWonder, SUNS2, and SUNS2-ANE on TENASPIS dataset.
-data_name = 'TENASPIS_refined_8par 0407'; % 
+data_name = 'TENASPIS_refined_8par 0425'; % 
 load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
 select = [8,4,5];
 Recall = Recall(:,select);
@@ -664,7 +664,7 @@ end
 set(gca,'FontName','Arial','FontSize',14, 'LineWidth',1);
 
 xpoints=numgroups - groupwidth/2 + (2*(1:numbars)-1) * groupwidth / (2*numbars);
-list_y_line = 0.92+(0:4)*0.05;
+list_y_line = 0.94+(0:4)*0.05;
 list_y_star = list_y_line+0.01;
 line([xpoints(1),xpoints(2)],list_y_line(1)*[1,1],'color','k','LineWidth',2)
 % text(xpoints(2),list_y_star(1)+0.01,'n.s.','HorizontalAlignment', 'right','FontSize',12,'Color',b(2).FaceColor);
@@ -830,7 +830,12 @@ end
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 for data_ind = 1:4
     Exp_ID = list_data_names{data_ind};
-    data_name = [Exp_ID,'_refined_8 0407'];
+    switch data_ind
+        case {1,4}
+            data_name = [Exp_ID,'_refined_8 0425'];
+        case {2,3}
+            data_name = [Exp_ID,'_refined_8 0407'];
+    end
     load(['F1 speed ',data_name,'.mat'],'Recall','Precision','F1','Speed','list_method');
     list_method = {'MIN1PIPE','CNMF-E','SUNS1','SUNS2','SUNS2-ANE','SUNS1 (no SF)','SUNS2 (no SF)'};
     select = [6,3,7,4];
