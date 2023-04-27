@@ -115,7 +115,7 @@ rect3=[362,343,20,30]; % [337,254,3,3]; %
 rect1_sub=rect1 - [yrange(1)-1,xrange(1)-1,0,0];
 rect2_sub=rect2 - [yrange(1)-1,xrange(1)-1,0,0];
 rect3_sub=rect3 - [yrange(1)-1,xrange(1)-1,0,0];
-SNR_range = [2,14]; % [0,5]; % [0,10]; % 
+SNR_range = [0,5]; % [0,10]; % [2,14]; % 
 
 save_folder = sprintf('figures_%d-%d,%d-%d crop',xrange(1),xrange(end),yrange(1),yrange(end));
 save_folder = ['.\',save_folder,'\'];
@@ -144,7 +144,7 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
 figure('Position',[100,650,300,120],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);
@@ -184,7 +184,7 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
 figure('Position',[500,650,300,120],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);
@@ -224,7 +224,7 @@ for it = 1:num_high
 end
 % SNR_high = SNR_full(:,:,high);
 SNR_high_mean = mean(SNR_high,3);
-% SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
+SNR_max(start(1):start(1)+count(1)-1,start(2):start(2)+count(2)-1,:) = SNR_high_mean;
 
 figure('Position',[900,650,300,120],'Color','w');
 plot(trace_N,'Color',color(3,:),'LineWidth',2);

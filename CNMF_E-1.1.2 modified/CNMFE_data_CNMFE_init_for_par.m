@@ -1,11 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
-% if isempty(gcp('nocreate'))
-%     parpool;
-% end
-addpath(genpath('C:\Other methods\CNMF_E-1.1.2'));
-addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'));
+addpath(genpath('../ANE'))
 clear; clc; close all;  
 
 
@@ -20,7 +16,7 @@ sub_added = '';
 
 data_ind = 1;
 data_name = list_data_names{data_ind};
-path_name = fullfile('E:\data_CNMFE',[data_name,sub_added]);
+path_name = fullfile('../data/data_CNMFE',data_name);
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_

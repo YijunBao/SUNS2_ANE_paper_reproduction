@@ -4,7 +4,6 @@ gcp;
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
-
 %% 
 patch_dims = [160,160]; 
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
@@ -33,12 +32,12 @@ gSiz = 2 * radius; % 12;
 % list_params.merge_thr = 0.1:0.1:0.9;
 % list_params.merge_thr_spatial = 0.1:0.1:0.9;
 % list_params.merge_thr_temporal = 0.1:0.1:0.9;
-% list_th_binary = [0.2, 0.3, 0.4, 0.5];
+% list_thb = [0.2, 0.3, 0.4, 0.5];
 % name_params = fieldnames(list_params); 
 % range_params = struct2cell(list_params); 
 % num_param_names = length(range_params);
 % num_params = cellfun(@length, range_params);
-% num_thb = length(list_th_binary);
+% num_thb = length(list_thb);
 % n_round = 3;
 
 %% Other fixed parameters. 
@@ -95,10 +94,10 @@ min_pnr_res = 6; % 6;
 seed_method_res = 'auto';  % method for initializing neurons from the residual
 
 % ----------------------  WITH MANUAL INTERVENTION  --------------------  %
-% with_manual_intervention = false;
+with_manual_intervention = false;
 
 % -------------------------  FINAL RESULTS   -------------------------  %
-% save_demixed = true;    % save the demixed file or not
+save_demixed = true;    % save the demixed file or not
 kt = 3;                 % frame intervals
 
 %%
@@ -106,9 +105,9 @@ kt = 3;                 % frame intervals
 Table_time = cell(num_Exp,1);
 
 for cv = 1:num_Exp
-    load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,'.mat']),...
+    load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),' 2round.mat']),...
         'best_Recall','best_Precision','best_F1',...
-        'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history') % ' cv', num2str(cv),
+        'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history')
     %% Initialize variable parameters
     % init_ind_param = round(num_params/2);
 %     init_ind_param = [1, 3, 2, 3, 2, 6, 8, 4]'; % bv
@@ -215,11 +214,9 @@ for cv = 1:num_Exp
                 plot(center(:, 2), center(:, 1), '.r', 'markersize', 10);
             end
 
-            try
-                    %% estimate the background components
-                neuron.update_background_parallel(use_parallel);
-                neuron_init = neuron.copy();
-            end
+            %% estimate the background components
+            neuron.update_background_parallel(use_parallel);
+            neuron_init = neuron.copy();
             process_time{3} = datetime;
 
             if ~isempty(neuron.A)
@@ -237,62 +234,60 @@ for cv = 1:num_Exp
                 end
                 neuron_init_res = neuron.copy();
 
-                try
-                    %% udpate spatial&temporal components, delete false positives and merge neurons
-                    % update spatial
-                    if update_sn
-                        neuron.update_spatial_parallel(use_parallel, true);
-                        udpate_sn = false;
-                    else
-                        neuron.update_spatial_parallel(use_parallel);
-                    end
-                    % merge neurons based on correlations 
-                    neuron.merge_high_corr(show_merge, merge_thr_spatial);
-
-                    for m=1:2
-                        % update temporal
-                        neuron.update_temporal_parallel(use_parallel);
-
-                        % delete bad neurons
-                        neuron.remove_false_positives();
-
-                        % merge neurons based on temporal correlation + distances 
-                        neuron.merge_neurons_dist_corr(show_merge);
-                    end
-
-                    %% add a manual intervention and run the whole procedure for a second time
-                    neuron.options.spatial_algorithm = 'nnls';
-                    % if with_manual_intervention
-                    %     show_merge = true;
-                    %     neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-                    %     neuron.viewNeurons([], neuron.C_raw);
-
-                    %     % merge closeby neurons
-                    %     neuron.merge_close_neighbors(true, dmin_only);
-
-                    %     % delete neurons
-                    %     tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-                    %     ids = find(tags>0); 
-                    %     if ~isempty(ids)
-                    %         neuron.viewNeurons(ids, neuron.C_raw);
-                    %     end
-                    % end
-                    %% run more iterations
-                    neuron.update_background_parallel(use_parallel);
+                %% udpate spatial&temporal components, delete false positives and merge neurons
+                % update spatial
+                if update_sn
+                    neuron.update_spatial_parallel(use_parallel, true);
+                    udpate_sn = false;
+                else
                     neuron.update_spatial_parallel(use_parallel);
+                end
+                % merge neurons based on correlations 
+                neuron.merge_high_corr(show_merge, merge_thr_spatial);
+
+                for m=1:2
+                    % update temporal
                     neuron.update_temporal_parallel(use_parallel);
 
-                    K = size(neuron.A,2);
-                    tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
+                    % delete bad neurons
                     neuron.remove_false_positives();
-                    neuron.merge_neurons_dist_corr(show_merge);
-                    neuron.merge_high_corr(show_merge, merge_thr_spatial);
 
-                    if K~=size(neuron.A,2)
-                        neuron.update_spatial_parallel(use_parallel);
-                        neuron.update_temporal_parallel(use_parallel);
-                        neuron.remove_false_positives();
+                    % merge neurons based on temporal correlation + distances 
+                    neuron.merge_neurons_dist_corr(show_merge);
+                end
+
+                %% add a manual intervention and run the whole procedure for a second time
+                neuron.options.spatial_algorithm = 'nnls';
+                if with_manual_intervention
+                    show_merge = true;
+                    neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
+                    neuron.viewNeurons([], neuron.C_raw);
+
+                    % merge closeby neurons
+                    neuron.merge_close_neighbors(true, dmin_only);
+
+                    % delete neurons
+                    tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
+                    ids = find(tags>0); 
+                    if ~isempty(ids)
+                        neuron.viewNeurons(ids, neuron.C_raw);
                     end
+                end
+                %% run more iterations
+                neuron.update_background_parallel(use_parallel);
+                neuron.update_spatial_parallel(use_parallel);
+                neuron.update_temporal_parallel(use_parallel);
+
+                K = size(neuron.A,2);
+                tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
+                neuron.remove_false_positives();
+                neuron.merge_neurons_dist_corr(show_merge);
+                neuron.merge_high_corr(show_merge, merge_thr_spatial);
+
+                if K~=size(neuron.A,2)
+                    neuron.update_spatial_parallel(use_parallel);
+                    neuron.update_temporal_parallel(use_parallel);
+                    neuron.remove_false_positives();
                 end
             end
             process_time{4} = datetime;
@@ -306,13 +301,12 @@ for cv = 1:num_Exp
             thb = end_history(end-4);
             A3 = neuron.reshape(A, 2);
             Masks3 = threshold_Masks(A3, thb); %;%
-%             Ab = A>thb*max(A,[],1); %;% 0.5
-%             Masks3 = neuron.reshape(Ab, 2); 
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
             save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
-            save(fullfile(dir_save,dir_sub_save,[Exp_ID,'_Masks.mat']),'Masks3');
 
             %% move the final results
 %             child = fullfile(path_name,[Exp_ID,'_source_extraction']);
@@ -331,11 +325,11 @@ for cv = 1:num_Exp
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'neuron');
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
             A = neuron.A;
-            thb = end_history(end-4);
             A3 = neuron.reshape(A, 2);
+            thb = end_history(end-4);
             Masks3 = threshold_Masks(A3, thb); %;%
-%             Ab = A>thb*max(A,[],1); %;% 0.5
-%             Masks3 = neuron.reshape(Ab, 2); 
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
@@ -351,4 +345,4 @@ end
 %%
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
-save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,'original_masks test.mat']),'Table_time_ext');
+save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,' cv 2round.mat']),'Table_time_ext');

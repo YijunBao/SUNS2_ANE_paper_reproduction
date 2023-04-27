@@ -3,9 +3,7 @@ clear
 warning off
 gcp;
 min1pipe_init;
-addpath('C:\Matlab Files\neuron_post');
-addpath(genpath('C:\Matlab Files\STNeuroNet-master\Software'))
-addpath(genpath('C:\Matlab Files\missing_finder'));
+addpath(genpath('../ANE'))
 
 %% Set data and folder
 list_data_names={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
@@ -13,19 +11,16 @@ list_ID_part = {'_part11', '_part12', '_part21', '_part22'};
 list_patch_dims = [120,120; 80,80; 88,88; 192,240]; 
 rate_hz = [10,15,15,5]; % frame rate of each video
 radius = [5,6,8,14];
-sub_added = '';
-% sub_added = '_original_masks';
-% sub_added = '_added_blockwise_weighted_sum_unmask';
 
-data_ind = 3;
+data_ind = 4;
 data_name = list_data_names{data_ind};
-path_name = fullfile('E:\data_CNMFE',data_name);
+path_name = fullfile('../data/data_CNMFE',data_name);
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
 num_Exp = length(list_Exp_ID);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 
 dir_save = fullfile(path_name,'min1pipe');
-% saved_date = '20221215';
+% save_date = '20221215';
 switch data_ind 
     case 1
         save_date = '20221216';
@@ -35,6 +30,10 @@ switch data_ind
         save_date = '20221219';
     case 4
         save_date = '20221215';
+end
+dir_sub_save = ['cv_save_',save_date];
+if ~ exist(fullfile(dir_save,dir_sub_save),'dir')
+    mkdir(fullfile(dir_save,dir_sub_save));
 end
 
 %% session-specific parameter initialization %% 
@@ -48,7 +47,6 @@ isvis = false; % true; % %% do visualize %%%
 ifpost = false; %%% set true if want to see post-process %%%
 
 %% Set range of parameters to optimize over
-gSiz = 2 * radius(data_ind); % 12;
 % list_params.pix_select_sigthres = 0.8; % [0.1:0.05:0.95, 0.98]; % 
 % list_params.pix_select_corrthres = [0.1:0.05:0.95, 0.98]; % 0.6;
 % list_params.merge_roi_corrthres = [0.1:0.05:0.95, 0.98]; % 0.9;
@@ -64,7 +62,8 @@ Table_time = cell(num_Exp,1);
 
 %%
 for cv = 1:num_Exp
-    load(fullfile(['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),'best_Recall','best_Precision','best_F1',...
+    load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),...
+        'best_Recall','best_Precision','best_F1',...
         'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history');
 %     ind_param = best_ind_param;
 %     best_param = cellfun(@(x,y) x(y), range_params,num2cell(best_ind_param));
@@ -80,13 +79,16 @@ for cv = 1:num_Exp
         pix_select_sigthres, pix_select_corrthres, merge_roi_corrthres, dt, kappa, se);
     dir_save_sub = fullfile(dir_save,dir_sub);
     folder = fullfile('min1pipe',dir_sub);
+    if ~exist(dir_save_sub,'dir')
+        mkdir(dir_save_sub)
+    end
 
     for eid = cv % trains % 1:num_Exp
         Exp_ID = list_Exp_ID{eid};
         filename = [Exp_ID,'.h5'];
         %% main program %%
         fname = fullfile(dir_save_sub,[Exp_ID,'_data_processed.mat']);
-        if true % ~exist(fname,'file') %
+        if true % ~exist(fname,'file') % 
             try
                 [fname, frawname, fregname] = min1pipe_h5_vary(path_name, folder, filename, ...
                     Fsi, Fsi_new, spatialr, se, ismc, flag,...
@@ -114,6 +116,7 @@ for cv = 1:num_Exp
 %         roib = saved_result.roifn>th_binary*max(saved_result.roifn,[],1); %;%
 %         Masks3 = reshape(full(roib), saved_result.pixh, saved_result.pixw, size(roib,2));
         save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
+        save(fullfile(dir_save,dir_sub_save,[Exp_ID,'_Masks.mat']),'Masks3');
         % [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(GTMasks_2,roifn,0.5);
         [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
         used_time(cv) = seconds(saved_result.process_time{2}-saved_result.process_time{1});
@@ -123,4 +126,4 @@ end
 %%
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
-save(['eval_',data_name,'_thb ',save_date,' cv test.mat'],'Table_time_ext');
+save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,' cv test.mat']),'Table_time_ext');

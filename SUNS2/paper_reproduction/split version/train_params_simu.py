@@ -103,8 +103,8 @@ if __name__ == '__main__':
     dir_sub = sub_folder
     weights_path = os.path.join(dir_parent, dir_sub, 'Weights') # folder to save the trained CNN
     training_output_path = os.path.join(dir_parent, dir_sub, 'training output') # folder to save the loss functions during training
-    dir_output = os.path.join(dir_parent, dir_sub, 'output_masks2') # folder to save the optimized hyper-parameters
-    dir_temp = os.path.join(dir_parent, dir_sub, 'temp2') # temporary folder to save the F1 with various hyper-parameters
+    dir_output = os.path.join(dir_parent, dir_sub, 'output_masks') # folder to save the optimized hyper-parameters
+    dir_temp = os.path.join(dir_parent, dir_sub, 'temp') # temporary folder to save the F1 with various hyper-parameters
 
     if not os.path.exists(dir_network_input):
         os.makedirs(dir_network_input) 
