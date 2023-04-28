@@ -9,10 +9,11 @@ import math
 import h5py
 # from scipy.io import savemat, loadmat
 # import multiprocessing as mp
+import gc
 
 sys.path.insert(1, '..') # the path containing "suns" folder
 os.environ['KERAS_BACKEND'] = 'tensorflow'
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Set which GPU to use. '-1' uses only CPU.
 
 from suns.PreProcessing.preprocessing_functions import preprocess_video
 from suns.train_CNN_params import train_CNN, parameter_optimization_cross_validation
@@ -229,18 +230,10 @@ if __name__ == '__main__':
     #     video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
     #         useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
 
-    #     # %% Determine active neurons in all frames using FISSA
+    #     # %% Determine active neurons in all frames using TUnCaT
     #     file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
     #     generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)
     #     del video_input
-
-    #     # list_thred_ratio = list(range(10,22,2))
-    #     # if unmix.upper() == 'FISSA':
-    #     #     from suns.PreProcessing.generate_masks_fissa import generate_masks_from_traces
-    #     # else:
-    #     #     from suns.PreProcessing.generate_masks_tuncat import generate_masks_from_traces
-    #     # file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
-    #     # generate_masks_from_traces(file_mask, list_thred_ratio, dir_parent, Exp_ID)
 
     # # %% CNN training
     # for CV in range(0,nvideo): # [0]: # 
@@ -268,6 +261,7 @@ if __name__ == '__main__':
     #         f.create_dataset("val_dice_loss", data=results.history['val_dice_loss'])
     #     f.close()
 
+    gc.collect()
     # %% parameter optimization
     parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Params_set, \
         (rows, cols), dir_network_input, weights_path, dir_GTMasks, dir_temp, dir_output, \

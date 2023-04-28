@@ -9,7 +9,6 @@ import keras
 from keras import backend as K
 # from sklearn.model_selection import train_test_split
 
-import tensorflow as tf
 # from CNN_classifier import CNN_classifier
 
 import json as simplejson
@@ -18,6 +17,7 @@ from tensorflow.keras.models import model_from_json
 import scipy.io as sio
 import h5py
 
+import tensorflow as tf
 tf_version = int(tf.__version__[0])
 if tf_version == 1:
     config = tf.ConfigProto()

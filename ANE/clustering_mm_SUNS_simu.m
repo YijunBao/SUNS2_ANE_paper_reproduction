@@ -80,7 +80,7 @@ for eid = 1:num_Exp
     area = squeeze(sum(sum(masks,1),2));
     avg_area = median(area);
     [list_added_full, list_added_crop, list_added_images_crop,...
-    list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy)); % nlist_list_valid, 
+        list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
 
     %%
     parfor ix = 1:npatchx
@@ -91,7 +91,7 @@ for eid = 1:num_Exp
         ymax = min(Ly, (iy+1)*leng);
         weight = list_weight{ix,iy};
         [image_new_crop, mask_new_crop, mask_new_full, select_frames_class, select_weight_calss] = ...
-        find_missing_blockwise_mm(mm, masks, xmin, xmax, ymin, ymax, ...
+            find_missing_blockwise_mm(mm, masks, xmin, xmax, ymin, ymax, ...
             weight, num_avg, avg_area, thj, thj_inclass, th_IoU_split);
         list_added_images_crop{ix,iy} = image_new_crop;
         list_added_crop{ix,iy} = mask_new_crop;
@@ -128,7 +128,7 @@ for eid = 1:num_Exp
     %     'sum_edges','traces_raw','video','masks');
     save(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
-        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop'); % ,'list_valid'
+        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop');
 end
 %%
 clear mm;

@@ -32,7 +32,7 @@ dir_SUNS = fullfile(dir_parent, dir_SUNS_sub);
 dir_masks = fullfile(dir_SUNS, 'output_masks');
 % dir_masks = fullfile(dir_parent, 'GT Masks');
 dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
-fs = rate_hz(data_ind);
+% fs = rate_hz(data_ind);
 if ~ exist(dir_add_new,'dir')
     mkdir(dir_add_new);
 end
@@ -80,13 +80,13 @@ for eid = 1:num_Exp
     %%
     video = video_SNR;
     [list_weight,list_weight_trace,list_weight_frame,sum_edges]...
-    = frame_weight_blockwise_mm(mm, traces_raw, masks, leng);
+        = frame_weight_blockwise_mm(mm, traces_raw, masks, leng);
 
     %%
     area = squeeze(sum(sum(masks,1),2));
     avg_area = median(area);
     [list_added_full, list_added_crop, list_added_images_crop,...
-    list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
+        list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
 
     %%
     parfor ix = 1:npatchx
@@ -97,8 +97,8 @@ for eid = 1:num_Exp
         ymax = min(Ly, (iy+1)*leng);
         weight = list_weight{ix,iy};
         [image_new_crop, mask_new_crop, mask_new_full, select_frames_class, select_weight_calss] = ...
-        find_missing_blockwise_mm(mm, masks, xmin, xmax, ymin, ymax, ...
-        weight, num_avg, avg_area, thj, thj_inclass, th_IoU_split);
+            find_missing_blockwise_mm(mm, masks, xmin, xmax, ymin, ymax, ...
+            weight, num_avg, avg_area, thj, thj_inclass, th_IoU_split);
         list_added_images_crop{ix,iy} = image_new_crop;
         list_added_crop{ix,iy} = mask_new_crop;
         list_added_full{ix,iy} = mask_new_full;
@@ -135,7 +135,6 @@ for eid = 1:num_Exp
     save(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
         'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop');
-    
 end
 %%
 clear mm;

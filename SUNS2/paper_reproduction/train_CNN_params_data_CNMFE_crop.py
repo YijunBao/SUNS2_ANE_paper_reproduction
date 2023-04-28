@@ -230,18 +230,10 @@ if __name__ == '__main__':
         video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
             useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
 
-        # %% Determine active neurons in all frames using FISSA
+        # %% Determine active neurons in all frames using TUnCaT
         file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
         generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)
         del video_input
-
-        # list_thred_ratio = list(range(10,22,2))
-        # if unmix.upper() == 'FISSA':
-        #     from suns.PreProcessing.generate_masks_fissa import generate_masks_from_traces
-        # else:
-        #     from suns.PreProcessing.generate_masks_tuncat import generate_masks_from_traces
-        # file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
-        # generate_masks_from_traces(file_mask, list_thred_ratio, dir_parent, Exp_ID)
 
     # %% CNN training
     for CV in range(0,nvideo): # [0]: # 

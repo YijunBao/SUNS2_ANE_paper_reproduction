@@ -12,7 +12,7 @@ from keras import backend as K
 # from CNN_classifier import CNN_classifier
 
 import json as simplejson
-from keras.models import model_from_json
+from tensorflow.keras.models import model_from_json
 
 import scipy.io as sio
 import h5py

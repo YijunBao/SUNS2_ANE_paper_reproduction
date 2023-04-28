@@ -1,11 +1,6 @@
 % For added_refined_masks
-% dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5');
+% dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th6');
 % dir_SUNS_sub = fullfile('SUNS_FISSA_SF25','4816[1]th3');
-% dir_SUNS_sub = fullfile('SUNS_TUnCaT_noSF','4816[1]th2');
-% dir_SUNS_sub = fullfile('SUNS_FISSA_noSF','4816[1]th2');
-% For original_masks
-% dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4');
-% dir_SUNS_sub = fullfile('SUNS_FISSA_SF25','4816[1]th2');
 % dir_SUNS_sub = fullfile('SUNS_TUnCaT_noSF','4816[1]th2');
 % dir_SUNS_sub = fullfile('SUNS_FISSA_noSF','4816[1]th2');
 addpath(genpath('.'))
@@ -17,8 +12,8 @@ list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
 rate_hz = 20; % frame rate of each video
-avg_radius = 10; % added_refined_masks
-% avg_radius = 9; % original_masks
+avg_radius = 9; % added_refined_masks
+% avg_radius = 10; % original_masks
 r_bg_ratio = 3;
 leng = r_bg_ratio*avg_radius;
 
@@ -91,7 +86,7 @@ for eid = 1:num_Exp
     area = squeeze(sum(sum(masks,1),2));
     avg_area = median(area);
     [list_added_full, list_added_crop, list_added_images_crop,...
-    list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy)); % nlist_list_valid, 
+        list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
 
     %%
     parfor ix = 1:npatchx
@@ -139,7 +134,7 @@ for eid = 1:num_Exp
     %     'sum_edges','traces_raw','video','masks');
     save(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
-        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop'); % ,'list_valid'
+        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop');
 end
 %%
 clear mm;

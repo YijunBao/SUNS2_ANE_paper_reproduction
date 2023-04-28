@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # num_total = 6000 # number of frames used for CNN training. 
         # Can be slightly smaller than the number of frames of a video
     Mag = 1 # spatial magnification compared to ABO videos.
-    
+
     useSF=gauss_filt_size>0 # True # True if spatial filtering is used in pre-processing.
     useTF=True # True if temporal filtering is used in pre-processing.
     useSNR=True # True if pixel-by-pixel SNR normalization filtering is used in pre-processing.

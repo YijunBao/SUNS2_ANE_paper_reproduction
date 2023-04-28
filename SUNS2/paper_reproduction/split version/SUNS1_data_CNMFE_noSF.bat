@@ -2,8 +2,8 @@
 python generate_sparse_GT.py "../../data/data_CNMFE/*/GT Masks"
 
 @REM Training on blood_vessel_10Hz
-python train_CNN_data_CNMFE_crop.py 3 0 0 FISSA 0
-python train_params_data_CNMFE_crop.py 3 0 3 FISSA 0
+python train_CNN_data_CNMFE_crop.py 2 0 0 FISSA 0
+python train_params_data_CNMFE_crop.py 2 0 3 FISSA 0
 
 @REM Argument meanings (same for training and testing scripts):
 @REM 1. SNR threshold
@@ -13,7 +13,7 @@ python train_params_data_CNMFE_crop.py 3 0 3 FISSA 0
 @REM 5. Video index of the CNMF-E dataset
 
 @REM Testing on blood_vessel_10Hz
-python test_batch_data_CNMFE_crop.py 3 0 3 FISSA 0
+python test_batch_data_CNMFE_crop.py 2 0 3 FISSA 0
 
 
 @REM Training on PFC4_15Hz

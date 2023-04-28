@@ -175,7 +175,7 @@ if __name__ == '__main__':
         # %% Pre-process video
         video_input, _ = preprocess_video(dir_video, Exp_ID, Params, dir_network_input, \
             useSF=useSF, useTF=useTF, useSNR=useSNR, med_subtract=med_subtract, prealloc=prealloc) #
-        
+
         # %% Determine active neurons in all frames using TUnCaT
         file_mask = dir_GTMasks + Exp_ID + '.mat' # foldr to save the temporal masks
         generate_masks(video_input, file_mask, list_thred_ratio, dir_parent, Exp_ID)

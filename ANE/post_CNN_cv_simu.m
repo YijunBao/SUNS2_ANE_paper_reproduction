@@ -1,5 +1,5 @@
 % data_name = 'lowBG=5e+03,poisson=1';
-% dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th5');
+% dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th4');
 addpath(genpath('.'))
 
 %%

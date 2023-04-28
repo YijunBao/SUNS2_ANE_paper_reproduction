@@ -9,6 +9,7 @@ import math
 import h5py
 # from scipy.io import savemat, loadmat
 # import multiprocessing as mp
+import gc
 
 sys.path.insert(1, '..') # the path containing "suns" folder
 os.environ['KERAS_BACKEND'] = 'tensorflow'
@@ -206,6 +207,7 @@ if __name__ == '__main__':
             f.create_dataset("val_dice_loss", data=results.history['val_dice_loss'])
         f.close()
 
+    gc.collect()
     # %% parameter optimization
     # parameter_optimization_cross_validation(cross_validation, list_Exp_ID, Params_set, \
     #     (rows, cols), dir_network_input, weights_path, dir_GTMasks, dir_temp, dir_output, \

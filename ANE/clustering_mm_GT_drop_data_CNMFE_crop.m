@@ -100,7 +100,6 @@ for eid = 1:num_Exp
         list_added_weights{ix,iy} = select_weight_calss;
         n_class = size(image_new_crop,3);
         list_locations{ix,iy} = [xmin, xmax, ymin, ymax].*ones(n_class,1);
-
     end    
     end    
 

@@ -7,8 +7,8 @@ list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
 rate_hz = 20; % frame rate of each video
-avg_radius = 10; % added_refined_masks
-% avg_radius = 9; % original_masks
+avg_radius = 9; % added_refined_masks
+% avg_radius = 10; % original_masks
 r_bg_ratio = 3;
 leng = r_bg_ratio*avg_radius;
 
