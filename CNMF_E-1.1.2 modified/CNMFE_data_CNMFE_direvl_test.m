@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -23,15 +24,19 @@ num_Exp = length(list_Exp_ID);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 
 dir_save = fullfile(path_name,'CNMFE');
+if ~ exist(dir_save,'dir')
+    mkdir(dir_save);
+end
+
 switch data_ind 
-case 1
-    save_date = '20221216';
-case 2
-    save_date = '20221215';
-case 3
-    save_date = '20221218';
-case 4
-    save_date = '20221215';
+    case 1
+        save_date = '20221216';
+    case 2
+        save_date = '20221215';
+    case 3
+        save_date = '20221218';
+    case 4
+        save_date = '20221215';
 end
 
 %% Set range of parameters to optimize over
@@ -134,10 +139,12 @@ for cv = 1:num_Exp
 
     dir_sub = sprintf('gSiz=%d,rbg=%0.1f,nk=%d,rdmin=%0.1f,mc=%0.2f,mp=%d,mt=%0.2f,mts=%0.2f,mtt=%0.2f',...
         gSiz,rbg,nk,rdmin,min_corr,min_pnr,merge_thr,mts,mtt);
+    if ~ exist(fullfile(dir_save,dir_sub),'dir')
+        mkdir(fullfile(dir_save,dir_sub));
+    end
 
     %%
     for eid = cv % 1:num_Exp
-%                     [temp_Recall, temp_Precision, temp_F1, temp_used_time] = deal(zeros(1,num_thb));
         Exp_ID = list_Exp_ID{eid};
         nam = fullfile(path_name,[Exp_ID,'.h5']);
         %% choose data
@@ -206,12 +213,6 @@ for cv = 1:num_Exp
             neuron.getReady(pars_envs);
             process_time{2} = datetime;
 
-            %% initialize neurons from the video data within a selected temporal range
-%                         if choose_params
-%                             % change parameters for optimized initialization
-%                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-%                         end
-
             K = [];
             [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
             neuron.compactSpatial();
@@ -223,9 +224,11 @@ for cv = 1:num_Exp
                 plot(center(:, 2), center(:, 1), '.r', 'markersize', 10);
             end
 
-            %% estimate the background components
-            neuron.update_background_parallel(use_parallel);
-            neuron_init = neuron.copy();
+            try
+                %% estimate the background components
+                neuron.update_background_parallel(use_parallel);
+                neuron_init = neuron.copy();
+            end
             process_time{3} = datetime;
 
             if ~isempty(neuron.A)
@@ -243,45 +246,47 @@ for cv = 1:num_Exp
                 end
                 neuron_init_res = neuron.copy();
 
-                %% udpate spatial&temporal components, delete false positives and merge neurons
-                % update spatial
-                if update_sn
-                    neuron.update_spatial_parallel(use_parallel, true);
-                    udpate_sn = false;
-                else
-                    neuron.update_spatial_parallel(use_parallel);
-                end
-                % merge neurons based on correlations 
-                neuron.merge_high_corr(show_merge, merge_thr_spatial);
+                try
+                    %% udpate spatial&temporal components, delete false positives and merge neurons
+                    % update spatial
+                    if update_sn
+                        neuron.update_spatial_parallel(use_parallel, true);
+                        udpate_sn = false;
+                    else
+                        neuron.update_spatial_parallel(use_parallel);
+                    end
+                    % merge neurons based on correlations 
+                    neuron.merge_high_corr(show_merge, merge_thr_spatial);
 
-                for m=1:2
-                    % update temporal
+                    for m=1:2
+                        % update temporal
+                        neuron.update_temporal_parallel(use_parallel);
+
+                        % delete bad neurons
+                        neuron.remove_false_positives();
+
+                        % merge neurons based on temporal correlation + distances 
+                        neuron.merge_neurons_dist_corr(show_merge);
+                    end
+
+                    %% add a manual intervention and run the whole procedure for a second time
+                    neuron.options.spatial_algorithm = 'nnls';
+                    %% run more iterations
+                    neuron.update_background_parallel(use_parallel);
+                    neuron.update_spatial_parallel(use_parallel);
                     neuron.update_temporal_parallel(use_parallel);
 
-                    % delete bad neurons
+                    K = size(neuron.A,2);
+                    tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
                     neuron.remove_false_positives();
-
-                    % merge neurons based on temporal correlation + distances 
                     neuron.merge_neurons_dist_corr(show_merge);
-                end
+                    neuron.merge_high_corr(show_merge, merge_thr_spatial);
 
-                %% add a manual intervention and run the whole procedure for a second time
-                neuron.options.spatial_algorithm = 'nnls';
-                %% run more iterations
-                neuron.update_background_parallel(use_parallel);
-                neuron.update_spatial_parallel(use_parallel);
-                neuron.update_temporal_parallel(use_parallel);
-
-                K = size(neuron.A,2);
-                tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-                neuron.remove_false_positives();
-                neuron.merge_neurons_dist_corr(show_merge);
-                neuron.merge_high_corr(show_merge, merge_thr_spatial);
-
-                if K~=size(neuron.A,2)
-                    neuron.update_spatial_parallel(use_parallel);
-                    neuron.update_temporal_parallel(use_parallel);
-                    neuron.remove_false_positives();
+                    if K~=size(neuron.A,2)
+                        neuron.update_spatial_parallel(use_parallel);
+                        neuron.update_temporal_parallel(use_parallel);
+                        neuron.remove_false_positives();
+                    end
                 end
             end
             process_time{4} = datetime;
@@ -289,40 +294,20 @@ for cv = 1:num_Exp
             %% save the workspace for future analysis
             neuron.orderROIs('snr');
             cnmfe_path = neuron.save_workspace();
-%                         fprintf('------------- SAVE THE WHOLE WORKSPACE ----------\n\n');
-%                         neuron.compress_results();
-%                         cnmfe_path = fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']);
-% %                         cnmfe_path = fullfile(neuron.P.log_folder,  [strrep(get_date(), ' ', '_'), '.mat']);
-%                         log_file = neuron.P.log_file; 
-%                         parsave1(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),process_time,'process_time');
-%                         parsave1(cnmfe_path, neuron, 'neuron'); 
-%                         fclose('all');
-%                         try
-%                             fp = fopen(log_file, 'a');
-%                             fprintf(fp, '\n--------%s--------\n[%s]\bSave the current workspace into file \n\t%s\n\n', get_date(), get_minute(), cnmfe_path);
-%                             fprintf('The current workspace has been saved into file \n\t%s\n\n', cnmfe_path);
-%                             fp.close();
-%                         end
 
             %% evaluate spatial segmentation accuracy
             A = neuron.A;
-            th_binary = end_history(end-4);
-            Ab = A>th_binary*max(A,[],1); %;% 0.5
-            Masks3 = neuron.reshape(Ab, 2); 
+            A3 = neuron.reshape(A, 2);
+            thb = end_history(end-4);
+            Masks3 = threshold_Masks(A3, thb); %;%
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
-            save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(th_binary),'.mat']),'Masks3');
+            save(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks_',num2str(thb),'.mat']),'Masks3');
 
             %% move the final results
-%                         child = fullfile(path_name,[Exp_ID,'_source_extraction']);
-%                         current_month = month(datetime,'shortname');
-%                         saved_files = dir(fullfile(child,['frames*\LOGS*\*',current_month{1},'*.mat']));
-%                         datenum = [saved_files.datenum];
-%                         [val,ind] = max(datenum);
-%                         saved_file = saved_files(ind);
-%                         movefile(fullfile(saved_file.folder,saved_file.name), fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
-%                         movefile(cnmfe_path, fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
             movefile(cnmfe_path, fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
             save(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
             fclose('all');
@@ -332,9 +317,11 @@ for cv = 1:num_Exp
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'neuron');
             load(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
             A = neuron.A;
-            th_binary = end_history(end-4);
-            Ab = A>th_binary*max(A,[],1); %;% 0.5
-            Masks3 = neuron.reshape(Ab, 2); 
+            A3 = neuron.reshape(A, 2);
+            thb = end_history(end-4);
+            Masks3 = threshold_Masks(A3, thb); %;%
+            % Ab = A>thb*max(A,[],1); %;% 0.5
+            % Masks3 = neuron.reshape(Ab, 2); 
         %     Masks3 = permute(Masks3,[2,1,3]);
             [Recall(cv), Precision(cv), F1(cv)] = GetPerformance_Jaccard(dir_GT,Exp_ID,Masks3,0.5);
             used_time(cv) = seconds(process_time{4}-process_time{2});
@@ -346,4 +333,3 @@ end
 Table_time = cell2mat(Table_time);
 Table_time_ext=[Table_time;nanmean(Table_time,1);nanstd(Table_time,1,1)];
 save(fullfile(dir_save,['eval_',data_name,'_thb ',save_date,' test.mat']),'Table_time_ext');
-

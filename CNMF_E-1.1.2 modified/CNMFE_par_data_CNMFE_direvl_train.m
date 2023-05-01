@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -43,12 +44,6 @@ switch data_ind
         load_date = '20221215';
     otherwise
         init_ind_param = round(num_params/2);
-end
-
-for eid = 1:num_Exp
-    Exp_ID = list_Exp_ID{eid};
-    video = h5read(fullfile(path_name,[Exp_ID,'.h5']),'/mov');
-    clear video;
 end
 
 %% Set range of parameters to optimize over
@@ -132,25 +127,15 @@ seed_method_res = 'auto';  % method for initializing neurons from the residual
 kt = 3;                 % frame intervals
 
 %% Initialize variable parameters
-% if data_ind == 1
-%     init_ind_param = [1, 3, 2, 3, 2, 6, 8, 4]'; % bv
-% elseif data_ind ==2
-%     init_ind_param = [1, 3, 2, 7, 4, 6, 8, 4]'; % PCF
-% elseif data_ind ==3
-%     init_ind_param = [3, 3, 2, 7, 4, 6, 8, 4]'; % bma
-% elseif data_ind ==4
-%     init_ind_param = [1, 3, 2, 7, 4, 6, 8, 4]'; % CaMKII
-% else
-%     init_ind_param = round(num_params/2);
-% end
 ind_param = init_ind_param;
 temp_param = cellfun(@(x,y) x(y), range_params,num2cell(ind_param));
 
 best_ind_param = init_ind_param;
-[best_Recall, best_Precision, best_F1, best_used_time, ...
+[best_Recall, best_Precision, best_F1, best_time, ...
     Recall, Precision, F1, used_time] = deal(zeros(num_Exp,num_thb));
 history = zeros(num_param_names+4,0);
 best_history = zeros(num_param_names+4,0);
+best_thb = list_th_binary(1);
 
 %%
 % list_seq{1} = [4     5     6     2     7     3     8     1];
@@ -271,12 +256,6 @@ for r = 1:n_round
                         neuron.getReady(pars_envs);
                         process_time{2} = datetime;
 
-                        %% initialize neurons from the video data within a selected temporal range
-%                         if choose_params
-%                             % change parameters for optimized initialization
-%                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-%                         end
-                        
                         K = [];
                         [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
                         neuron.compactSpatial();
@@ -335,21 +314,6 @@ for r = 1:n_round
 
                                 %% add a manual intervention and run the whole procedure for a second time
                                 neuron.options.spatial_algorithm = 'nnls';
-    %                             if with_manual_intervention
-    %                                 show_merge = true;
-    %                                 neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-    %                                 neuron.viewNeurons([], neuron.C_raw);
-    % 
-    %                                 % merge closeby neurons
-    %                                 neuron.merge_close_neighbors(true, dmin_only);
-    % 
-    %                                 % delete neurons
-    %                                 tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-    %                                 ids = find(tags>0); 
-    %                                 if ~isempty(ids)
-    %                                     neuron.viewNeurons(ids, neuron.C_raw);
-    %                                 end
-    %                             end
                                 %% run more iterations
                                 neuron.update_background_parallel(use_parallel);
                                 neuron.update_spatial_parallel(use_parallel);
@@ -438,11 +402,6 @@ for r = 1:n_round
                         used_time(eid,:) = temp_used_time;
                         disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
                     end
-
-                    %% show neuron contours
-                    % Coor = neuron.show_contours(0.6);
-                    %% save neurons shapes
-                    % neuron.save_neurons();
                 end
 
                 %% evaluate the mean F1 using this parameter set

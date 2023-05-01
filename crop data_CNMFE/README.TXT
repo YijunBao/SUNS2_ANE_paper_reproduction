@@ -1,2 +1,0 @@
-1. Download the original videos from the link in the CNMF-E paper (https://doi.org/10.5061/dryad.kr17k), and move the four videos to this folder.
-2. Run "crop-videos.m" to generate the cropped videos and GT masks.

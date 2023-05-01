@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -44,12 +45,6 @@ switch data_ind
         load_date = '20221215';
     otherwise
         init_ind_param = round(num_params/2);
-end
-
-for eid = 1:num_Exp
-    Exp_ID = list_Exp_ID{eid};
-    video = h5read(fullfile(path_name,[Exp_ID,'.h5']),'/mov');
-    clear video;
 end
 
 %% Set range of parameters to optimize over
@@ -139,7 +134,7 @@ for cv = 1:num_Exp
     temp_param = cellfun(@(x,y) x(y), range_params,num2cell(ind_param));
 
     best_ind_param = init_ind_param;
-    [best_Recall, best_Precision, best_F1, best_used_time, ...
+    [best_Recall, best_Precision, best_F1, best_time, ...
         Recall, Precision, F1, used_time] = deal(zeros(num_Exp,num_thb));
     history = zeros(num_param_names+4,0);
     best_history = zeros(num_param_names+4,0);
@@ -263,12 +258,6 @@ for cv = 1:num_Exp
                             neuron.getReady(pars_envs);
                             process_time{2} = datetime;
 
-                            %% initialize neurons from the video data within a selected temporal range
-    %                         if choose_params
-    %                             % change parameters for optimized initialization
-    %                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-    %                         end
-
                             K = [];
                             [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
                             neuron.compactSpatial();
@@ -280,9 +269,11 @@ for cv = 1:num_Exp
                                 plot(center(:, 2), center(:, 1), '.r', 'markersize', 10);
                             end
 
-                            %% estimate the background components
-                            neuron.update_background_parallel(use_parallel);
-                            neuron_init = neuron.copy();
+                            try
+                                %% estimate the background components
+                                neuron.update_background_parallel(use_parallel);
+                                neuron_init = neuron.copy();
+                            end
                             process_time{3} = datetime;
 
                             if ~isempty(neuron.A)
@@ -325,21 +316,6 @@ for cv = 1:num_Exp
 
                                     %% add a manual intervention and run the whole procedure for a second time
                                     neuron.options.spatial_algorithm = 'nnls';
-        %                             if with_manual_intervention
-        %                                 show_merge = true;
-        %                                 neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-        %                                 neuron.viewNeurons([], neuron.C_raw);
-        % 
-        %                                 % merge closeby neurons
-        %                                 neuron.merge_close_neighbors(true, dmin_only);
-        % 
-        %                                 % delete neurons
-        %                                 tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-        %                                 ids = find(tags>0); 
-        %                                 if ~isempty(ids)
-        %                                     neuron.viewNeurons(ids, neuron.C_raw);
-        %                                 end
-        %                             end
                                     %% run more iterations
                                     neuron.update_background_parallel(use_parallel);
                                     neuron.update_spatial_parallel(use_parallel);
@@ -415,7 +391,7 @@ for cv = 1:num_Exp
                                 if isnan(temp_F1(tid))
                                     temp_F1(tid) = 0;
                                 end
-                                    try
+                                try
                                     saved_result = load(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
                                     temp_used_time(tid) = seconds(saved_result.process_time{4}-saved_result.process_time{2});
                                 catch
@@ -428,11 +404,6 @@ for cv = 1:num_Exp
                             used_time(eid,:) = temp_used_time;
                             disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
                         end
-
-                        %% show neuron contours
-                        % Coor = neuron.show_contours(0.6);
-                        %% save neurons shapes
-                        % neuron.save_neurons();
                     end
 
                     %% evaluate the mean F1 using this parameter set

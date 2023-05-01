@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -11,7 +12,8 @@ list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
 rate_hz = 20; % frame rate of each video
-radius = 10;
+radius = 9; % added_refined_masks
+% radius = 10; % original_masks
 data_name = 'TENASPIS';
 path_name = '../data/data_TENASPIS/added_refined_masks';
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
@@ -20,6 +22,8 @@ dir_save = fullfile(path_name,'CNMFE');
 if ~ exist(dir_save,'dir')
     mkdir(dir_save);
 end
+load_date = '20221221';
+load(fullfile(dir_save,['eval_',data_name,'_thb history ',load_date,'.mat']),'list_seq');
 
 %% pre-load the data to memory
 for eid = 1:num_Exp
@@ -47,7 +51,7 @@ num_param_names = length(range_params);
 num_params = cellfun(@length, range_params);
 num_thb = length(list_th_binary);
 n_round = 2;
-list_seq = cell(n_round,1);
+% list_seq = cell(n_round,1);
 
 %% Other fixed parameters. 
 % -------------------------    COMPUTATION    -------------------------  %
@@ -127,15 +131,15 @@ best_thb = list_th_binary(1);
 % list_seq{1} = [4     5     8     3     6     7     1     2];
 % list_seq{2} = [4     5     2     6     8     7     1     3];
 for r = 1:n_round
-    if r==1
-        seq =[4     5     6     1     3     7     2     8];
-    else
-        seq = randperm(num_param_names);
-        seq = seq(seq~=5 & seq~=4);
-        seq = [4,5,seq];
-    end
-    list_seq{r} = seq;
-%     seq = list_seq{r};
+    % if r==1
+    %     seq =[4     5     6     1     3     7     2     8];
+    % else
+    %     seq = randperm(num_param_names);
+    %     seq = seq(seq~=5 & seq~=4);
+    %     seq = [4,5,seq];
+    % end
+    % list_seq{r} = seq;
+    seq = list_seq{r};
     for p = 1:num_param_names
         ind_param = best_ind_param;
         ind_vary = seq(p);
@@ -242,12 +246,6 @@ for r = 1:n_round
                         neuron.getReady(pars_envs);
                         process_time{2} = datetime;
 
-                        %% initialize neurons from the video data within a selected temporal range
-%                         if choose_params
-%                             % change parameters for optimized initialization
-%                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-%                         end
-                        
                         K = [];
                         [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
                         neuron.compactSpatial();
@@ -306,21 +304,6 @@ for r = 1:n_round
 
                                 %% add a manual intervention and run the whole procedure for a second time
                                 neuron.options.spatial_algorithm = 'nnls';
-                                % if with_manual_intervention
-                                %     show_merge = true;
-                                %     neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-                                %     neuron.viewNeurons([], neuron.C_raw);
-    
-                                %     % merge closeby neurons
-                                %     neuron.merge_close_neighbors(true, dmin_only);
-    
-                                %     % delete neurons
-                                %     tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-                                %     ids = find(tags>0); 
-                                %     if ~isempty(ids)
-                                %         neuron.viewNeurons(ids, neuron.C_raw);
-                                %     end
-                                % end
                                 %% run more iterations
                                 neuron.update_background_parallel(use_parallel);
                                 neuron.update_spatial_parallel(use_parallel);
@@ -340,7 +323,7 @@ for r = 1:n_round
                             end
                         end
                         process_time{4} = datetime;
-                        
+
                         %% save the workspace for future analysis
                         neuron.orderROIs('snr');
 %                         cnmfe_path = neuron.save_workspace();
@@ -381,16 +364,6 @@ for r = 1:n_round
                         used_time(eid,:) = temp_used_time;
                         disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
 
-                        %% move the final results
-%                         child = fullfile(path_name,[Exp_ID,'_source_extraction']);
-%                         current_month = month(datetime,'shortname');
-%                         saved_files = dir(fullfile(child,['frames*\LOGS*\*',current_month{1},'*.mat']));
-%                         datenum = [saved_files.datenum];
-%                         [val,ind] = max(datenum);
-%                         saved_file = saved_files(ind);
-%                         movefile(fullfile(saved_file.folder,saved_file.name), fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
-%                         movefile(cnmfe_path, fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
-
                     else
                 %         load(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks.mat']),'Masks3');
                         saved_result = load(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'neuron');
@@ -419,11 +392,6 @@ for r = 1:n_round
                         used_time(eid,:) = temp_used_time;
                         disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
                     end
-
-                    %% show neuron contours
-                    % Coor = neuron.show_contours(0.6);
-                    %% save neurons shapes
-                    % neuron.save_neurons();
                 end
 
                 %% evaluate the mean F1 using this parameter set
@@ -435,7 +403,7 @@ for r = 1:n_round
                 
                 thb = list_th_binary(ind_thb);
                 Table_time = [Recall(:,ind_thb), Precision(:,ind_thb), F1(:,ind_thb), used_time(:,ind_thb)];
-                new_history = [temp_param', thb, mean(Table_time,1)];
+                new_history = [temp_param', thb, mean(Table_time)];
                 history = [history; new_history];
                 
                 if max_mean_F1 > max_mean_best_F1

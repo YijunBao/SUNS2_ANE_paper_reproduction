@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -20,6 +21,10 @@ num_Exp = length(list_Exp_ID);
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 
 dir_save = fullfile(path_name,'CNMFE');
+if ~ exist(dir_save,'dir')
+    mkdir(dir_save);
+end
+
 switch data_ind 
     case 1
         save_date = '20221216';
@@ -51,7 +56,7 @@ gSiz = 2 * radius(data_ind); % 12;
 % num_param_names = length(range_params);
 % num_params = cellfun(@length, range_params);
 % num_thb = length(list_th_binary);
-% n_round = 3;
+% n_round = 2;
 
 %% Other fixed parameters. 
 % -------------------------    COMPUTATION    -------------------------  %
@@ -121,12 +126,6 @@ for cv = 1:num_Exp
     load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,' cv', num2str(cv),'.mat']),...
         'best_Recall','best_Precision','best_F1',...
         'best_time','best_ind_param','best_thb','ind_param','list_params','history','best_history')
-    %% Initialize variable parameters
-    % init_ind_param = round(num_params/2);
-%     init_ind_param = [1, 3, 2, 3, 2, 6, 8, 4]'; % bv
-%     init_ind_param = [1, 3, 2, 7, 4, 6, 8, 4]'; % PCF
-%     ind_param = init_ind_param;
-%     temp_param = cellfun(@(x,y) x(y), range_params,num2cell(ind_param));
     end_history = best_history(end,:);
     best_param = end_history(1:end-5);
     rbg = best_param(1);
@@ -140,6 +139,9 @@ for cv = 1:num_Exp
 
     dir_sub = sprintf('gSiz=%d,rbg=%0.1f,nk=%d,rdmin=%0.1f,mc=%0.2f,mp=%d,mt=%0.2f,mts=%0.2f,mtt=%0.2f',...
         gSiz,rbg,nk,rdmin,min_corr,min_pnr,merge_thr,mts,mtt);
+    if ~ exist(fullfile(dir_save,dir_sub),'dir')
+        mkdir(fullfile(dir_save,dir_sub));
+    end
 
     %%
     for eid = cv % trains % 1:num_Exp
@@ -211,12 +213,6 @@ for cv = 1:num_Exp
             neuron.getReady(pars_envs);
             process_time{2} = datetime;
 
-            %% initialize neurons from the video data within a selected temporal range
-            % if choose_params
-            %     % change parameters for optimized initialization
-            %     [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-            % end
-
             K = [];
             [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
             neuron.compactSpatial();
@@ -228,9 +224,11 @@ for cv = 1:num_Exp
                 plot(center(:, 2), center(:, 1), '.r', 'markersize', 10);
             end
 
-            %% estimate the background components
-            neuron.update_background_parallel(use_parallel);
-            neuron_init = neuron.copy();
+            try
+                %% estimate the background components
+                neuron.update_background_parallel(use_parallel);
+                neuron_init = neuron.copy();
+            end
             process_time{3} = datetime;
 
             if ~isempty(neuron.A)
@@ -273,21 +271,6 @@ for cv = 1:num_Exp
 
                     %% add a manual intervention and run the whole procedure for a second time
                     neuron.options.spatial_algorithm = 'nnls';
-                    % if with_manual_intervention
-                    %     show_merge = true;
-                    %     neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-                    %     neuron.viewNeurons([], neuron.C_raw);
-
-                    %     % merge closeby neurons
-                    %     neuron.merge_close_neighbors(true, dmin_only);
-
-                    %     % delete neurons
-                    %     tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-                    %     ids = find(tags>0); 
-                    %     if ~isempty(ids)
-                    %         neuron.viewNeurons(ids, neuron.C_raw);
-                    %     end
-                    % end
                     %% run more iterations
                     neuron.update_background_parallel(use_parallel);
                     neuron.update_spatial_parallel(use_parallel);
@@ -326,13 +309,6 @@ for cv = 1:num_Exp
             save(fullfile(dir_save,dir_sub_save,[Exp_ID,'_Masks.mat']),'Masks3');
 
             %% move the final results
-%             child = fullfile(path_name,[Exp_ID,'_source_extraction']);
-%             current_month = month(datetime,'shortname');
-%             saved_files = dir(fullfile(child,['frames*\LOGS*\*',current_month{1},'*.mat']));
-%             datenum = [saved_files.datenum];
-%             [val,ind] = max(datenum);
-%             saved_file = saved_files(ind);
-%             movefile(fullfile(saved_file.folder,saved_file.name), fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
             movefile(cnmfe_path, fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
             save(fullfile(dir_save,dir_sub,[Exp_ID,'_time.mat']),'process_time');
             fclose('all');
@@ -352,11 +328,6 @@ for cv = 1:num_Exp
             used_time(cv) = seconds(process_time{4}-process_time{2});
         end
         Table_time{cv} = [end_history(1:end-4),Recall(cv), Precision(cv), F1(cv),used_time(cv),end_history(end-3:end)];
-
-        %% show neuron contours
-        % Coor = neuron.show_contours(0.6);
-        %% save neurons shapes
-        % neuron.save_neurons();
     end
 end
 %%

@@ -1,3 +1,4 @@
+addpath(genpath('../ANE'))
 color=[  0    0.4470    0.7410
     0.8500    0.3250    0.0980
     0.9290    0.6940    0.1250
@@ -19,14 +20,12 @@ save_figures = true;
 image_only = true;
 show_zoom = true;
 % mag_kernel = ones(mag,mag,'uint8');
-addpath(genpath('C:\Matlab Files\missing_finder'))
 alpha = 0.8;
 
 %% neurons and masks frame
 num_Exp = 10;
 list_Exp_ID = arrayfun(@(x) ['sim_',num2str(x)],0:(num_Exp-1), 'UniformOutput',false);
 list_title = list_Exp_ID;
-radius = 6;
 
 scale_lowBG = 5e3;
 scale_noise = 1;
@@ -34,30 +33,19 @@ results_folder = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
 list_data_names={results_folder};
 data_ind = 1;
 data_name = list_data_names{data_ind};
-dir_video = fullfile('E:\simulation_CNMFE_corr_noise',data_name);
+dir_video = fullfile('../data/data_simulation',data_name);
 dir_video_raw = dir_video;
 % varname = '/mov';
-dir_video_SNR = fullfile(dir_video,'complete_TUnCaT\network_input\');
-dir_traces = fullfile(dir_video,'complete_TUnCaT\TUnCaT\alpha= 1.000\');
-% varname = '/network_input';
-% dir_video_raw = fullfile(dir_video, 'SNR video');
 dir_GT_masks = fullfile(dir_video,'GT Masks');
 
 %%
-for k=num_Exp
+for k=1:num_Exp
 % clear video_SNR video_raw
 Exp_ID = list_Exp_ID{k};
-load([data_name,' mat\SNR_max\SNR_max_',Exp_ID,'.mat'],'SNR_max');
+load([data_name,' mat/SNR_max/SNR_max_',Exp_ID,'.mat'],'SNR_max');
 % SNR_max=SNR_max';
-load([data_name,' mat\raw_max\raw_max_',Exp_ID,'.mat'],'raw_max');
+load([data_name,' mat/raw_max/raw_max_',Exp_ID,'.mat'],'raw_max');
 % raw_max=raw_max';
-% load(fullfile(dir_traces,[Exp_ID,'.mat']),'traces_nmfdemix'); % raw_traces
-% unmixed_traces = traces_nmfdemix;
-% unmixed_traces = h5read([dir_traces,Exp_ID,'.h5'],'/unmixed_traces'); % raw_traces
-% video_raw = h5read(fullfile(dir_video_raw,[Exp_ID,'.h5']),'/mov'); % raw_traces
-% raw_max = max(video_raw,[],3);
-% video_SNR = h5read(fullfile(dir_video_SNR,[Exp_ID,'.h5']),'/network_input'); % raw_traces
-% SNR_max = max(video_SNR,[],3);
 [Lx,Ly] = size(raw_max);
 % SNR_max = SNR_max(1:Lx,1:Ly);
 
@@ -76,7 +64,6 @@ SNR_range = [2,6]; % [2,14]; % [0,10]; %
 raw_range = [0,3000]; % [2,6]; % [0,10]; % 
 
 save_folder = sprintf('figures_%d-%d,%d-%d raw',xrange(1),xrange(end),yrange(1),yrange(end));
-save_folder = ['.\',save_folder,'\'];
 if ~exist(save_folder,'dir')
     mkdir(save_folder)
 end
@@ -94,7 +81,6 @@ end
 xticklabels({}); yticklabels({});
 hold on;
 rectangle('Position',[Ly-30,8,20,6],'FaceColor','w','LineStyle','None'); % 20 um scale bar
-% contour(sum(GT_Masks(xrange,yrange,:),3), 'EdgeColor',color(3,:),'LineWidth',1);
 for n = 1:NGT
     contour(GT_Masks(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
@@ -108,11 +94,11 @@ end
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name,' ',Exp_ID, ' Masks GT raw.tif']);
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks GT raw.tif']));
     else
-        saveas(gcf,[save_folder, data_name,' ',Exp_ID, ' Masks GT raw.png']);
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks GT raw.png']));
     end
-    % saveas(gcf,['figure 2\',Exp_ID,' SUNS noSF h.svg']);
+    % saveas(gcf,['figure 2/',Exp_ID,' SUNS noSF h.svg']);
 end
 
 %% Plot SNR_max
@@ -127,7 +113,6 @@ end
 xticklabels({}); yticklabels({});
 hold on;
 rectangle('Position',[Ly-30,8,20,6],'FaceColor','w','LineStyle','None'); % 20 um scale bar
-% contour(sum(GT_Masks(xrange,yrange,:),3), 'EdgeColor',color(3,:),'LineWidth',1);
 for n = 1:NGT
     contour(GT_Masks(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
@@ -141,11 +126,11 @@ end
 
 if save_figures
     if image_only
-        saveas(gcf,[save_folder, data_name,' ',Exp_ID, ' Masks GT SNR.tif']);
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks GT SNR.tif']));
     else
-        saveas(gcf,[save_folder, data_name,' ',Exp_ID, ' Masks GT SNR.png']);
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks GT SNR.png']));
     end
-    % saveas(gcf,['figure 2\',Exp_ID,' SUNS noSF h.svg']);
+    % saveas(gcf,['figure 2/',Exp_ID,' SUNS noSF h.svg']);
 end
 
 end

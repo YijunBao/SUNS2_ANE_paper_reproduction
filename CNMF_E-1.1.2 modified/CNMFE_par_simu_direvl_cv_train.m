@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -8,14 +9,11 @@ clear; clc; close all;
 %% 
 scale_lowBG = 5e3;
 scale_noise = 1;
-results_folder = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
-list_data_names={results_folder};
-list_patch_dims = [253,316]; 
+data_name = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
+patch_dims = [253,316]; 
 rate_hz = 10; % frame rate of each video
 radius = 6;
 
-data_ind = 1;
-data_name = list_data_names{data_ind};
 path_name = fullfile('../data/data_simulation',data_name);
 num_Exp = 10;
 list_Exp_ID = arrayfun(@(x) ['sim_',num2str(x)],0:(num_Exp-1), 'UniformOutput',false);
@@ -28,13 +26,6 @@ end
 % save_date = num2str(yyyymmdd(datetime));
 save_date = '20230217';
 load(fullfile(dir_save,['eval_',data_name,'_thb history ',save_date,'.mat']),'list_seq');
-
-%% pre-load the data to memory
-for eid = 1:num_Exp
-    Exp_ID = list_Exp_ID{eid};
-    video = h5read(fullfile(path_name,[Exp_ID,'.h5']),'/mov');
-    clear video;
-end
 
 %% Set range of parameters to optimize over
 gSiz = 12;
@@ -59,7 +50,7 @@ num_thb = length(list_th_binary);
 % -------------------------    COMPUTATION    -------------------------  %
 pars_envs = struct('memory_size_to_use', 120, ...   % GB, memory space you allow to use in MATLAB
     'memory_size_per_patch', 10, ...   % GB, space for loading data within one patch
-    'patch_dims', list_patch_dims(data_ind,:));  %GB, patch size
+    'patch_dims', patch_dims);  %GB, patch size
 
 % -------------------------      SPATIAL      -------------------------  %
 ssub = 1;           % spatial downsampling factor
@@ -68,7 +59,7 @@ spatial_constraints = struct('connected', true, 'circular', false);  % you can i
 spatial_algorithm = 'hals_thresh';
 
 % -------------------------      TEMPORAL     -------------------------  %
-Fs = rate_hz(data_ind);             % frame rate
+Fs = rate_hz;             % frame rate
 tsub = 1;           % temporal downsampling factor
 deconv_options = struct('type', 'ar1', ... % model of the calcium traces. {'ar1', 'ar2'}
     'method', 'foopsi', ... % method for running deconvolution {'foopsi', 'constrained', 'thresholded'}
@@ -257,12 +248,6 @@ for cv = 1:num_Exp
                             neuron.getReady(pars_envs);
                             process_time{2} = datetime;
 
-                            %% initialize neurons from the video data within a selected temporal range
-    %                         if choose_params
-    %                             % change parameters for optimized initialization
-    %                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-    %                         end
-
                             K = [];
                             [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
                             neuron.compactSpatial();
@@ -321,21 +306,6 @@ for cv = 1:num_Exp
 
                                     %% add a manual intervention and run the whole procedure for a second time
                                     neuron.options.spatial_algorithm = 'nnls';
-        %                             if with_manual_intervention
-        %                                 show_merge = true;
-        %                                 neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-        %                                 neuron.viewNeurons([], neuron.C_raw);
-        % 
-        %                                 % merge closeby neurons
-        %                                 neuron.merge_close_neighbors(true, dmin_only);
-        % 
-        %                                 % delete neurons
-        %                                 tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-        %                                 ids = find(tags>0); 
-        %                                 if ~isempty(ids)
-        %                                     neuron.viewNeurons(ids, neuron.C_raw);
-        %                                 end
-        %                             end
                                     %% run more iterations
                                     neuron.update_background_parallel(use_parallel);
                                     neuron.update_spatial_parallel(use_parallel);
@@ -424,14 +394,10 @@ for cv = 1:num_Exp
                             used_time(eid,:) = temp_used_time;
                             disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
                         end
-
-                        %% show neuron contours
-                        % Coor = neuron.show_contours(0.6);
-                        %% save neurons shapes
-                        % neuron.save_neurons();
                     end
 
                     %% evaluate the mean F1 using this parameter set
+                    F1(isnan(F1)) = 0;
                     mean_F1 = mean(F1(trains,:),1);
                     mean_best_F1 = mean(best_F1(trains,:),1);
                     [max_mean_F1, ind_thb] = max(mean_F1);

@@ -1,14 +1,16 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
+
 
 %% 
 scale_lowBG = 5e3;
 scale_noise = 1;
 data_name = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
-list_patch_dims = [253,316]; 
+patch_dims = [253,316]; 
 num_Exp = 10;
 
 rate_hz = 10; % frame rate of each video
@@ -45,7 +47,7 @@ list_seq = cell(n_round,1);
 % -------------------------    COMPUTATION    -------------------------  %
 pars_envs = struct('memory_size_to_use', 120, ...   % GB, memory space you allow to use in MATLAB
     'memory_size_per_patch', 10, ...   % GB, space for loading data within one patch
-    'patch_dims', list_patch_dims(data_ind,:));  %GB, patch size
+    'patch_dims', patch_dims);  %GB, patch size
 
 % -------------------------      SPATIAL      -------------------------  %
 ssub = 1;           % spatial downsampling factor
@@ -54,7 +56,7 @@ spatial_constraints = struct('connected', true, 'circular', false);  % you can i
 spatial_algorithm = 'hals_thresh';
 
 % -------------------------      TEMPORAL     -------------------------  %
-Fs = rate_hz(data_ind);             % frame rate
+Fs = rate_hz;             % frame rate
 tsub = 1;           % temporal downsampling factor
 deconv_options = struct('type', 'ar1', ... % model of the calcium traces. {'ar1', 'ar2'}
     'method', 'foopsi', ... % method for running deconvolution {'foopsi', 'constrained', 'thresholded'}
@@ -95,10 +97,10 @@ min_pnr_res = 6; % 6;
 seed_method_res = 'auto';  % method for initializing neurons from the residual
 
 % ----------------------  WITH MANUAL INTERVENTION  --------------------  %
-with_manual_intervention = false;
+% with_manual_intervention = false;
 
 % -------------------------  FINAL RESULTS   -------------------------  %
-save_demixed = true;    % save the demixed file or not
+% save_demixed = true;    % save the demixed file or not
 kt = 3;                 % frame intervals
 
 %% Initialize variable parameters
@@ -109,7 +111,7 @@ ind_param = init_ind_param;
 temp_param = cellfun(@(x,y) x(y), range_params,num2cell(ind_param));
 
 best_ind_param = init_ind_param;
-[best_Recall, best_Precision, best_F1, best_used_time, ...
+[best_Recall, best_Precision, best_F1, best_time, ...
     Recall, Precision, F1, used_time] = deal(zeros(num_Exp,num_thb));
 history = zeros(num_param_names+4,0);
 best_history = zeros(num_param_names+4,0);
@@ -178,7 +180,7 @@ for r = 1%:n_round
                         updateA_bSiz = neuron.options.dist;
                     end
 
-                    if ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
+                    if true % ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
                         %% variable parameters
         %                 gSiz = list_gSiz; % 7;           % pixel, neuron diameter
                         gSig = round(gSiz/4); % 2;           % pixel, gaussian width of a gaussian kernel for filtering the data. 0 means no filtering

@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -14,7 +15,7 @@ radius = [5,6,8,14];
 sub_added = '';
 % sub_added = '_added_blockwise_weighted_sum_unmask';
 
-data_ind = 1;
+data_ind = 4;
 data_name = list_data_names{data_ind};
 path_name = fullfile('../data/data_CNMFE',data_name);
 list_Exp_ID = cellfun(@(x) [data_name,x], list_ID_part,'UniformOutput',false);
@@ -24,13 +25,6 @@ dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 dir_save = fullfile(path_name,'CNMFE');
 if ~ exist(dir_save,'dir')
     mkdir(dir_save);
-end
-
-%% pre-load the data to memory
-for eid = 1:num_Exp
-    Exp_ID = list_Exp_ID{eid};
-    video = h5read(fullfile(path_name,[Exp_ID,'.h5']),'/mov');
-    clear video;
 end
 
 %% Set range of parameters to optimize over
@@ -128,7 +122,7 @@ ind_param = init_ind_param;
 temp_param = cellfun(@(x,y) x(y), range_params,num2cell(ind_param));
 
 best_ind_param = init_ind_param;
-[best_Recall, best_Precision, best_F1, best_used_time, ...
+[best_Recall, best_Precision, best_F1, best_time, ...
     Recall, Precision, F1, used_time] = deal(zeros(num_Exp,num_thb));
 history = zeros(num_param_names+4,0);
 best_history = zeros(num_param_names+4,0);
@@ -173,9 +167,9 @@ for r = 1%:n_round
 
                 dir_sub = sprintf('gSiz=%d,rbg=%0.1f,nk=%d,rdmin=%0.1f,mc=%0.2f,mp=%d,mt=%0.2f,mts=%0.2f,mtt=%0.2f',...
                     gSiz,rbg,nk,rdmin,min_corr,min_pnr,merge_thr,mts,mtt);
-%                 if ~ exist(fullfile(dir_save,dir_sub),'dir')
-%                     mkdir(fullfile(dir_save,dir_sub));
-%                 end
+                if ~ exist(fullfile(dir_save,dir_sub),'dir')
+                    mkdir(fullfile(dir_save,dir_sub));
+                end
 
                 %%
                 for eid = 1:num_Exp
@@ -198,7 +192,7 @@ for r = 1%:n_round
                         updateA_bSiz = neuron.options.dist;
                     end
 
-                    if ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
+                    if true % ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
                         %% variable parameters
         %                 gSiz = list_gSiz; % 7;           % pixel, neuron diameter
                         gSig = round(gSiz/4); % 2;           % pixel, gaussian width of a gaussian kernel for filtering the data. 0 means no filtering

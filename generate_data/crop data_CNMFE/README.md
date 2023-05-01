@@ -1,0 +1,2 @@
+1. Download the original videos from the link in the CNMF-E paper (https://doi.org/10.5061/dryad.kr17k). Move the four videos to this folder, or sepcify the `dir_parent` variable in `crop-videos.m` to the target folder.
+2. Run `crop-videos.m` to generate the cropped videos and GT masks.

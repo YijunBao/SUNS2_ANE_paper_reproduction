@@ -1,13 +1,17 @@
+% dir_sub_save = 'CNMFE/cv_save_20221221';
+% dir_sub_save = 'min1pipe/cv_save_20230111';
+
 addpath(genpath('.'))
+gcp;
 
 %%
 % name of the videos
 list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
-% list_Exp_ID={'blood_vessel_10Hz','PFC4_15Hz','bma22_epm','CaMKII_120_TMT Exposure_5fps'};
 rate_hz = 20; % frame rate of each video
-avg_radius = 9;
+avg_radius = 9; % added_refined_masks
+% avg_radius = 10; % original_masks
 r_bg_ratio = 3;
 leng = r_bg_ratio*avg_radius;
 
@@ -17,33 +21,21 @@ thj = 0.7;
 meth_baseline='median'; % {'median','median_mean','median_median'}
 meth_sigma='quantile-based std'; % {'std','mode_Burr','median_std','std_back','median-based std'}
 
-% vid=2;
-% Exp_ID = list_Exp_ID{vid};
-
 %% Load traces and ROIs
 % folder of the GT Masks
-% dir_parent='D:\data_TENASPIS\original_masks\';
-dir_parent='D:\data_TENASPIS\added_refined_masks\';
+% dir_parent=fullfile('..','data','data_TENASPIS','original_masks');
+dir_parent=fullfile('..','data','data_TENASPIS','added_refined_masks');
 dir_video = dir_parent; 
 
-save_date = '20221221';
-dir_sub_save = ['cv_save_',save_date];
-dir_save = fullfile(dir_parent,'CNMFE');
-% save_date = '20230111';
-% dir_sub_save = ['cv_save_',save_date];
-% dir_save = fullfile(dir_parent,'min1pipe');
-
-dir_masks = fullfile(dir_save,dir_sub_save); % 4 v1
+dir_masks = fullfile(dir_parent,dir_sub_save); % 4 v1
 % dir_masks = fullfile(dir_parent, 'GT Masks');
-dir_add_new = fullfile(dir_masks, 'add_new_blockwise_weighted_sum_unmask');
-fs = rate_hz;
-% folder = ['.\Result_',data_name];
+dir_add_new = fullfile(dir_masks, 'add_new_blockwise');
+% fs = rate_hz;
 if ~ exist(dir_add_new,'dir')
     mkdir(dir_add_new);
 end
 time_weights = zeros(num_Exp,1);
 
-% eid = 4;
 for eid = 1:num_Exp
     Exp_ID = list_Exp_ID{eid};
     load(fullfile(dir_masks,[Exp_ID,'_Masks.mat']),'Masks3');
@@ -53,7 +45,6 @@ for eid = 1:num_Exp
 %     masks=logical(FinalMasks);
     fname=fullfile(dir_video,[Exp_ID,'.h5']);
     video_raw = h5read(fname, '/mov');
-%     video_raw = mov;
 
     tic;
     video_sf =homo_filt(video_raw, 50);
@@ -61,11 +52,7 @@ for eid = 1:num_Exp
     video_SNR = (video_sf-mu)./sigma;
 
     video_SNR = imgaussfilt(video_SNR); % ,1
-%     save(fullfile(dir_trace,['SNR video ',Exp_ID,'.mat']),'video_SNR');
-%     fname=fullfile(dir_trace,['SNR video ', Exp_ID,'.mat']);
-%     load(fname, 'video_SNR');
 
-    % max_SNR = max(video_SNR,[],3);
     [Lx,Ly,T] = size(video_SNR);
     npatchx = ceil(Lx/leng)-1;
     npatchy = ceil(Ly/leng)-1;
@@ -85,16 +72,9 @@ for eid = 1:num_Exp
     fclose(fileID);
     mm = memmapfile(fileName,'Format',{video_class,[Lx,Ly,T],'video'}, 'Repeat', 1);
     mm2 = memmapfile(fileName,'Format',{video_class,[Lx*Ly,T],'video'}, 'Repeat', 1);
-%     max(max(max(mm.Data.video)));
     
     %%
     traces_raw=generate_traces_from_masks_mm(mm2,masks);
-%     traces_bg_exclude=generate_bgtraces_from_masks_exclude(video_SNR,masks);
-%     traces_out_exclude=generate_outtraces_from_masks_exclude(video_SNR,masks);
-%     save(fullfile(dir_trace,['raw and bg traces ',Exp_ID,'.mat']),'traces_raw','traces_bg_exclude','traces_out_exclude');
-%     load(fullfile(dir_trace,['raw and bg traces ',Exp_ID,'.mat']),'traces_raw','traces_bg_exclude','traces_out_exclude');
-    % load('.\Result_PFC4_15Hz\masks_added(1--237).mat','update_result')
-    % list_added_manual = update_result.list_added;
 
     %%
     video = video_SNR;
@@ -103,14 +83,9 @@ for eid = 1:num_Exp
 
     %%
     area = squeeze(sum(sum(masks,1),2));
-    avg_area = mean(area);
-%     avg_radius = sqrt(mean(area)/pi);
-%     r_bg = avg_radius*r_bg_ratio;
-%     r_bg_ext = round(list_avg_radius(data_ind) * (r_bg_ratio+1));
-% %     r_bg_ext = 24;
-%     masks_sum = sum(masks,3);
+    avg_area = median(area);
     [list_added_full, list_added_crop, list_added_images_crop,...
-    list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy)); % nlist_list_valid, 
+        list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
 
     %%
     parfor ix = 1:npatchx
@@ -130,13 +105,6 @@ for eid = 1:num_Exp
         list_added_weights{ix,iy} = select_weight_calss;
         n_class = size(image_new_crop,3);
         list_locations{ix,iy} = [xmin, xmax, ymin, ymax].*ones(n_class,1);
-
-%         mask_new_full_2 = reshape(mask_new_full,Lx*Ly,n_class);
-%         mask_valid_full = list_added_manual{nn};
-%         mask_valid_full_2 = reshape(mask_valid_full,Lx*Ly,[]);
-%         [Recall, Precision, F1, m] = GetPerformance_Jaccard_2(mask_valid_full_2,mask_new_full_2,0.1);
-%         list_valid = any(m>0,1);
-%         list_list_valid{nn} = list_valid;
     end    
     end    
 
@@ -160,29 +128,12 @@ for eid = 1:num_Exp
     time_weights = toc;
 
     %% Save Masks
-%     list_valid = cell2mat(list_list_valid);
     % save(fullfile(dir_add_new,[Exp_ID,'_weights_blockwise.mat']),...
     %     'list_weight','list_weight_trace','list_weight_frame',...
     %     'sum_edges','traces_raw','video','masks');
     save(fullfile(dir_add_new,[Exp_ID,'_added_auto_blockwise.mat']), ...
         'added_frames','added_weights', 'masks_added_full','masks_added_crop',...
-        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop'); % ,'list_valid'
-    
-    %% use GUI to label 
-%     folder = ['.\Result_',Exp_ID];
-%     GUI_find_missing_4train_blockwise(video, folder, masks, patch_locations,...
-%     images_added_crop, masks_added_crop, added_frames, added_weights);
-%     GUI_find_missing_4train_blockwise(video, folder, masks, patch_locations,...
-%     images_added_crop, masks_added_crop, added_frames, added_weights, update_result);
-    %%
-%     load(fullfile(folder,'Result_PFC4_15Hz_part11\masks_added(1--29).mat'), 'update_result');
-%     list_valid = cell2mat(update_result.list_valid);
-%     masks_added_full = cell2mat(reshape(update_result.list_added,1,1,[]));
-%     list_avg_frame = cell2mat(reshape(update_result.list_avg_frame,1,1,[]));
-%     list_mask_update = cell2mat(reshape(update_result.list_mask_update,1,1,[]));
-%     
-%     save(fullfile(folder,[Exp_ID,'_added_auto.mat']), ...
-%         'masks_added_full','masks_added_crop','images_added_crop','list_valid');
+        'images_added_crop', 'patch_locations','time_weights','masks_neighbors_crop');
 end
 %%
 clear mm;

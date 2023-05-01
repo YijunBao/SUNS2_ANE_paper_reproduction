@@ -5,11 +5,12 @@ There are totally 8 folders in this repository:
 * `SUNS2` contains the python code of SUNS2.
 * `ANE` contains the MATLAB and python code of ANE.
 * `Manual labeling GUI` contains the MATLAB code of the Manual labeling GUI.
-* `MIN1PIPE-3.0.0 modified` contains the code of MIN1PIPE v3.0.0. We ran it on our test datasets and compared the results with SUNS2-ANE.
-* `CNMF_E-1.1.2 modified` contains the code of CNMF_E v1.1.2. We ran it on our test datasets and compared the results with SUNS2-ANE.
-* `simulation_1p` contains the code to simulate test videos with various background and noise levels.
-* `crop data_CNMFE` contains the code to crop the sub-videos from the full videos of the CNMF-E dataset.
+* `MIN1PIPE-3.0.0 modified` contains our modified code of [MIN1PIPE](https://github.com/JinghaoLu/MIN1PIPE) v3.0.0. We ran it on our test datasets using the parameters optimized through directed evolution and compared the results with SUNS2-ANE.
+* `CNMF_E-1.1.2 modified` contains our modified code of [CNMF-E](https://github.com/zhoupc/CNMF_E) v1.1.2. We ran it on our test datasets using the parameters optimized through directed evolution and compared the results with SUNS2-ANE.
+* `data` contains our test videos in the three datasets.
+* `generate_data` contains the code to generate our test videos in the three datasets from source data or source code.
 * `plot figures` contains the code to plot the figures in the paper.
+
 Among these folders, the first three folders are the original code we developed, and are the major novelty of the paper. The remaining code are used to reproduce the results in the paper. To run the full paper reproduction, please download our datasets from [figShare](https://doi.org/10.6084/m9.figshare.22304569), and put the videos and masks to the corresponding folders.
 
 # SUNS2
@@ -60,7 +61,16 @@ The expected segmentation result of SUNS2-ANE on the video “CaMKII_120_TMT Exp
 
 Of course, you can modify the demo scripts to process other videos. You need to set the folders of the videos and GT masks, and change some parameters in the python scripts to direct to your videos. The videos should be in h5 format. If you don’t have GT masks for training, you can use the Manual labeling GUI to create them. 
 
-# Simulate test videos
-The folder `simulation_1p` contains the code to simulate our videos. The code is modified from [the simulation code used in the CNMF-E paper](https://github.com/zhoupc/eLife_submission). The main script is `sim_data_10_randBG_corr_noise.m`. We changed the parameter `scale_lowBG` within [1e3, 5e3] to set the scale of the slowly varying background as low and high. We changed the parameter `scale_noise` within [0.1, 0.3, 1] to set the scale of the random noise as high, medium, and low. 
+# Create data from source
+We used two experimental datasets (Tenaspis and CNMF-E) and one simulated dataset to test our algorithm, and compared with existing algorithms. The folder `generate_data` contains the code to generate the videos in the three datasets from source data or source code. 
+
+## Simulated videos
+The sub-folder `simulation_1p` contains the code to simulate our videos. The code is modified from [the simulation code used in the CNMF-E paper](https://github.com/zhoupc/eLife_submission). The main script is `sim_data_10_randBG_corr_noise.m`. We changed the parameter `scale_lowBG` within [1e3, 5e3] to set the scale of the slowly varying background as low and high. We changed the parameter `scale_noise` within [0.1, 0.3, 1] to set the scale of the random noise as high, medium, and low. 
 
 The simulation results will be saved in the folder `data/data_simulation/lowBG={scale_lowBG},poisson={scale_noise}`. The videos are saved as `sim_{n}.h5`. The ground truth masks are saved as `GT Masks/FinalMasks_sim_{n}.mat`. Some other information are saved in `GT info/GT_sim_{n}.mat`. 
+
+## Tenaspis videos
+The sub-folder `crop data_Tenaspis` contains the code to crop the eight Tenaspis videos used in our paper from motion-corrected videos. 
+
+## CNMF-E videos
+The sub-folder `crop data_CNMFE` contains the code to crop the four CNMF-E videos used in our paper into sub-videos. 

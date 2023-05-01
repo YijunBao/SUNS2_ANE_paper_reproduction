@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 % gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -11,7 +12,8 @@ list_Exp_ID={'Mouse_1K', 'Mouse_2K', 'Mouse_3K', 'Mouse_4K', ...
              'Mouse_1M', 'Mouse_2M', 'Mouse_3M', 'Mouse_4M'};
 num_Exp = length(list_Exp_ID);
 rate_hz = 20; % frame rate of each video
-radius = 9;
+radius = 9; % added_refined_masks
+% radius = 10; % original_masks
 data_name = 'TENASPIS';
 path_name = '../data/data_TENASPIS/added_refined_masks';
 dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
@@ -19,13 +21,6 @@ dir_GT = fullfile(path_name,'GT Masks'); % FinalMasks_
 dir_save = fullfile(path_name,'CNMFE');
 if ~ exist(dir_save,'dir')
     mkdir(dir_save);
-end
-
-%% pre-load the data to memory
-for eid = 1:num_Exp
-    Exp_ID = list_Exp_ID{eid};
-    video = h5read(fullfile(path_name,[Exp_ID,'.h5']),'/mov');
-    clear video;
 end
 
 %% Set range of parameters to optimize over
@@ -191,7 +186,7 @@ for r = 1%:n_round
                         updateA_bSiz = neuron.options.dist;
                     end
 
-                    if ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
+                    if true % ~exist(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'file')
                         %% variable parameters
         %                 gSiz = list_gSiz; % 7;           % pixel, neuron diameter
                         gSig = round(gSiz/4); % 2;           % pixel, gaussian width of a gaussian kernel for filtering the data. 0 means no filtering
@@ -244,4 +239,3 @@ for r = 1%:n_round
         end
     end
 end
-%%

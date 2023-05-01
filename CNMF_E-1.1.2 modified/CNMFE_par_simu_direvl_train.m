@@ -1,6 +1,7 @@
 %% clear the workspace and select data
 warning off;
 gcp;
+addpath(genpath('.'))
 addpath(genpath('../ANE'))
 clear; clc; close all;  
 
@@ -9,7 +10,7 @@ clear; clc; close all;
 scale_lowBG = 5e3;
 scale_noise = 1;
 data_name = sprintf('lowBG=%.0e,poisson=%g',scale_lowBG,scale_noise);
-list_patch_dims = [253,316]; 
+patch_dims = [253,316]; 
 num_Exp = 10;
 
 rate_hz = 10; % frame rate of each video
@@ -24,7 +25,7 @@ if ~ exist(dir_save,'dir')
 end
 load_date = '20230217';
 load(fullfile(dir_save,['eval_',data_name,'_thb history ',load_date,'.mat']),'list_seq');
-seq1 = list_seq{1};
+% seq1 = list_seq{1};
 
 %% pre-load the data to memory
 for eid = 1:num_Exp
@@ -52,13 +53,13 @@ num_param_names = length(range_params);
 num_params = cellfun(@length, range_params);
 num_thb = length(list_th_binary);
 n_round = 2;
-list_seq = cell(n_round,1);
+% list_seq = cell(n_round,1);
 
 %% Other fixed parameters. 
 % -------------------------    COMPUTATION    -------------------------  %
 pars_envs = struct('memory_size_to_use', 120, ...   % GB, memory space you allow to use in MATLAB
     'memory_size_per_patch', 10, ...   % GB, space for loading data within one patch
-    'patch_dims', list_patch_dims(data_ind,:));  %GB, patch size
+    'patch_dims', patch_dims);  %GB, patch size
 
 % -------------------------      SPATIAL      -------------------------  %
 ssub = 1;           % spatial downsampling factor
@@ -67,7 +68,7 @@ spatial_constraints = struct('connected', true, 'circular', false);  % you can i
 spatial_algorithm = 'hals_thresh';
 
 % -------------------------      TEMPORAL     -------------------------  %
-Fs = rate_hz(data_ind);             % frame rate
+Fs = rate_hz;             % frame rate
 tsub = 1;           % temporal downsampling factor
 deconv_options = struct('type', 'ar1', ... % model of the calcium traces. {'ar1', 'ar2'}
     'method', 'foopsi', ... % method for running deconvolution {'foopsi', 'constrained', 'thresholded'}
@@ -133,15 +134,16 @@ for r = 1:n_round
 %     seq = randperm(num_param_names);
 %     seq = seq(seq~=5 & seq~=4);
 %     seq = [4,5,seq];
-    if r==1
-%         seq =[4     5     6     3     7     8     1     2];
-        seq = seq1;
-    else
-        seq = randperm(num_param_names);
-        seq = seq(seq~=5 & seq~=4);
-        seq = [4,5,seq];
-    end
-    list_seq{r} = seq;
+%     if r==1
+% %         seq =[4     5     6     3     7     8     1     2];
+%         seq = seq1;
+%     else
+%         seq = randperm(num_param_names);
+%         seq = seq(seq~=5 & seq~=4);
+%         seq = [4,5,seq];
+%     end
+%     list_seq{r} = seq;
+    seq = list_seq{r};
     for p = 1:num_param_names
         ind_param = best_ind_param;
         ind_vary = seq(p);
@@ -248,12 +250,6 @@ for r = 1:n_round
                         neuron.getReady(pars_envs);
                         process_time{2} = datetime;
 
-                        %% initialize neurons from the video data within a selected temporal range
-%                         if choose_params
-%                             % change parameters for optimized initialization
-%                             [gSig, gSiz, ring_radius, min_corr, min_pnr] = neuron.set_parameters();
-%                         end
-                        
                         K = [];
                         [center, Cn, PNR] = neuron.initComponents_parallel(K, frame_range, save_initialization, use_parallel, use_prev); % use_prev
                         neuron.compactSpatial();
@@ -312,21 +308,6 @@ for r = 1:n_round
 
                                 %% add a manual intervention and run the whole procedure for a second time
                                 neuron.options.spatial_algorithm = 'nnls';
-    %                             if with_manual_intervention
-    %                                 show_merge = true;
-    %                                 neuron.orderROIs('snr');   % order neurons in different ways {'snr', 'decay_time', 'mean', 'circularity'}
-    %                                 neuron.viewNeurons([], neuron.C_raw);
-    % 
-    %                                 % merge closeby neurons
-    %                                 neuron.merge_close_neighbors(true, dmin_only);
-    % 
-    %                                 % delete neurons
-    %                                 tags = neuron.tag_neurons_parallel();  % find neurons with fewer nonzero pixels than min_pixel and silent calcium transients
-    %                                 ids = find(tags>0); 
-    %                                 if ~isempty(ids)
-    %                                     neuron.viewNeurons(ids, neuron.C_raw);
-    %                                 end
-    %                             end
                                 %% run more iterations
                                 neuron.update_background_parallel(use_parallel);
                                 neuron.update_spatial_parallel(use_parallel);
@@ -346,7 +327,7 @@ for r = 1:n_round
                             end
                         end
                         process_time{4} = datetime;
-                        
+
                         %% save the workspace for future analysis
                         neuron.orderROIs('snr');
 %                         cnmfe_path = neuron.save_workspace();
@@ -387,16 +368,6 @@ for r = 1:n_round
                         used_time(eid,:) = temp_used_time;
                         disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
 
-                        %% move the final results
-%                         child = fullfile(path_name,[Exp_ID,'_source_extraction']);
-%                         current_month = month(datetime,'shortname');
-%                         saved_files = dir(fullfile(child,['frames*\LOGS*\*',current_month{1},'*.mat']));
-%                         datenum = [saved_files.datenum];
-%                         [val,ind] = max(datenum);
-%                         saved_file = saved_files(ind);
-%                         movefile(fullfile(saved_file.folder,saved_file.name), fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
-%                         movefile(cnmfe_path, fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']));
-
                     else
                 %         load(fullfile(dir_save,dir_sub,[Exp_ID,'_Masks.mat']),'Masks3');
                         saved_result = load(fullfile(dir_save,dir_sub,[Exp_ID,'_result.mat']),'neuron');
@@ -425,14 +396,10 @@ for r = 1:n_round
                         used_time(eid,:) = temp_used_time;
                         disp([temp_Recall', temp_Precision', temp_F1', temp_used_time'])
                     end
-
-                    %% show neuron contours
-                    % Coor = neuron.show_contours(0.6);
-                    %% save neurons shapes
-                    % neuron.save_neurons();
                 end
 
                 %% evaluate the mean F1 using this parameter set
+                F1(isnan(F1)) = 0;
                 mean_F1 = mean(F1,1);
                 mean_best_F1 = mean(best_F1,1);
                 [max_mean_F1, ind_thb] = max(mean_F1);
