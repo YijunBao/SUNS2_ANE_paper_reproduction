@@ -1,0 +1,17 @@
+import scipy.io as sio
+import os
+
+fullfile		os.path.join
+scipy.io		sio
+save		sio.savemat
+mkdir		os.makedirs
+num2str		str
+sprintf		print
+logical		.astype('uint8')
+(data_ind)	[data_ind]
+not		np.logical_not
+np.array([
+np.arange	range
+cat		np.concatenate	np.array
+np.transpose	.T
+cell		np.zeros		, 'object'

@@ -34,8 +34,7 @@ load(fullfile(dir_masks,'Output_Info_All.mat'),'list_time','list_Recall','list_P
 mean([list_Recall,list_Precision,list_F1]);
 list_time_SUNS = list_time(:,end);
 [list_Recall, list_Precision, list_F1, list_Recall_add, list_Precision_add, ...
-    list_Recall_add_max, list_Recall_max, list_Precision_max, list_F1_max, list_time_weights, ...
-    list_time_classifier, list_time_merge] = deal(zeros(num_Exp,1));
+    list_time_weights, list_time_classifier, list_time_merge] = deal(zeros(num_Exp,1));
 
 %% merge repeated neurons in list_added
 folder = sprintf('trained dropout %gexp(-%g)',d0,lam);

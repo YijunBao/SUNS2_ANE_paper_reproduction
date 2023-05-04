@@ -68,7 +68,7 @@ for eid = 1:num_Exp
 
     %%
     video = video_SNR;
-    [list_weight,list_weight_trace,list_weight_frame,sum_edges]...
+    [list_weight,list_weight_trace,list_weight_frame]...
         = frame_weight_blockwise_mm(mm, traces_raw, masks, leng);
 
     %%

@@ -24,8 +24,7 @@ load(fullfile(dir_parent, dir_method, ['eval_TENASPIS_thb ',save_date,' cv test.
 list_time_min1pipe = Table_time_ext(1:end-2,end-4);
 Table_time_ext(end-1,end-8:end-6);
 [list_Recall, list_Precision, list_F1, list_Recall_add, list_Precision_add, ...
-    list_Recall_add_max, list_Recall_max, list_Precision_max, list_F1_max, list_time_weights, ...
-    list_time_classifier, list_time_merge] = deal(zeros(num_Exp,1));
+    list_time_weights, list_time_classifier, list_time_merge] = deal(zeros(num_Exp,1));
 
 %% merge repeated neurons in list_added
 folder = sprintf('trained dropout %gexp(-%g)',d0,lam);
