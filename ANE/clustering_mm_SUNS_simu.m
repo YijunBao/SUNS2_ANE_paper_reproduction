@@ -79,12 +79,15 @@ for eid = 1:num_Exp
     %%
     area = squeeze(sum(sum(masks,1),2));
     avg_area = median(area);
+    npatch = npatchx * npatchy;
     [list_added_full, list_added_crop, list_added_images_crop,...
         list_added_frames, list_added_weights, list_locations] = deal(cell(npatchx,npatchy));
 
     %%
-    parfor ix = 1:npatchx
-    for iy = 1:npatchy
+    parfor ii = 1:npatch
+        [ix, iy] = ind2sub([npatchx, npatchy], ii);
+    % parfor ix = 1:npatchx
+    % for iy = 1:npatchy
         xmin = min(Lx-2*leng+1, (ix-1)*leng+1);
         xmax = min(Lx, (ix+1)*leng);
         ymin = min(Ly-2*leng+1, (iy-1)*leng+1);
@@ -93,15 +96,15 @@ for eid = 1:num_Exp
         [image_new_crop, mask_new_crop, mask_new_full, select_frames_class, select_weight_calss] = ...
             find_missing_blockwise_mm(mm, masks, xmin, xmax, ymin, ymax, ...
             weight, num_avg, avg_area, thj, thj_inclass, th_IoU_split);
-        list_added_images_crop{ix,iy} = image_new_crop;
-        list_added_crop{ix,iy} = mask_new_crop;
-        list_added_full{ix,iy} = mask_new_full;
-        list_added_frames{ix,iy} = select_frames_class;
-        list_added_weights{ix,iy} = select_weight_calss;
+        list_added_images_crop{ii} = image_new_crop;
+        list_added_crop{ii} = mask_new_crop;
+        list_added_full{ii} = mask_new_full;
+        list_added_frames{ii} = select_frames_class;
+        list_added_weights{ii} = select_weight_calss;
         n_class = size(image_new_crop,3);
-        list_locations{ix,iy} = [xmin, xmax, ymin, ymax].*ones(n_class,1);
+        list_locations{ii} = [xmin, xmax, ymin, ymax].*ones(n_class,1);
     end    
-    end    
+    % end    
 
     %%
     masks_added_full = cat(3,list_added_full{:});

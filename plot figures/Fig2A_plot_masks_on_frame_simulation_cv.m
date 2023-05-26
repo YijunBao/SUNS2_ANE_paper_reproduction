@@ -128,7 +128,7 @@ masks_FN = sum(GT_Masks(:,:,FN_2),3);
 figure('Position',[400,50,600,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range,'border','tight'); 
 else
     imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
     axis('image'); colormap gray;
@@ -137,10 +137,10 @@ xticklabels({}); yticklabels({});
 hold on;
 rectangle('Position',[Ly-30,8,20,6],'FaceColor','w','LineStyle','None'); % 20 um scale bar
 for n = 1:NGT
-    contour(GT_Masks_mag(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
+    contour(GT_Masks_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
 for n = 1:N_SUNS
-    contour(Masks_SUNS_mag(xrange,yrange,n), 'EdgeColor',color(5,:),'LineWidth',0.5);
+    contour(Masks_SUNS_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(5,:),'LineWidth',0.5);
 end
 
 if ~image_only
@@ -187,7 +187,7 @@ masks_FN = sum(GT_Masks(:,:,FN_3),3);
 figure('Position',[750,50,600,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range,'border','tight'); 
 else
     imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
     axis('image'); colormap gray;
@@ -195,10 +195,10 @@ end
 xticklabels({}); yticklabels({});
 hold on;
 for n = 1:NGT
-    contour(GT_Masks_mag(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
+    contour(GT_Masks_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
 for n = 1:N_SUNS
-    contour(Masks_SUNS_mag(xrange,yrange,n), 'EdgeColor',color(4,:),'LineWidth',0.5);
+    contour(Masks_SUNS_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(4,:),'LineWidth',0.5);
 end
 
 if ~image_only
@@ -247,7 +247,7 @@ masks_FN = sum(GT_Masks(:,:,FN_4),3);
 figure('Position',[1100,50,600,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range);
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range,'border','tight');
 else
     imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
     axis('image'); colormap gray;
@@ -256,10 +256,10 @@ xticklabels({}); yticklabels({});
 hold on;
 
 for n = 1:NGT
-    contour(GT_Masks_mag(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
+    contour(GT_Masks_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
 for n = 1:N_min1
-    contour(Masks_min1_mag(xrange,yrange,n), 'EdgeColor',color(1,:),'LineWidth',0.5);
+    contour(Masks_min1_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(1,:),'LineWidth',0.5);
 end
 
 if ~image_only
@@ -308,7 +308,7 @@ masks_FN = sum(GT_Masks(:,:,FN_5),3);
 figure('Position',[1450,50,600,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range);
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range,'border','tight');
 else
     imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
     axis('image'); colormap gray;
@@ -317,10 +317,10 @@ xticklabels({}); yticklabels({});
 hold on;
 
 for n = 1:NGT
-    contour(GT_Masks_mag(xrange,yrange,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
+    contour(GT_Masks_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
 end
 for n = 1:N_cnmfe
-    contour(Masks_cnmfe_mag(xrange,yrange,n), 'EdgeColor',color(2,:),'LineWidth',0.5);
+    contour(Masks_cnmfe_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(2,:),'LineWidth',0.5);
 end
 
 if ~image_only

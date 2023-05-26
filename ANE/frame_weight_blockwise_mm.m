@@ -14,10 +14,13 @@ end
 sum_edges = sum(edges,3);
 
 %% Calculate the weight of each frame
+npatch = npatchx * npatchy;
 [list_weight,list_weight_trace,list_d_diff,list_weight_frame] = deal(cell(npatchx,npatchy));
 
-parfor ix = 1:npatchx
-for iy = 1:npatchy
+parfor ii = 1:npatch
+    [ix, iy] = ind2sub([npatchx, npatchy], ii);
+% parfor ix = 1:npatchx
+% for iy = 1:npatchy
 %     disp([ix,iy]);
     %% Calculate the weight from maximum intensity of each frame
 %     mask = masks(:,:,nn);
@@ -46,25 +49,25 @@ for iy = 1:npatchy
 %     max_outside = prctile(video_sub_2(nearby_outside_2,:),95,1);
     order_compare = 3:10;
     if min(sum(union_neighbors_2), sum(nearby_outside_2)) < max(order_compare)
-        list_weight_frame{ix,iy} = 0;
+        list_weight_frame{ii} = 0;
     else
         sort_inside = sort(video_sub_2(union_neighbors_2,:),1,'descend');
         max_inside = sort_inside(order_compare,:);
         sort_outside = sort(video_sub_2(nearby_outside_2,:),1,'descend');
     %     sort_outside = sort(video_sub_2(~mask_sub_2,:),1,'descend');
         max_outside = sort_outside(order_compare,:);
-        list_weight_frame{ix,iy} = max(0,min(max_outside-max_inside));
+        list_weight_frame{ii} = max(0,min(max_outside-max_inside));
     end
     
     %% Calculate the weight from trace
     d_out = mean(video_sub_2(nearby_outside_2,:),1);
     d_neurons_max = max(d(neighbors,:),[],1);
     d_diff = d_out - d_neurons_max;
-    list_d_diff{ix,iy} = d_diff;
-    list_weight_trace{ix,iy} = max(0,d_diff);
+    list_d_diff{ii} = d_diff;
+    list_weight_trace{ii} = max(0,d_diff);
     
     %% Combined weight
-    list_weight{ix,iy} = max(list_weight_trace{ix,iy},list_weight_frame{ix,iy});
+    list_weight{ii} = max(list_weight_trace{ii},list_weight_frame{ii});
 %     list_weight{ix,iy} = sqrt(list_weight_trace{ix,iy}.*list_weight_frame{ix,iy});
-end
+% end
 end

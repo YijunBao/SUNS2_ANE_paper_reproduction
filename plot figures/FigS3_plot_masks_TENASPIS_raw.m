@@ -71,7 +71,7 @@ end
 figure('Position',[100,50,700,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(raw_max(xrange,yrange),[]); % raw_range
+    imshow(raw_max(xrange,yrange),[],'border','tight'); % raw_range
 else
     imagesc(raw_max(xrange,yrange)); % raw_range
     axis('image'); colormap gray;
@@ -109,7 +109,7 @@ end
 figure('Position',[700,50,700,500],'Color','w');
 %     imshow(raw_max,[0,1024]);
 if image_only
-    imshow(SNR_max(xrange,yrange),SNR_range); 
+    imshow(SNR_max(xrange,yrange),SNR_range,'border','tight'); 
 else
     imagesc(SNR_max(xrange,yrange),SNR_range); 
     axis('image'); colormap gray;

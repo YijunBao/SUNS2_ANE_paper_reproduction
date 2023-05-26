@@ -90,5 +90,5 @@ Table = [list_Recall_add,list_Precision_add,list_Recall,list_Precision,list_F1,l
 Table_ext = [Table;nanmean(Table,1);nanstd(Table,1,1)];
 disp(Table_ext(1:end-1,3:end));
 save(fullfile(dir_add_new,folder,'eval.mat'),'list_Recall_add',...
-    'list_Precision_add','list_Recall','list_Precision','list_F1','list_time');
+    'list_Precision_add','list_Recall','list_Precision','list_F1','list_time','Table_ext');
 % disp('Finished this step');
