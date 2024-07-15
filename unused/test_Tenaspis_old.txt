@@ -1,0 +1,248 @@
+Video  Mouse_1K
+
+200/200 [==============================] - 3s 17ms/sample - loss: 0.2488 - dice_loss: 0.2487
+Initialization time: 5.031524419784546 s
+480 480 2100 -> 480 480 2100
+FFT planning: 2.2410061359405518 s
+Initialization: 0.49799418449401855 s
+data loading: 4.101573467254639 s
+spatial filtering: 1.8629400730133057 s
+    Log time: 0.45593857765197754 s
+    FFT1 time: 0.256000280380249 s
+    Mask time: 0.0690007209777832 s
+    FFT2 time: 0.6929984092712402 s
+    Exp time: 0.38900208473205566 s
+temporal filtering: 2.5029988288879395 s
+median computation: 0.8479986190795898 s
+normalization: 0.06299996376037598 s
+total per frame: 2.5603772366526982 ms
+Pre-Processing time: 5.418938 s, 2.629276 ms/frame
+CNN Infrence time: 13.375261 s, 6.489695 ms/frame
+{'minArea': 180, 'avgArea': 228, 'thresh_pmap': 120, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 2}
+separate Neurons         : Used  1.458004 s,  0.716816 ms/frame,   55389 segmented neurons.
+unique_neurons1          : Used  0.688023 s,  0.338261 ms/frame,    1759 segmented neurons.
+group_neurons            : Used  0.791998 s,  0.389380 ms/frame,     823 segmented neurons.
+piece_neurons_IOU        : Used  0.168000 s,  0.082596 ms/frame,     754 segmented neurons.
+piece_neurons_consume    : Used  0.143999 s,  0.070796 ms/frame,     691 segmented neurons.
+refine_seperate          : Used  0.129015 s,  0.063429 ms/frame,     691 segmented neurons.
+Total time               : Used  3.387021 s,  1.665202 ms/frame,     691 segmented neurons.
+Post-Processing time: 3.472008 s, 1.684623 ms/frame
+Total time: 22.266207 s, 10.803594 ms/frame
+{'Recall': 0.7755960729312763, 'Precision': 0.8037790697674418, 'F1': 0.7894361170592434}
+Video  Mouse_2K
+
+200/200 [==============================] - 1s 3ms/sample - loss: 1.5116 - dice_loss: 1.0000
+Initialization time: 1.2229995727539062 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.2539994716644287 s
+Initialization: 0.24200129508972168 s
+data loading: 2.9509904384613037 s
+spatial filtering: 1.3749864101409912 s
+    Log time: 0.3089864253997803 s
+    FFT1 time: 0.22500061988830566 s
+    Mask time: 0.06199908256530762 s
+    FFT2 time: 0.623023271560669 s
+    Exp time: 0.1559770107269287 s
+temporal filtering: 1.034001111984253 s
+median computation: 1.6909987926483154 s
+normalization: 0.04699993133544922 s
+total per frame: 2.6032556472749584 ms
+Pre-Processing time: 4.323506 s, 2.714065 ms/frame
+CNN Infrence time: 3.926021 s, 2.464545 ms/frame
+{'minArea': 160, 'avgArea': 228, 'thresh_pmap': 140, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 6}
+separate Neurons         : Used  0.631997 s,  0.403574 ms/frame,   11515 segmented neurons.
+unique_neurons1          : Used  0.133997 s,  0.085567 ms/frame,     367 segmented neurons.
+group_neurons            : Used  0.178002 s,  0.113667 ms/frame,     211 segmented neurons.
+piece_neurons_IOU        : Used  0.049998 s,  0.031927 ms/frame,     200 segmented neurons.
+piece_neurons_consume    : Used  0.042001 s,  0.026821 ms/frame,     185 segmented neurons.
+refine_seperate          : Used  0.034021 s,  0.021725 ms/frame,     185 segmented neurons.
+Total time               : Used  1.073018 s,  0.685196 ms/frame,     185 segmented neurons.
+Post-Processing time: 1.126000 s, 0.706842 ms/frame
+Total time: 9.375526 s, 5.885453 ms/frame
+{'Recall': 0.7264150943396226, 'Precision': 0.8700564971751412, 'F1': 0.7917737789203084}
+Video  Mouse_3K
+
+200/200 [==============================] - 1s 3ms/sample - loss: 1.1100 - dice_loss: 0.9994
+Initialization time: 1.3059959411621094 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.3330042362213135 s
+Initialization: 0.2700004577636719 s
+data loading: 3.3151395320892334 s
+spatial filtering: 1.3329980373382568 s
+    Log time: 0.31099820137023926 s
+    FFT1 time: 0.22400140762329102 s
+    Mask time: 0.06299901008605957 s
+    FFT2 time: 0.5750257968902588 s
+    Exp time: 0.1599736213684082 s
+temporal filtering: 1.1480014324188232 s
+median computation: 1.229999303817749 s
+normalization: 0.053000688552856445 s
+total per frame: 2.1004461284194673 ms
+Pre-Processing time: 3.950000 s, 2.204241 ms/frame
+CNN Infrence time: 3.671018 s, 2.048559 ms/frame
+{'minArea': 160, 'avgArea': 228, 'thresh_pmap': 140, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 3}
+separate Neurons         : Used  1.057002 s,  0.598868 ms/frame,   37380 segmented neurons.
+unique_neurons1          : Used  0.411019 s,  0.232872 ms/frame,    1074 segmented neurons.
+group_neurons            : Used  0.471981 s,  0.267411 ms/frame,     578 segmented neurons.
+piece_neurons_IOU        : Used  0.120021 s,  0.068000 ms/frame,     542 segmented neurons.
+piece_neurons_consume    : Used  0.102984 s,  0.058348 ms/frame,     504 segmented neurons.
+refine_seperate          : Used  0.094999 s,  0.053824 ms/frame,     504 segmented neurons.
+Total time               : Used  2.264001 s,  1.282720 ms/frame,     504 segmented neurons.
+Post-Processing time: 2.335000 s, 1.303014 ms/frame
+Total time: 9.956018 s, 5.555814 ms/frame
+{'Recall': 0.8336633663366336, 'Precision': 0.843687374749499, 'F1': 0.8386454183266933}
+Video  Mouse_4K
+
+200/200 [==============================] - 1s 3ms/sample - loss: 0.9687 - dice_loss: 0.9599
+Initialization time: 1.4130029678344727 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.2620012760162354 s
+Initialization: 0.26599979400634766 s
+data loading: 3.3309969902038574 s
+spatial filtering: 1.2919797897338867 s
+    Log time: 0.31497931480407715 s
+    FFT1 time: 0.2270045280456543 s
+    Mask time: 0.06599593162536621 s
+    FFT2 time: 0.5211522579193115 s
+    Exp time: 0.16284775733947754 s
+temporal filtering: 1.1529994010925293 s
+median computation: 1.5680007934570312 s
+normalization: 0.053999900817871094 s
+total per frame: 2.2594332695007324 ms
+Pre-Processing time: 4.249982 s, 2.361101 ms/frame
+CNN Infrence time: 3.948588 s, 2.193660 ms/frame
+{'minArea': 180, 'avgArea': 228, 'thresh_pmap': 100, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 5}
+separate Neurons         : Used  0.823003 s,  0.464186 ms/frame,   20159 segmented neurons.
+unique_neurons1          : Used  0.213000 s,  0.120136 ms/frame,     528 segmented neurons.
+group_neurons            : Used  0.252998 s,  0.142695 ms/frame,     278 segmented neurons.
+piece_neurons_IOU        : Used  0.063000 s,  0.035533 ms/frame,     263 segmented neurons.
+piece_neurons_consume    : Used  0.052023 s,  0.029342 ms/frame,     256 segmented neurons.
+refine_seperate          : Used  0.043999 s,  0.024816 ms/frame,     256 segmented neurons.
+Total time               : Used  1.451021 s,  0.818399 ms/frame,     256 segmented neurons.
+Post-Processing time: 1.516007 s, 0.842226 ms/frame
+Total time: 9.714577 s, 5.396987 ms/frame
+{'Recall': 0.8941176470588236, 'Precision': 0.9083665338645418, 'F1': 0.901185770750988}
+Video  Mouse_1M
+
+200/200 [==============================] - 1s 3ms/sample - loss: 0.9319 - dice_loss: 0.9299
+Initialization time: 1.4450185298919678 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.3180170059204102 s
+Initialization: 0.272000789642334 s
+data loading: 3.33200740814209 s
+spatial filtering: 1.2579994201660156 s
+    Log time: 0.31600189208984375 s
+    FFT1 time: 0.22699904441833496 s
+    Mask time: 0.06199908256530762 s
+    FFT2 time: 0.49901556968688965 s
+    Exp time: 0.15398383140563965 s
+temporal filtering: 1.1489999294281006 s
+median computation: 1.6170012950897217 s
+normalization: 0.055999040603637695 s
+total per frame: 2.2666664918263755 ms
+Pre-Processing time: 4.274003 s, 2.374446 ms/frame
+CNN Infrence time: 3.043536 s, 1.690853 ms/frame
+{'minArea': 160, 'avgArea': 228, 'thresh_pmap': 120, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 5}
+separate Neurons         : Used  1.229002 s,  0.693176 ms/frame,   46171 segmented neurons.
+unique_neurons1          : Used  0.546021 s,  0.307964 ms/frame,    1460 segmented neurons.
+group_neurons            : Used  0.631979 s,  0.356446 ms/frame,     720 segmented neurons.
+piece_neurons_IOU        : Used  0.152007 s,  0.085734 ms/frame,     679 segmented neurons.
+piece_neurons_consume    : Used  0.131994 s,  0.074447 ms/frame,     628 segmented neurons.
+refine_seperate          : Used  0.112018 s,  0.063180 ms/frame,     628 segmented neurons.
+Total time               : Used  2.809022 s,  1.584333 ms/frame,     628 segmented neurons.
+Post-Processing time: 2.883005 s, 1.601670 ms/frame
+Total time: 10.200544 s, 5.666969 ms/frame
+{'Recall': 0.8502415458937198, 'Precision': 0.8641571194762684, 'F1': 0.8571428571428571}
+Video  Mouse_2M
+
+200/200 [==============================] - 1s 4ms/sample - loss: 0.8110 - dice_loss: 0.8105
+Initialization time: 1.6200392246246338 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.2560179233551025 s
+Initialization: 0.2909996509552002 s
+data loading: 3.8129916191101074 s
+spatial filtering: 1.2529988288879395 s
+    Log time: 0.3169989585876465 s
+    FFT1 time: 0.2220010757446289 s
+    Mask time: 0.061998844146728516 s
+    FFT2 time: 0.4880225658416748 s
+    Exp time: 0.16397738456726074 s
+temporal filtering: 1.3340001106262207 s
+median computation: 0.9380004405975342 s
+normalization: 0.06099987030029297 s
+total per frame: 1.739931708108679 ms
+Pre-Processing time: 3.766021 s, 1.827278 ms/frame
+CNN Infrence time: 3.153999 s, 1.530325 ms/frame
+{'minArea': 160, 'avgArea': 228, 'thresh_pmap': 120, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 3}
+separate Neurons         : Used  1.220003 s,  0.599805 ms/frame,   43279 segmented neurons.
+unique_neurons1          : Used  0.509019 s,  0.250255 ms/frame,    1336 segmented neurons.
+group_neurons            : Used  0.732982 s,  0.360365 ms/frame,     628 segmented neurons.
+piece_neurons_IOU        : Used  0.127018 s,  0.062447 ms/frame,     588 segmented neurons.
+piece_neurons_consume    : Used  0.111001 s,  0.054573 ms/frame,     538 segmented neurons.
+refine_seperate          : Used  0.092000 s,  0.045231 ms/frame,     538 segmented neurons.
+Total time               : Used  2.798018 s,  1.375623 ms/frame,     538 segmented neurons.
+Post-Processing time: 2.877022 s, 1.395935 ms/frame
+Total time: 9.797042 s, 4.753538 ms/frame
+{'Recall': 0.7554347826086957, 'Precision': 0.7897727272727273, 'F1': 0.7722222222222223}
+Video  Mouse_3M
+
+200/200 [==============================] - 1s 4ms/sample - loss: 1.0418 - dice_loss: 0.9966
+Initialization time: 1.6728827953338623 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.3129994869232178 s
+Initialization: 0.25800037384033203 s
+data loading: 3.155017137527466 s
+spatial filtering: 1.228996992111206 s
+    Log time: 0.30899739265441895 s
+    FFT1 time: 0.21000170707702637 s
+    Mask time: 0.06199836730957031 s
+    FFT2 time: 0.4860217571258545 s
+    Exp time: 0.16197776794433594 s
+temporal filtering: 1.0910003185272217 s
+median computation: 2.2510013580322266 s
+normalization: 0.050000905990600586 s
+total per frame: 2.718822114607867 ms
+Pre-Processing time: 4.798019 s, 2.822364 ms/frame
+CNN Infrence time: 3.375496 s, 1.985586 ms/frame
+{'minArea': 140, 'avgArea': 228, 'thresh_pmap': 140, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 6, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 6}
+separate Neurons         : Used  1.192544 s,  0.712818 ms/frame,   44674 segmented neurons.
+unique_neurons1          : Used  0.526020 s,  0.314417 ms/frame,    1485 segmented neurons.
+group_neurons            : Used  0.642979 s,  0.384327 ms/frame,     646 segmented neurons.
+piece_neurons_IOU        : Used  0.141188 s,  0.084392 ms/frame,     612 segmented neurons.
+piece_neurons_consume    : Used  0.120831 s,  0.072224 ms/frame,     574 segmented neurons.
+refine_seperate          : Used  0.102017 s,  0.060978 ms/frame,     574 segmented neurons.
+Total time               : Used  2.730581 s,  1.632147 ms/frame,     574 segmented neurons.
+Post-Processing time: 2.806572 s, 1.650925 ms/frame
+Total time: 10.980088 s, 6.458875 ms/frame
+{'Recall': 0.7802607076350093, 'Precision': 0.7468805704099821, 'F1': 0.7632058287795994}
+Video  Mouse_4M
+
+200/200 [==============================] - 1s 3ms/sample - loss: 0.9084 - dice_loss: 0.9076
+Initialization time: 1.5968472957611084 s
+480 480 2100 -> 480 480 2100
+FFT planning: 1.323000431060791 s
+Initialization: 0.2920567989349365 s
+data loading: 3.5119786262512207 s
+spatial filtering: 1.2609987258911133 s
+    Log time: 0.3149988651275635 s
+    FFT1 time: 0.2350022792816162 s
+    Mask time: 0.06199765205383301 s
+    FFT2 time: 0.4860250949859619 s
+    Exp time: 0.16297483444213867 s
+temporal filtering: 1.2210004329681396 s
+median computation: 2.2440006732940674 s
+normalization: 0.06199932098388672 s
+total per frame: 2.5199995542827405 ms
+Pre-Processing time: 4.969016 s, 2.615272 ms/frame
+CNN Infrence time: 3.057985 s, 1.609466 ms/frame
+{'minArea': 160, 'avgArea': 228, 'thresh_pmap': 120, 'thresh_mask': 0.5, 'thresh_COM0': 2, 'thresh_COM': 5, 'thresh_IOU': 0.5, 'thresh_consume': 0.75, 'cons': 5}
+separate Neurons         : Used  0.745530 s,  0.398041 ms/frame,   12483 segmented neurons.
+unique_neurons1          : Used  0.171000 s,  0.091298 ms/frame,     501 segmented neurons.
+group_neurons            : Used  0.240001 s,  0.128137 ms/frame,     271 segmented neurons.
+piece_neurons_IOU        : Used  0.061000 s,  0.032568 ms/frame,     247 segmented neurons.
+piece_neurons_consume    : Used  0.049021 s,  0.026172 ms/frame,     235 segmented neurons.
+refine_seperate          : Used  0.040000 s,  0.021356 ms/frame,     235 segmented neurons.
+Total time               : Used  1.309548 s,  0.699171 ms/frame,     235 segmented neurons.
+Post-Processing time: 1.373545 s, 0.722919 ms/frame
+Total time: 9.400546 s, 4.947656 ms/frame
+{'Recall': 0.7137404580152672, 'Precision': 0.8130434782608695, 'F1': 0.7601626016260162}

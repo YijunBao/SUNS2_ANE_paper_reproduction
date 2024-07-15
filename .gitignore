@@ -156,7 +156,7 @@ readme.docx
 data/*/*/*.h5
 # data/data_CNMFE/CaMKII_120_TMT Exposure_5fps/CaMKII_120_TMT Exposure_5fps_part*.h5
 # data/
-unused/
+# unused/
 *.asv
 Manual labeling GUI/Results_*
 ANE-python/kernprof/
