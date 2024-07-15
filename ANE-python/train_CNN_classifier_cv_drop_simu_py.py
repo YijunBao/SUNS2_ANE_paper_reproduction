@@ -226,6 +226,8 @@ if __name__ == "__main__":
             list_recall[ii] = num_both / num_GT
             list_precision[ii]  = num_both / num_pred
         list_f1 = 2/(1/list_recall + 1/list_precision)
+        list_f1[np.isnan(list_f1)] = 0
+        list_f1[np.isinf(list_f1)] = 0
         ii_best = np.argmax(list_f1)
         th_cnn_best = list_th_cnn[ii_best]
         print(list_th_cnn)
