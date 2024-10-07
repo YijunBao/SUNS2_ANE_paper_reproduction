@@ -1,5 +1,5 @@
 # SUNS2_ANE_paper_reproduction
- Code used to reproduce the results of the SUNS2-ANE paper.
+Code used to reproduce the results of the [SUNS2-ANE paper](https://doi.org/10.1038/s42003-024-06668-7).
 
 There are totally 8 folders in this repository:
 * `SUNS2` contains the python code of SUNS2.
