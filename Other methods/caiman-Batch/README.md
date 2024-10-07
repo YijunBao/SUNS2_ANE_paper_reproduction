@@ -1,0 +1,3 @@
+This folder contains our modified code of CaImAn (CNMF) when processing the Tenaspis dataset. 
+Users can run the `pipeline_data_Tenaspis.bat` file in the folder `use_caiman` for the entire training and testing pipeline. Note that the optimized parameters should be typed manually in the `runCaimanBatch_data_Tenaspis_test.py` file.
+We set `cnn_thr = 1` and `cnn_lowest = 0`, and disabled the CNN classifier, so that it is more consistent with the original CNMF.

@@ -54,9 +54,9 @@ for k=5%1:num_Exp
 % clear video_SNR video_raw
 Exp_ID = list_Exp_ID{k};
 load([data_name,' mat/SNR_max/SNR_max_',Exp_ID,'.mat'],'SNR_max');
-% SNR_max=SNR_max';
+SNR_max=SNR_max';
 load([data_name,' mat/raw_max/raw_max_',Exp_ID,'.mat'],'raw_max');
-% raw_max=raw_max';
+raw_max=raw_max';
 % load(fullfile(dir_traces,[Exp_ID,'.mat']),'traces_nmfdemix'); % raw_traces
 % unmixed_traces = traces_nmfdemix;
 [Lx,Ly] = size(raw_max);
@@ -64,6 +64,7 @@ SNR_max = SNR_max(1:Lx,1:Ly);
 
 load(fullfile(dir_GT_masks, ['FinalMasks_', Exp_ID, '.mat']), 'FinalMasks');
 GT_Masks = logical(FinalMasks);
+GT_Masks = permute(GT_Masks,[2,1,3]); % FinalMasks; % 
 NGT = size(GT_Masks,3);
 
 % magnify
@@ -104,7 +105,8 @@ SNR_max_mag = kron(SNR_max,mag_kernel);
 %% SUNS TUnCaT
 dir_output_mask = fullfile(dir_video,'SUNS_TUnCaT_SF25/4816[1]th4/output_masks');
 load(fullfile(dir_output_mask, ['Output_Masks_', Exp_ID, '.mat']), 'Masks');
-Masks_SUNS = permute(Masks,[3,2,1]); % FinalMasks; % 
+Masks_T = permute(Masks,[3,2,1]); % FinalMasks; % 
+Masks_SUNS = permute(Masks_T,[2,1,3]); % FinalMasks; % 
 N_SUNS = size(Masks_SUNS,3);
 if mag > 1
     Masks_SUNS_mag=zeros(Lxm,Lym,N_SUNS,'logical');
@@ -115,14 +117,14 @@ else
     Masks_SUNS_mag = Masks_SUNS;
 end
 
-[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_SUNS,0.5);
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_T,0.5);
 
 TP_2 = sum(m,1)>0;
 TP_22 = sum(m,2)>0;
 FP_2 = sum(m,1)==0;
 FN_2 = sum(m,2)==0;
-masks_TP = sum(Masks_SUNS(:,:,TP_2),3);
-masks_FP = sum(Masks_SUNS(:,:,FP_2),3);
+masks_TP = sum(Masks_T(:,:,TP_2),3);
+masks_FP = sum(Masks_T(:,:,FP_2),3);
 masks_FN = sum(GT_Masks(:,:,FN_2),3);
     
 figure('Position',[400,50,600,500],'Color','w');
@@ -163,7 +165,8 @@ end
 %% SUNS FISSA
 dir_output_mask = fullfile(dir_video,'SUNS_FISSA_SF25/4816[1]th2/output_masks');
 load(fullfile(dir_output_mask, ['Output_Masks_', Exp_ID, '.mat']), 'Masks');
-Masks_SUNS = permute(Masks,[3,2,1]); % FinalMasks; % 
+Masks_T = permute(Masks,[3,2,1]); % FinalMasks; % 
+Masks_SUNS = permute(Masks_T,[2,1,3]); % FinalMasks; % 
 N_SUNS = size(Masks_SUNS,3);
 if mag > 1
     Masks_SUNS_mag=zeros(Lxm,Lym,N_SUNS,'logical');
@@ -174,14 +177,14 @@ else
     Masks_SUNS_mag = Masks_SUNS;
 end
 
-[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_SUNS,0.5);
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_T,0.5);
 
 TP_3 = sum(m,1)>0;
 TP_32 = sum(m,2)>0;
 FP_3 = sum(m,1)==0;
 FN_3 = sum(m,2)==0;
-masks_TP = sum(Masks_SUNS(:,:,TP_3),3);
-masks_FP = sum(Masks_SUNS(:,:,FP_3),3);
+masks_TP = sum(Masks_T(:,:,TP_3),3);
+masks_FP = sum(Masks_T(:,:,FP_3),3);
 masks_FN = sum(GT_Masks(:,:,FN_3),3);
     
 figure('Position',[750,50,600,500],'Color','w');
@@ -222,7 +225,8 @@ end
 dir_output_mask = fullfile(dir_video,'min1pipe',dir_sub_min1pipe);
 load(fullfile(dir_output_mask, [Exp_ID, '_Masks.mat']), 'Masks3');
 % load(fullfile(dir_output_mask, [Exp_ID, '_Masks_',num2str(thb),'.mat']), 'Masks3');
-Masks_min1 = Masks3;
+Masks_T = Masks3;
+Masks_min1 = permute(Masks_T,[2,1,3]);
 N_min1 = size(Masks_min1,3);
 
 if mag > 1
@@ -234,14 +238,14 @@ else
     Masks_min1_mag = Masks_min1;
 end
 
-[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_min1,0.5);
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_T,0.5);
 
 TP_4 = sum(m,1)>0;
 TP_42 = sum(m,2)>0;
 FP_4 = sum(m,1)==0;
 FN_4 = sum(m,2)==0;
-masks_TP = sum(Masks_min1(:,:,TP_4),3);
-masks_FP = sum(Masks_min1(:,:,FP_4),3);
+masks_TP = sum(Masks_T(:,:,TP_4),3);
+masks_FP = sum(Masks_T(:,:,FP_4),3);
 masks_FN = sum(GT_Masks(:,:,FN_4),3);
     
 figure('Position',[1100,50,600,500],'Color','w');
@@ -283,7 +287,8 @@ end
 dir_output_mask = fullfile(dir_video,'CNMFE',dir_sub_CNMFE);
 load(fullfile(dir_output_mask, [Exp_ID, '_Masks.mat']), 'Masks3');
 % load(fullfile(dir_output_mask, [Exp_ID, '_Masks_',num2str(thb),'.mat']), 'Masks3');
-Masks_cnmfe = Masks3;
+Masks_T = Masks3;
+Masks_cnmfe = permute(Masks_T,[2,1,3]);
 N_cnmfe = size(Masks_cnmfe,3);
 
 if mag > 1
@@ -295,14 +300,14 @@ else
     Masks_cnmfe_mag = Masks_cnmfe;
 end
 
-[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_cnmfe,0.5);
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_T,0.5);
 
 TP_5 = sum(m,1)>0;
 TP_52 = sum(m,2)>0;
 FP_5 = sum(m,1)==0;
 FN_5 = sum(m,2)==0;
-masks_TP = sum(Masks_cnmfe(:,:,TP_5),3);
-masks_FP = sum(Masks_cnmfe(:,:,FP_5),3);
+masks_TP = sum(Masks_T(:,:,TP_5),3);
+masks_FP = sum(Masks_T(:,:,FP_5),3);
 masks_FN = sum(GT_Masks(:,:,FN_5),3);
     
 figure('Position',[1450,50,600,500],'Color','w');
@@ -335,6 +340,69 @@ if save_figures
         saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.tif']));
     else
         saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks CNMF-E ',list_title{k},' ',mat2str(SNR_range),'.png']));
+    end
+    % saveas(gcf,['figure 2/',Exp_ID,' CaImAn Batch h.svg']);
+end
+
+
+
+%% EXTRACT
+dir_output_mask = fullfile(dir_video,'EXTRACT');
+load(fullfile(dir_output_mask, [Exp_ID, '_EXTRACT.mat']), 'output');
+% load(fullfile(dir_output_mask, [Exp_ID, '_Masks_',num2str(thb),'.mat']), 'Masks3');
+Masks_T = output.spatial_weights>0.2;
+Masks_EXTRACT = permute(Masks_T,[2,1,3]);
+N_EXTRACT = size(Masks_EXTRACT,3);
+
+if mag > 1
+    Masks_EXTRACT_mag=zeros(Lxm,Lym,N_EXTRACT,'logical');
+    for n = 1:N_EXTRACT
+        Masks_EXTRACT_mag(:,:,n) = kron(Masks_EXTRACT(:,:,n),mag_kernel_bool);
+    end
+else
+    Masks_EXTRACT_mag = Masks_EXTRACT;
+end
+
+[Recall, Precision, F1, m] = GetPerformance_Jaccard(dir_GT_masks,Exp_ID,Masks_T,0.5);
+
+TP_7 = sum(m,1)>0;
+TP_72 = sum(m,2)>0;
+FP_7 = sum(m,1)==0;
+FN_7 = sum(m,2)==0;
+masks_TP = sum(Masks_T(:,:,TP_7),3);
+masks_FP = sum(Masks_T(:,:,FP_7),3);
+masks_FN = sum(GT_Masks(:,:,FN_7),3);
+    
+figure('Position',[1450,50,600,500],'Color','w');
+%     imshow(raw_max,[0,1024]);
+if image_only
+    imshow(SNR_max_mag(xrange_mag,yrange_mag),SNR_range,'border','tight');
+else
+    imagesc(SNR_max_mag(xrange_mag,yrange_mag),SNR_range); 
+    axis('image'); colormap gray;
+end
+xticklabels({}); yticklabels({});
+hold on;
+
+for n = 1:NGT
+    contour(GT_Masks_mag(xrange_mag,yrange_mag,n), 'EdgeColor',color(3,:),'LineWidth',0.5);
+end
+for n = 1:N_EXTRACT
+    contour(Masks_EXTRACT_mag(xrange_mag,yrange_mag,n), 'EdgeColor',colors_multi(21,:),'LineWidth',0.5);
+end
+
+if ~image_only
+    title(sprintf('%s, EXTRACT, F1 = %1.2f',Exp_ID,F1),'FontSize',12,'Interpreter','None');
+    h=colorbar;
+    set(get(h,'Label'),'String','Peak SNR');
+    set(h,'FontSize',12);
+end
+
+if save_figures
+    if image_only
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks EXTRACT ',list_title{k},' ',mat2str(SNR_range),'.tif']));
+    else
+        saveas(gcf,fullfile(save_folder, [data_name,' ',Exp_ID, ' Masks EXTRACT ',list_title{k},' ',mat2str(SNR_range),'.png']));
     end
     % saveas(gcf,['figure 2/',Exp_ID,' CaImAn Batch h.svg']);
 end

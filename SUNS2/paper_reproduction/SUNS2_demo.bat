@@ -1,8 +1,8 @@
 @REM Generate sparse GT masks
-python generate_sparse_GT.py "../../data/data_CNMFE/CaMKII_120_TMT Exposure_5fps/GT Masks"
+python generate_sparse_GT.py "../../data/data_CNMFE/*/GT Masks"
 
-@REM Training on CaMKII_120_TMT
-python train_CNN_params_data_CNMFE_crop.py 4 50 3 TUnCaT 3
+@REM Training on blood_vessel_10Hz
+python train_CNN_params_data_CNMFE_crop.py 5 25 3 TUnCaT 0
 
 @REM Argument meanings (same for training and testing scripts):
 @REM 1. SNR threshold
@@ -11,6 +11,6 @@ python train_CNN_params_data_CNMFE_crop.py 4 50 3 TUnCaT 3
 @REM 4. Unmixing algorithm (TUnCaT or FISSA)
 @REM 5. Video index of the CNMF-E dataset
 
-@REM Testing on CaMKII_120_TMT
-python test_batch_data_CNMFE_crop.py 4 50 3 TUnCaT 3
+@REM Testing on blood_vessel_10Hz
+python test_batch_data_CNMFE_crop.py 5 25 3 TUnCaT 0
 

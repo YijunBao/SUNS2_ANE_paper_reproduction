@@ -1,0 +1,31 @@
+channels:
+- conda-forge
+dependencies:
+- python=3.7
+- tensorflow # Must list before keras to preempt default keras backend
+- bokeh
+- cython
+- future
+- h5py
+- holoviews
+- ipykernel=4.10
+- ipython
+- ipyparallel
+- jupyter
+- matplotlib
+- mypy
+- nose
+- numpy
+- numpydoc
+- opencv
+- peakutils
+- pims
+- pynwb
+- pyqtgraph
+- scikit-image
+- scikit-learn
+- scipy
+- tifffile=0.15.1
+- tk=8.6.8
+- tqdm
+- yapf

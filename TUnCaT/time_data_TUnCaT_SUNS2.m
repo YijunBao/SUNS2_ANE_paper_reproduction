@@ -1,6 +1,7 @@
 clear;
 addpath(genpath('../ANE'))
-dir_SUNS_sub = fullfile('SUNS_FISSA_SF25','4816[1]th3');
+% dir_SUNS_sub = fullfile('SUNS_FISSA_SF25','4816[1]th3');
+dir_SUNS_sub = fullfile('SUNS_TUnCaT_SF25','4816[1]th10');
 %%
 dir_video='E:\1photon-small\added_refined_masks\';
 list_Exp_ID = { 'c25_59_228','c27_12_326','c28_83_210',...
